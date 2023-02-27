@@ -1,0 +1,14 @@
+@import './base.css';
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    font-weight: normal;
+}
+button[type=button]{
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    border: none;
+}
