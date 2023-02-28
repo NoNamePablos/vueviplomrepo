@@ -3,10 +3,11 @@
 import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
 
-import {ref,computed} from "vue";
+import {ref,computed,provide} from "vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
+import VueChart from "@/components/vue-echarts/VueChart.vue";
 
 const tabs=[
   {name:"Create",
@@ -78,12 +79,16 @@ const deleteData=(value)=>{
     dataGraphic.value.splice(index, 1);
   }
 }
+const saveGraphEditor=()=>{
+  isSaveGraph.value=true;
 
+}
+const isSaveGraph=ref(false);
 </script>
 
 <template>
   <div class="graph-editor">
-    <div class="graph-editor__tabs">
+    <div class="graph-editor__tabs" v-if="!isSaveGraph">
       <span>Табы типо</span>
       <base-tab-wrapper :tabs="tabs" :selected-tab="selectedTab" @change-tab="changeTab">
         <base-tab-item v-if="selectedTab==='Create'">
@@ -100,7 +105,7 @@ const deleteData=(value)=>{
                 <base-input v-model="createGraphic.title">
                   Название
                 </base-input>
-                <base-input v-model="createGraphic.value">
+                <base-input :type="'number'" v-model="createGraphic.value">
                   Количество
                 </base-input>
                 <div class="tab-item-form__controls">
@@ -117,9 +122,14 @@ const deleteData=(value)=>{
           <p>Tab3</p>
         </base-tab-item>
       </base-tab-wrapper>
+      <div class="graph-editor__controls">
+        <base-button :classes="['button-green']" @click="saveGraphEditor">Сохранить</base-button>
+        <base-button :classes="['button-red']" @click="">Отменить</base-button>
+      </div>
     </div>
     <div class="graph-editor__draw">
-      <h1>ЗДЕСЬ БУДЕТ ГРАФИК</h1>
+      <vue-chart v-if="isSaveGraph" :options-data="dataGraphic"/>
+      <h1 v-else>Здесь должен быть граф/график</h1>
     </div>
   </div>
 

@@ -2,7 +2,7 @@
   <div class="input">
     <h3  class="input-title"><slot></slot></h3>
     <label >
-      <input type="text" class="" :value="modelValue"   @input="$emit('update:modelValue', $event.target.value)">
+      <input :type="type" class="" :value="modelValue"   @input="$emit('update:modelValue', $event.target.value)">
     </label>
   </div>
 
@@ -14,7 +14,11 @@ const inputValue=ref('');
 const emit=defineEmits(['update:modelValue'])
 const props = defineProps({
   modelValue: { type: String, required: true },
-
+  type:{
+    type:String,
+    required:false,
+    default:'text'
+  }
 })
 </script>
 
