@@ -10,7 +10,9 @@
   --color-black-soft: #222222;
   --color-black-mute: #282828;
 
-
+  --color-accent-1: #0F62FE;
+  --color-accent-2: #1D9FE7;
+  --color-accent-3: #87CFFF;
   --color-white-hover:rgba(255,255,255,0.8);
   --color-green:hsla(160, 100%, 37%, 1);
   --color-green-hover:hsla(160, 100%, 37%, 0.8);

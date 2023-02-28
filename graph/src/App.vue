@@ -41,20 +41,44 @@ computed(()=>{
 })
 
 const dataGraphic=ref([]);
+const tempData=ref({});
 const appendToGraphic=()=>{
   const data={
     title:createGraphic.value.title,
     value:createGraphic.value.value,
   }
-  dataGraphic.value.push(data);
+  //Проверка на редактирование если tempData не !=Null;
+  //Кастомное событие change-data;
+  if(Object.keys(tempData.value).length != 0){
+    let index=dataGraphic.value.findIndex(element => element?.title===tempData.value?.title);
+    console.log("under update: ",dataGraphic.value[index]);
+    dataGraphic.value[index]=data;
+    console.log("after update: ",dataGraphic.value[index]);
+    tempData.value={};
+    console.log("tempData: ",tempData.value);
+  }else{
+    dataGraphic.value.push(data);
+  }
   clearGraphicForm();
 }
+
+
 const clearGraphicForm=()=>{
   createGraphic.value.title="";
   createGraphic.value.value="";
-
 }
-const val=ref("");
+const editData=(value)=>{
+  tempData.value=value;
+  createGraphic.value.title=tempData.value?.title;
+  createGraphic.value.value=tempData.value?.value;
+}
+const deleteData=(value)=>{
+  let index=dataGraphic.value.findIndex(element => element?.title===value?.title);
+  if (index > -1) {
+    dataGraphic.value.splice(index, 1);
+  }
+}
+
 </script>
 
 <template>
@@ -67,7 +91,9 @@ const val=ref("");
                 Создание графиков
             </h3>
             <div class="tab-item__preview" v-show="dataGraphic.length>0" >
-              <preview-card :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+              <div class="preview-list">
+                <preview-card  @change-data="editData" @delete-data="deleteData"  :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+              </div>
             </div>
             <div class="tab-item-body">
               <form @submit.prevent action="" class="tab-item-form">
@@ -93,14 +119,43 @@ const val=ref("");
       </base-tab-wrapper>
     </div>
     <div class="graph-editor__draw">
-      <span>авыпывапыв</span>
+      <h1>ЗДЕСЬ БУДЕТ ГРАФИК</h1>
     </div>
   </div>
 
 </template>
 
 <style lang="scss" scoped>
+.preview-list{
+  margin:15px 0;
+  max-height: 350px;
+  overflow-y: auto;
+  height: auto;
+  overflow-x: hidden;
+  padding: 0 10px;
+  &>*+*{
+    margin-top: 15px;
+  }
+  &::-webkit-scrollbar {
+    width: 7px;
+  }
 
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: var(--color-accent-3);
+
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-accent-2);
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-1);
+  }
+}
 .tab-item{
   &-form{
     &__controls{
@@ -129,6 +184,15 @@ const val=ref("");
     @media screen and (max-width: 1024px){
       grid-template-columns: 1fr;
       grid-gap: 25px;
+    }
+    &__draw{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      & h1{
+        font-size: 60px;
+        line-height: 80px;
+      }
     }
   }
 </style>
