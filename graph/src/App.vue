@@ -8,6 +8,11 @@ import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
+import IconLineChart from "@/components/icons/chart/IconLineChart.vue";
+import IconBarChart from "@/components/icons/chart/IconBarChart.vue";
+import IconPieChart from "@/components/icons/chart/IconPieChart.vue";
+import IconGraphChart from "@/components/icons/chart/IconGraphChart.vue";
+import IconTreeChart from "@/components/icons/chart/IconTreeChart.vue";
 
 const tabs=[
   {name:"Create",
@@ -102,6 +107,53 @@ const isSaveGraph=ref(false);
             </div>
             <div class="tab-item-body">
               <form @submit.prevent action="" class="tab-item-form">
+                <div class="radio-group">
+                  <label class="input-clickable">
+                    <input type="radio" name="typeChart" class="input-clickable-input hidden">
+                    <div class="chart">
+                      <span class="chart-icon">
+                        <IconLineChart/>
+                      </span>
+                      <span class="chart-name">Line</span>
+                    </div>
+                  </label>
+                  <label class="input-clickable">
+                    <input type="radio" name="typeChart" class="input-clickable-input hidden">
+                    <div class="chart">
+                      <span class="chart-icon">
+                       <IconBarChart/>
+                      </span>
+                      <span class="chart-name">Bar</span>
+                    </div>
+                  </label>
+                  <label class="input-clickable">
+                    <input type="radio" name="typeChart" class="input-clickable-input hidden">
+                    <div class="chart">
+                      <span class="chart-icon">
+                        <IconPieChart/>
+                      </span>
+                      <span class="chart-name">Pie</span>
+                    </div>
+                  </label>
+                  <label class="input-clickable">
+                    <input type="radio" name="typeChart" class="input-clickable-input hidden">
+                    <div class="chart">
+                      <span class="chart-icon">
+                        <IconGraphChart/>
+                      </span>
+                      <span class="chart-name">Graph</span>
+                    </div>
+                  </label>
+                  <label class="input-clickable">
+                    <input type="radio" name="typeChart" class="input-clickable-input hidden">
+                    <div class="chart">
+                      <span class="chart-icon">
+                        <IconTreeChart/>
+                      </span>
+                      <span class="chart-name">Tree</span>
+                    </div>
+                  </label>
+                </div>
                 <base-input v-model="createGraphic.title">
                   Название
                 </base-input>
@@ -136,6 +188,62 @@ const isSaveGraph=ref(false);
 </template>
 
 <style lang="scss" scoped>
+.radio-group{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.input-clickable{
+  &-input{
+    &:checked~.chart{
+      background-color: #5470c6;
+      color: #fff;
+      border-radius: 8px;
+      & .chart-name{
+        color: inherit;
+      }
+      & .chart-icon *{
+        fill: #fff;
+      }
+    }
+  }
+  & .hidden{
+    appearance: none;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    position: fixed;
+    right: -9999px;
+    z-index: -100;
+  }
+}
+.chart{
+  height: 45px;
+  padding: 10px;
+  display: block;
+  &-name{
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    margin-left: 10px;
+    color: #6e7079;
+  }
+  &-icon{
+    content: '';
+    width: 20px;
+    display: inline-block;
+    border-radius: 50%;
+    vertical-align: middle;
+    & svg{
+      width: 100% !important;
+      height: auto !important;
+    }
+
+  }
+
+}
+
+
 .preview-list{
   margin:15px 0;
   max-height: 350px;
