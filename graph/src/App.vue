@@ -3,16 +3,11 @@
 import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
 
-import {ref, computed, defineAsyncComponent} from "vue";
+import {ref, computed, defineAsyncComponent, reactive, markRaw} from "vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
-import IconLineChart from "@/components/icons/chart/IconLineChart.vue";
-import IconBarChart from "@/components/icons/chart/IconBarChart.vue";
-import IconPieChart from "@/components/icons/chart/IconPieChart.vue";
-import IconGraphChart from "@/components/icons/chart/IconGraphChart.vue";
-import IconTreeChart from "@/components/icons/chart/IconTreeChart.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
 
 const tabs=[
@@ -31,52 +26,64 @@ const tabs=[
 
 ]
 
-const radiogroup=[
+const radiogroup=reactive([
   {
     title:'line',
     radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
+    component:markRaw(defineAsyncComponent(() =>
         import('@/components/icons/chart/IconLineChart.vue')
-    ),
-    selected:false
+    )),
+    selected:false,
   },
   {
     title:'Bar',
     radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
+    component:markRaw(defineAsyncComponent(() =>
         import('@/components/icons/chart/IconBarChart.vue')
-    ),
+    )),
     selected:true,
   },
   {
     title:'Pie',
     radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
+    component:markRaw(defineAsyncComponent(() =>
         import('@/components/icons/chart/IconPieChart.vue')
-    ),
+    )),
     selected:false,
-
   },
   {
     title:'Graph',
     radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
+    component:markRaw(defineAsyncComponent(() =>
         import('@/components/icons/chart/IconGraphChart.vue')
-    ),
+    )),
     selected:false,
-
   },
   {
     title:'Tree',
     radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
+    component:markRaw(defineAsyncComponent(() =>
         import('@/components/icons/chart/IconTreeChart.vue')
-    ),
+    )),
     selected:false,
-
   },
+])
 
-];
+computed(()=>{
+  return radiogroup;
+})
+
+
+//Блокировка выбора типа графика после добавления элемента;
+const isLockedRadioButton=ref(false);
+const isLockedRadio = computed(() => {
+  isLockedRadioButton.value=dataGraphic.value.length>0?true:false;
+  return isLockedRadioButton.value;
+})
+
+
+
+
 
 const selectedTab=ref(tabs[0].name);
 const changeTab=(value)=>{
@@ -86,7 +93,7 @@ const changeTab=(value)=>{
 //todo type graphic into radiobutton
 
 const createGraphic=ref({
-  type:'',
+  type:radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title,
   title:'',
   value:'',
 })
@@ -97,8 +104,10 @@ computed(()=>{
 
 const dataGraphic=ref([]);
 
+
 const tempData=ref({});
 const appendToGraphic=()=>{
+
   const data={
     type:createGraphic.value.type,
     title:createGraphic.value.title,
@@ -115,6 +124,11 @@ const appendToGraphic=()=>{
     tempData.value={};
     console.log("tempData: ",tempData.value);
   }else{
+    console.log("before: ",radiogroup);
+    if(dataGraphic.value.length<1){
+      let lockedRadio=data.type;
+        isLockedRadioButton.value=true;
+    }
     dataGraphic.value.push(data);
   }
   clearGraphicForm();
@@ -135,6 +149,7 @@ const deleteData=(value)=>{
   let index=dataGraphic.value.findIndex(element => element?.title===value?.title);
   if (index > -1) {
     dataGraphic.value.splice(index, 1);
+    console.log("dataaa: ",dataGraphic.value.length);
   }
 }
 const saveGraphEditor=()=>{
@@ -163,7 +178,7 @@ const isSaveGraph=ref(false);
             <div class="tab-item-body">
               <form @submit.prevent action="" class="tab-item-form">
                 <div class="radio-group">
-                  <BaseInputClickable v-for="radio in radiogroup" :selected="radio.selected"  v-model:value="createGraphic.type" :title="radio.title" :name="radio.radiotype">
+                  <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="createGraphic.type" :title="radio.title" :name="radio.radiotype">
                     <component :is=" radio.component"></component>
                   </BaseInputClickable>
                 </div>

@@ -1,6 +1,6 @@
 <template>
-  <label class="input-clickable">
-    <input type="radio" :name="name"  :checked="selected" :value="title" @change="changeValue(title)" class="input-clickable-input hidden">
+  <label :class="['input-clickable',{'is-locked':isLocked}]"  >
+    <input type="radio" :name="name" :disabled="isLocked"  :checked="selected" :value="title" @change="changeValue(title)" class="input-clickable-input hidden">
     <div class="chart">
       <span class="chart-icon">
           <slot></slot>
@@ -26,12 +26,24 @@ const props=defineProps({
     type:Boolean,
     required:false,
     default:false,
+  },
+  isLocked:{
+    type:Boolean,
+    required:false,
+    default:false,
   }
 })
 </script>
 
 <style lang="scss" >
+
 .input-clickable{
+  cursor: pointer;
+  &.is-locked{
+    &:hover{
+      cursor: not-allowed !important;
+    }
+  }
   &-input{
     &:checked~.chart{
       background-color: #5470c6;
