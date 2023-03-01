@@ -30,6 +30,54 @@ const tabs=[
   },
 
 ]
+
+const radiogroup=[
+  {
+    title:'line',
+    radiotype:'typeChart',
+    component:defineAsyncComponent(() =>
+        import('@/components/icons/chart/IconLineChart.vue')
+    ),
+    selected:false
+  },
+  {
+    title:'Bar',
+    radiotype:'typeChart',
+    component:defineAsyncComponent(() =>
+        import('@/components/icons/chart/IconBarChart.vue')
+    ),
+    selected:true,
+  },
+  {
+    title:'Pie',
+    radiotype:'typeChart',
+    component:defineAsyncComponent(() =>
+        import('@/components/icons/chart/IconPieChart.vue')
+    ),
+    selected:false,
+
+  },
+  {
+    title:'Graph',
+    radiotype:'typeChart',
+    component:defineAsyncComponent(() =>
+        import('@/components/icons/chart/IconGraphChart.vue')
+    ),
+    selected:false,
+
+  },
+  {
+    title:'Tree',
+    radiotype:'typeChart',
+    component:defineAsyncComponent(() =>
+        import('@/components/icons/chart/IconTreeChart.vue')
+    ),
+    selected:false,
+
+  },
+
+];
+
 const selectedTab=ref(tabs[0].name);
 const changeTab=(value)=>{
   selectedTab.value=value;
@@ -93,52 +141,7 @@ const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 
 }
-const radiogroup=[
-  {
-    title:'line',
-    radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconLineChart.vue')
-    ),
-    selected:false
-  },
-  {
-    title:'Bar',
-    radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconBarChart.vue')
-    ),
-    selected:true,
-  },
-  {
-    title:'Pie',
-    radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconPieChart.vue')
-    ),
-    selected:false,
 
-  },
-  {
-    title:'Graph',
-    radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconGraphChart.vue')
-    ),
-    selected:false,
-
-  },
-  {
-    title:'Tree',
-    radiotype:'typeChart',
-    component:defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconTreeChart.vue')
-    ),
-    selected:false,
-
-  },
-
-];
 
 const isSaveGraph=ref(false);
 </script>
