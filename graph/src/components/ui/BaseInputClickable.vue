@@ -1,9 +1,9 @@
 <template>
   <label class="input-clickable">
-    <input type="radio" :name="name" class="input-clickable-input hidden">
+    <input type="radio" :name="name"  :checked="selected" :value="title" @change="changeValue(title)" class="input-clickable-input hidden">
     <div class="chart">
       <span class="chart-icon">
-          <slot name="icon"></slot>
+          <slot></slot>
       </span>
       <span class="chart-name">{{ title }}</span>
     </div>
@@ -11,6 +11,8 @@
 </template>
 
 <script setup>
+const emit = defineEmits(['update:value'])
+const changeValue=(val)=>emit('update:value',val)
 const props=defineProps({
   name:{
     type:String,
@@ -19,11 +21,16 @@ const props=defineProps({
   title:{
     type:String,
     required:true,
+  },
+  selected:{
+    type:Boolean,
+    required:false,
+    default:false,
   }
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
 .input-clickable{
   &-input{
     &:checked~.chart{
