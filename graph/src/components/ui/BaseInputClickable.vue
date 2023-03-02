@@ -43,6 +43,22 @@ const props=defineProps({
     &:hover{
       cursor: not-allowed !important;
     }
+    & .input-clickable-input{
+      &:not(:checked)~.chart{
+        &:after{
+          position: absolute;
+          content: "";
+          background: #f3f3f3;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          opacity: 0.3;
+          border-radius: 8px;
+        }
+      }
+    }
+
   }
   &-input{
     &:checked~.chart{
@@ -71,6 +87,7 @@ const props=defineProps({
   height: 45px;
   padding: 10px;
   display: block;
+  position: relative;
   &-name{
     display: inline-block;
     position: relative;
