@@ -3,12 +3,24 @@
     <div class="preview-card__body">
       <div class="preview-card__prop">
         <h3 class="preview-card__prop-title">Название</h3>
-        <div class="preview-card__title">{{ title }}</div>
+        <div class="preview-card__title">{{ data?.title }}</div>
       </div>
-      <div class="preview-card__prop">
+
+      <div class="preview-card__prop" v-if="!(data?.x!=null||data?.x!='')">
         <h3 class="preview-card__prop-title">Значение</h3>
-        <div class="preview-card__title">{{ value }}</div>
+        <div class="preview-card__title">{{ data?.value }}</div>
       </div>
+      <div v-else>
+        <div class="preview-card__prop" >
+          <h3 class="preview-card__prop-title">x</h3>
+          <div class="preview-card__title">{{ data?.x }}</div>
+        </div>
+        <div class="preview-card__prop" >
+          <h3 class="preview-card__prop-title">y</h3>
+          <div class="preview-card__title">{{ data?.y }}</div>
+        </div>
+      </div>
+
     </div>
     <div class="preview-card__controls">
         <base-button :classes="['button-green']" @click="changeValue">Р</base-button>
@@ -20,23 +32,18 @@
 <script setup>
 const emits=defineEmits(['changeData','deleteData'])
  const props=defineProps({
-   title:{
-     type:String,
-     required:true,
-   },
-   value:{
-     type:String,
-     required:true,
+   data:{
+     type:Object,
+     required:false,
    }
 
  })
  const changeValue=()=>{
-  const data={title:props.title,value:props.value}
-   emits('changeData',data);
+
+   emits('changeData',props.data);
  }
  const deleteValue=()=>{
-   const data={title:props.title,value:props.value}
-   emits('deleteData',data);
+   emits('deleteData',props.data);
  }
 
 //todo Привести карточки в порядок (Красивый визуап)

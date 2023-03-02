@@ -28,7 +28,7 @@ const tabs=[
 
 const radiogroup=reactive([
   {
-    title:'line',
+    title:'Line',
     radiotype:'typeChart',
     component:markRaw(defineAsyncComponent(() =>
         import('@/components/icons/chart/IconLineChart.vue')
@@ -80,7 +80,17 @@ const isLockedRadio = computed(() => {
   isLockedRadioButton.value=dataGraphic.value.length>0?true:false;
   return isLockedRadioButton.value;
 })
-
+const isGraph=ref(false);
+const isGraphFunc = computed(() => {
+  const type=createGraphic.value?.type!==null?createGraphic.value?.type.toLowerCase():'';
+  if(type!==''&&type==='graph'){
+    isGraph.value=!isGraph.value;
+  }
+  else{
+    isGraph.value=false;
+  }
+  return isGraph.value;
+})
 
 
 
@@ -92,13 +102,16 @@ const changeTab=(value)=>{
 
 //todo type graphic into radiobutton
 
+
 const createGraphic=ref({
   type:radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title,
   title:'',
   value:'',
+  x:'',
+  y:'',
 })
 
-computed(()=>{
+const dataFinal=computed(()=>{
   return dataGraphic.value;
 })
 
@@ -112,6 +125,8 @@ const appendToGraphic=()=>{
     type:createGraphic.value.type,
     title:createGraphic.value.title,
     value:createGraphic.value.value,
+    x:createGraphic.value.x,
+    y:createGraphic.value.y,
   }
   console.log("add: ",data);
   //Проверка на редактирование если tempData не !=Null;
@@ -125,9 +140,13 @@ const appendToGraphic=()=>{
     console.log("tempData: ",tempData.value);
   }else{
     console.log("before: ",radiogroup);
+    let lockedRadio=data?.type.toLowerCase();
     if(dataGraphic.value.length<1){
-      let lockedRadio=data.type;
         isLockedRadioButton.value=true;
+    }
+    if(lockedRadio==='graph'){
+      console.log("graph added")
+      console.log("test data:: ",data)
     }
     dataGraphic.value.push(data);
   }
@@ -142,12 +161,17 @@ const appendToGraphic=()=>{
 const clearGraphicForm=()=>{
   createGraphic.value.title="";
   createGraphic.value.value="";
+  createGraphic.value.x="";
+  createGraphic.value.y="";
 }
 const editData=(value)=>{
   tempData.value=value;
   createGraphic.value.type=tempData.value?.type;
   createGraphic.value.title=tempData.value?.title;
   createGraphic.value.value=tempData.value?.value;
+  createGraphic.value.x=tempData.value?.x;
+  createGraphic.value.y=tempData.value?.y;
+
 }
 const deleteData=(value)=>{
   let index=dataGraphic.value.findIndex(element => element?.title===value?.title);
@@ -158,7 +182,6 @@ const deleteData=(value)=>{
 }
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
-
 }
 
 
@@ -176,7 +199,7 @@ const isSaveGraph=ref(false);
             </h3>
             <div class="tab-item__preview" v-show="dataGraphic.length>0" >
               <div class="preview-list">
-                <preview-card  @change-data="editData" @delete-data="deleteData"  :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+                <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
               </div>
             </div>
             <div class="tab-item-body">
@@ -189,9 +212,21 @@ const isSaveGraph=ref(false);
                 <base-input v-model="createGraphic.title">
                   Название
                 </base-input>
-                <base-input :type="'number'" v-model="createGraphic.value">
+
+                <base-input :type="'number'" v-model="createGraphic.value" v-if="!isGraphFunc">
                   Количество
                 </base-input>
+                <div v-else>
+                  <p><strong>todo</strong> </p>
+                  <div>Схема добавления удаления узла для графа</div>
+                  <div>Вынести логику</div>
+                  <base-input :type="'number'" v-model="createGraphic.x" >
+                    x
+                  </base-input>
+                  <base-input :type="'number'" v-model="createGraphic.y" >
+                   y
+                  </base-input>
+                </div>
                 <div class="tab-item-form__controls">
                   <base-button :classes="['button-green']" @click="appendToGraphic">Добавить</base-button>
                   <base-button :classes="['button-red']" @click="clearGraphicForm">Очистить</base-button>
@@ -212,7 +247,7 @@ const isSaveGraph=ref(false);
       </div>
     </div>
     <div class="graph-editor__draw">
-      <vue-chart v-if="isSaveGraph" :options-data="dataGraphic"/>
+      <vue-chart v-if="isSaveGraph||(isGraph&&dataFinal.length>0)" :options-data="dataFinal"/>
       <h1 v-else>Здесь должен быть граф/график</h1>
     </div>
   </div>

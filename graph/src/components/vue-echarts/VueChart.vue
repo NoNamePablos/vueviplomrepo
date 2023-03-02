@@ -8,15 +8,22 @@
   import {ParseOption} from "@/components/vue-echarts/chart.helper";
   const props=defineProps({
     optionsData:{
-      type:Object,
+      type:Array,
       required:true,
     }
   })
   const parsedData=ParseOption(props.optionsData);
   const option=ref({
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
     xAxis: {
       type: 'category',
-      data: parsedData.xAxis
+      data: parsedData?.xAxis
     },
     yAxis: {
       type: 'value'
@@ -24,16 +31,43 @@
     series: [
       {
         data: parsedData.yAxis,
-        type: 'bar',
+        links:parsedData?.links,
+        type: parsedData.typeChart,
+        edgeSymbol: ()=>{
+          if(parsedData.typeChart==='graph'){
+            return ['circle', 'arrow'];
+          }
+          return [];
+        },
+        edgeSymbolSize:()=>{
+          if(parsedData.typeChart==='graph'){
+            return [4, 10];
+          }
+          return [];
+        } ,
+        edgeLabel: {
+          fontSize: 20
+        },
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
         showBackground: true,
         backgroundStyle: {
           color: 'rgba(180, 180, 180, 0.2)'
         }
       }
     ],
-    legend: {
-      data: ['category',]
-    },
   })
 </script>
 
