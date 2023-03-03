@@ -1,5 +1,5 @@
 <template>
-    <div class="tab">
+    <div :class="['tab',{'tab-horizontal':isHorizontal}]">
       <div class="tab-nav">
         <button v-for="tab in tabs" :class="['tab-nav__item',{'selected':tab.name===selectedTab}]" :key="tab.name" @click="changeTab(tab.name)">{{tab.name}}</button>
       </div>
@@ -22,11 +22,17 @@
       selectedTab:{
         type:String,
         required:false,
+      },
+      isHorizontal:{
+        type:Boolean,
+        required:false,
       }
     })
+
 </script>
 
 <style lang="scss" scoped>
+
     .tab{
       display: grid;
       grid-template-columns: auto 1fr;
@@ -67,6 +73,16 @@
       &-content{
         padding: 10px 5px;
         flex-grow: 1;
+      }
+    }
+    .tab-horizontal{
+      grid-template-columns:1fr;
+      & .tab-nav{
+        flex-direction: row;
+        border-right: none;
+        &__item{
+          width: auto;
+        }
       }
     }
 </style>

@@ -6,7 +6,7 @@
         <div class="preview-card__title">{{ data?.title }}</div>
       </div>
 
-      <div class="preview-card__prop" v-if="!(data?.x!=null||data?.x!='')">
+      <div class="preview-card__prop" v-if="(data?.x==null||data.x=='')">
         <h3 class="preview-card__prop-title">Значение</h3>
         <div class="preview-card__title">{{ data?.value }}</div>
       </div>

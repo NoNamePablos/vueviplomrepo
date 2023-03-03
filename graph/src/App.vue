@@ -9,13 +9,14 @@ import BaseButton from "@/components/ui/BaseButton.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
+import BaseSelect from "@/components/ui/BaseSelect.vue";
 
 const tabs=[
   {name:"Create",
    label:"Создание графиков",
     icon:'',
   },
-  {name:"Tree",
+  {name:"Graph",
     label:"Создание Дерева",
     icon:'',
   },
@@ -25,6 +26,16 @@ const tabs=[
   },
 
 ]
+
+const tabGraph=[{
+  name:"CreateGraph",
+  label:"Создать родителя",
+  icon:'',
+},{
+  name:"SetLinks",
+  label:"Создание связей",
+  icon:'',
+}]
 
 const radiogroup=reactive([
   {
@@ -96,9 +107,13 @@ const isGraphFunc = computed(() => {
 
 
 const selectedTab=ref(tabs[0].name);
+
+const selectedGraphTab=ref(tabGraph[0].name)
+
 const changeTab=(value)=>{
   selectedTab.value=value;
 }
+const changeGraphTab=(value)=>selectedGraphTab.value=value;
 
 //todo type graphic into radiobutton
 
@@ -116,6 +131,9 @@ const dataFinal=computed(()=>{
 })
 
 const dataGraphic=ref([]);
+
+const links=ref([])
+computed(()=>links.value);
 
 
 const tempData=ref({});
@@ -184,14 +202,45 @@ const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
 
+const arrt=ref([
+  {
+    name:"opt1",
+    title:"Option 1",
+  },
+  {
+    name:"opt2",
+    title:"Option 2",
+  },
+  {
+    name:"opt3",
+    title:"Option 3",
+  },
+  {
+    name:"opt4",
+    title:"Option 4",
+  }
+])
+
 
 const isSaveGraph=ref(false);
+const selectSelectItem=ref({
+  name:'default',
+  title:'select'
+})
+computed(()=>{
+  return selectSelectItem;
+})
+const selectedSel=(val)=>{
+  console.log("selected: ",val?.title);
+  selectSelectItem.value=val;
+  console.log(selectSelectItem.value);
+
+}
 </script>
 
 <template>
   <div class="graph-editor">
     <div class="graph-editor__tabs" v-if="!isSaveGraph">
-      <span>Табы типо</span>
       <base-tab-wrapper :tabs="tabs" :selected-tab="selectedTab" @change-tab="changeTab">
         <base-tab-item v-if="selectedTab==='Create'">
             <h3 class="tab-item__name">
@@ -199,7 +248,7 @@ const isSaveGraph=ref(false);
             </h3>
             <div class="tab-item__preview" v-show="dataGraphic.length>0" >
               <div class="preview-list">
-                <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+                <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card"  v-for="card in dataGraphic" :key="card.title" />
               </div>
             </div>
             <div class="tab-item-body">
@@ -213,20 +262,9 @@ const isSaveGraph=ref(false);
                   Название
                 </base-input>
 
-                <base-input :type="'number'" v-model="createGraphic.value" v-if="!isGraphFunc">
+                <base-input :type="'number'" v-model="createGraphic.value">
                   Количество
                 </base-input>
-                <div v-else>
-                  <p><strong>todo</strong> </p>
-                  <div>Схема добавления удаления узла для графа</div>
-                  <div>Вынести логику</div>
-                  <base-input :type="'number'" v-model="createGraphic.x" >
-                    x
-                  </base-input>
-                  <base-input :type="'number'" v-model="createGraphic.y" >
-                   y
-                  </base-input>
-                </div>
                 <div class="tab-item-form__controls">
                   <base-button :classes="['button-green']" @click="appendToGraphic">Добавить</base-button>
                   <base-button :classes="['button-red']" @click="clearGraphicForm">Очистить</base-button>
@@ -234,8 +272,53 @@ const isSaveGraph=ref(false);
               </form>
             </div>
         </base-tab-item>
-        <base-tab-item v-if="selectedTab==='Tree'">
-          <p>Tab2</p>
+        <base-tab-item v-if="selectedTab==='Graph'">
+          <base-tab-wrapper  :is-horizontal="true"  :tabs="tabGraph" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
+            <base-tab-item v-if="selectedGraphTab==='CreateGraph'">
+              <h3 class="tab-item__name">
+                Создание графиков
+              </h3>
+              <div class="tab-item__preview" v-show="dataGraphic.length>0" >
+                <div class="preview-list">
+                  <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+                </div>
+              </div>
+              <div class="tab-item-body">
+                <form @submit.prevent action="" class="tab-item-form">
+                  <p><strong>todo</strong> </p>
+                  <div>Схема добавления удаления узла для графа</div>
+                  <div>Вынести логику</div>
+                  <base-input v-model="createGraphic.title">
+                    Название
+                  </base-input>
+                  <base-input :type="'number'" v-model="createGraphic.x" >
+                    x
+                  </base-input>
+                  <base-input :type="'number'" v-model="createGraphic.y" >
+                    y
+                  </base-input>
+                  <div class="tab-item-form__controls">
+                    <base-button :classes="['button-green']" @click="appendToGraphic">Добавить</base-button>
+                    <base-button :classes="['button-red']" @click="clearGraphicForm">Очистить</base-button>
+                  </div>
+                </form>
+              </div>
+            </base-tab-item>
+            <base-tab-item v-if="selectedGraphTab==='SetLinks'">
+              <h3 class="tab-item__name">
+                Связи
+              </h3>
+              <div class="tab-item__preview" v-show="dataGraphic.length>0" >
+                <div class="preview-list">
+                  <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+                </div>
+              </div>
+              <div class="tab-item-body">
+                <p>select</p>
+                <base-select @selected-item="selectedSel"  :select="selectSelectItem"  :options="arrt" />
+              </div>
+            </base-tab-item>
+          </base-tab-wrapper>
         </base-tab-item>
         <base-tab-item v-if="selectedTab==='Node editor'">
           <p>Tab3</p>
