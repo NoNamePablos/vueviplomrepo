@@ -3,7 +3,6 @@ import {ParseOption} from "@/components/vue-echarts/chart.helper";
 
 export const useCharts=(props)=>{
     const parsedData=ParseOption(props.optionsData);
-    const typeChart=()=>parsedData.typeChart;
     const optionChart=ref({
         tooltip: {
             trigger: 'item'
@@ -57,6 +56,6 @@ export const useCharts=(props)=>{
         console.log("add");
     }
     return {
-        addChart,optionChart,parsedData,typeChart
+        addChart,optionChart,parsedData,
     }
 }

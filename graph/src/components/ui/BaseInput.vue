@@ -2,22 +2,37 @@
   <div class="input">
     <h3  class="input-title"><slot></slot></h3>
     <label >
-      <input :type="type" class="" :value="modelValue"   @input="$emit('update:modelValue', $event.target.value)">
+      <input :type="type" class="" :disabled="disabled"  :value="disabled?defaultValue:modelValue"    @input="$emit('update:modelValue', $event.target.value)">
     </label>
   </div>
 
 </template>
 
 <script setup>
-import {ref,defineEmits,defineProps} from 'vue';
+import {ref, defineEmits, defineProps, onMounted} from 'vue';
 const inputValue=ref('');
-const emit=defineEmits(['update:modelValue'])
+const emit=defineEmits(['update:modelValue','disabled-emit'])
 const props = defineProps({
   modelValue: { type: String, required: true },
   type:{
     type:String,
     required:false,
     default:'text'
+  },
+  defaultValue:{
+    type:String,
+    required:false,
+    default:'test'
+  },
+  disabled:{
+    type:Boolean,
+    required:false,
+    default:false,
+  }
+})
+onMounted(()=>{
+  if(props?.disabled!=null&&props.disabled){
+    emit('disabled-emit',props.defaultValue);
   }
 })
 </script>

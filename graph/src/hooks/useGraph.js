@@ -1,7 +1,8 @@
 import {converterGraphData} from "@/components/vue-echarts/chart.helper";
 
 export const useGraph=(props)=>{
-    const parseData=converterGraphData(props)
+    const parseData=converterGraphData(props.optionsData)
+    console.log("parsedGraph: ",parseData);
     const optionGraph = {
         title: {
             text: 'Basic Graph'
@@ -26,44 +27,7 @@ export const useGraph=(props)=>{
                 data: parseData,
                 // links: [],
                 links: [
-                    {
-                        source: 0,
-                        target: 1,
-                        symbolSize: [5, 20],
-                        label: {
-                            show: true
-                        },
-                        lineStyle: {
-                            width: 5,
-                            curveness: 0.2
-                        }
-                    },
-                    {
-                        source: 'Node 2',
-                        target: 'Node 1',
-                        label: {
-                            show: true
-                        },
-                        lineStyle: {
-                            curveness: 0.2
-                        }
-                    },
-                    {
-                        source: 'Node 1',
-                        target: 'Node 3'
-                    },
-                    {
-                        source: 'Node 2',
-                        target: 'Node 3'
-                    },
-                    {
-                        source: 'Node 2',
-                        target: 'Node 4'
-                    },
-                    {
-                        source: 'Node 1',
-                        target: 'Node 4'
-                    }
+                    //обрабоатать массив links
                 ],
                 lineStyle: {
                     opacity: 0.9,

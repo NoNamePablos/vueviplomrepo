@@ -1,15 +1,15 @@
 <template>
   <div class="v-select" @click.prevent>
-    <button @click="open">Показать</button>
+    <button @click="open">{{buttonLabel}}</button>
     <div class="v-select-container"  v-show="isOpened">
       <div class="option-container">
         <div class="search-container">
           <input type="text" class="inputFilter" v-model="searchInput" >
-          <button class="clear-button">x</button>
+          <button class="clear-button" @click="clearInput">x</button>
         </div>
       </div>
       <ul class="v-select-list"     >
-        <li :class="['v-select-list__item',{'active':config.activeId===listItem.localId}]" v-if="searchAndLoadList.length!==0" @click="selectedItem(listItem,idx)"   v-for="(listItem,idx) in searchAndLoadList">{{listItem.label}}</li>
+        <li :class="['v-select-list__item',{'active':config.activeId===listItem.localId}]" v-if="searchAndLoadList.length!==0" @click="selectedItem(listItem,idx)"   v-for="(listItem,idx) in searchAndLoadList">{{listItem?.title}}</li>
         <div class="v-select-error" v-else>Пусто(</div>
       </ul>
     </div>
@@ -17,8 +17,8 @@
 </template>
 
 <script setup>
-import {computed, onBeforeUnmount, onMounted, reactive, ref} from "vue";
-
+import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
+  const emits=defineEmits(['v-selected'])
   const props=defineProps({
     search: {
       type: Boolean,
@@ -27,33 +27,43 @@ import {computed, onBeforeUnmount, onMounted, reactive, ref} from "vue";
     data:{
       type:Array,
       required:true,
+    },
+    selected:{
+      type:String,
+      required: false,
+      default: "Показать"
     }
   })
+
+const buttonLabel=computed(()=>{
+  return props.selected!==""?props.selected:"Показать";
+})
 const searchInput=ref("");
 const config=ref({
-  searchInput: '',
   globalModel:[],
   activeId:-1
 })
-computed(()=>config.value)
-
 const selectList=props.data.map((item,idx)=>{
   item.localId=idx;
   return item;
 });
 const searchAndLoadList=computed(()=>{
-  return selectList.filter((item)=>item.label.toLowerCase().includes(searchInput.value.toLowerCase()))
+  return selectList.filter((item)=>item?.title.toLowerCase().includes(searchInput.value.toLowerCase()))
 })
+
+
   const diselectAll=()=>{
         config.value.globalModel=[];
   }
   const selectedItem=(option,id)=>{
       diselectAll();
-      console.log("opt: ",option);
       config.value.globalModel.push(option);
       config.value.activeId=option?.localId;
+      emits('v-selected',option);
   }
-
+  const clearInput=()=>{
+    searchInput.value="";
+  }
   const isOpened=ref(false);
   const open=()=>isOpened.value=!isOpened.value;
   const close=()=>{

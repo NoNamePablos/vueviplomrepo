@@ -38,11 +38,20 @@ export const ParseOption=(options)=>{
     }
 }
 export const converterGraphData=(array)=>{
+    let copyArr=[...array];
+/*    array.forEach((el)=>{
+        el.name=el.title;
+        delete el['title'];
+        delete el['value'];
+        delete el['type'];
+        console.log("el ",el.name);
+    })*/
+    console.log("zzzz: ", )
     return [...array.map((item)=>{
-        item['name']=item['title']
+        item.name=item['title'];
         delete item['title'];
         delete item['value'];
         delete item['type'];
         return item;
-    })]
+    })];
 }

@@ -113,6 +113,10 @@ const selectedGraphTab=ref(tabGraph[0].name)
 
 const changeTab=(value)=>{
   selectedTab.value=value;
+  isGraph.value=selectedTab.value.toLowerCase()==='graph'?true:false;
+  console.log("selected tab: ",selectedTab.value);
+  console.log("is graph: ",isGraph.value);
+
 }
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
 
@@ -203,21 +207,6 @@ const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
 
-const selecter=[
-  {
-    label:'Namez 1',
-    disabled:true,
-  },
-  {
-    label:'Nameyz 2 ',
-  },
-  {
-    label:'Namebnz 3',
-  },
-  {
-    label:'Nameuez 4',
-  }
-]
 const optionsSelector= {
   multi: false,
   groups: true,
@@ -239,8 +228,47 @@ const selectedSel=(val)=>{
   console.log("selected: ",val?.title);
   selectSelectItem.value=val;
   console.log(selectSelectItem.value);
+}
+const graphLinkList=ref([])
+const graphLink=ref({
+  source:"",
+  target:""
+})
+const appendToGraph=()=>{
+  const data={
+   source:graphLink.value.source,
+    target:graphLink.value.target,
+  }
+  console.log("add: ",data);
+  //Проверка на редактирование если tempData не !=Null;
+  //Кастомное событие change-data;
+  if(Object.keys(tempData.value).length != 0){
+    let index=graphLinkList.value.findIndex(element => element?.source===tempData.value?.source);
+    console.log("under update graph: ",graphLinkList.value[index]);
+    graphLinkList.value[index]=data;
+    console.log("after update graph: ",graphLinkList.value[index]);
+    tempData.value={};
+    console.log("tempData: ",tempData.value);
+  }else{
+    graphLinkList.value.push(data);
+  }
+}
+
+const editDataGraph=(value)=>{
+  tempData.value=value;
+  graphLink.value.source=tempData.value?.source;
+  graphLink.value.target=tempData.value?.target;
 
 }
+const deleteDataGraph=(value)=>{
+  let index=graphLinkList.value.findIndex(element => element?.source===value?.source);
+  if (index > -1) {
+    graphLinkList.value.splice(index, 1);
+    console.log("dataaa: ",graphLinkList.value.length);
+  }
+}
+
+
 </script>
 
 <template>
@@ -293,6 +321,9 @@ const selectedSel=(val)=>{
                   <p><strong>todo</strong> </p>
                   <div>Схема добавления удаления узла для графа</div>
                   <div>Вынести логику</div>
+                  <base-input :disabled="true" :default-value="'Graph'" @disabled-emit="(value)=>createGraphic.type=value" v-model="createGraphic.type">
+                    Тип
+                  </base-input>
                   <base-input v-model="createGraphic.title">
                     Название
                   </base-input>
@@ -314,13 +345,25 @@ const selectedSel=(val)=>{
                 Связи
               </h3>
               <div class="tab-item__preview" v-show="dataGraphic.length>0" >
-                <div class="preview-list">
+<!--                <div class="preview-list" v-if="selectedGraphTab!=='SetLinks'">
                   <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+                </div>-->
+                <div class="preview-list" v-if="selectedGraphTab==='SetLinks'">
+                    <div class="item" v-for="(graphLink,idx) in graphLinkList" :key="idx">
+                      <div>{{graphLink?.source?.title}}</div>
+                      <div>{{graphLink?.target?.title}}</div>
+                    </div>
                 </div>
               </div>
               <div class="tab-item-body">
-                <p>select</p>
-                <base-select @selected-item="selectedSel"  :select="selectSelectItem"  :options="arrt" />
+                <p>source</p>
+                <vue-select @v-selected="(value)=>graphLink.source=value"  :selected="graphLink.source?.title"  :data="dataGraphic"></vue-select>
+                <p>target</p>
+                <vue-select @v-selected="(value)=>graphLink.target=value"   :selected="graphLink.target?.title"  :data="dataGraphic"></vue-select>
+              </div>
+              <div class="tab-item-form__controls">
+                <base-button :classes="['button-green']" @click="appendToGraph">Добавить</base-button>
+                <base-button :classes="['button-red']" @click="clearGraphicForm">Очистить</base-button>
               </div>
             </base-tab-item>
           </base-tab-wrapper>
@@ -335,8 +378,8 @@ const selectedSel=(val)=>{
       </div>
     </div>
     <div class="graph-editor__draw">
-<!--      <vue-chart v-if="isSaveGraph||(isGraph&&dataFinal.length>0)" :options-data="dataFinal"/>-->
-      <vue-select :data="selecter"></vue-select>
+<!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
+      <vue-chart v-if="isGraph&&dataFinal.length>0" :type="'graph'"  :links="graphLinkList" :options-data="dataFinal"   />
 <!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>
