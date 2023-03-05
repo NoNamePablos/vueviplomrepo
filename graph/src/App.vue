@@ -205,17 +205,17 @@ const saveGraphEditor=()=>{
 
 const selecter=[
   {
-    label:'Name 1',
+    label:'Namez 1',
     disabled:true,
   },
   {
-    label:'Name 2 ',
+    label:'Nameyz 2 ',
   },
   {
-    label:'Name 3',
+    label:'Namebnz 3',
   },
   {
-    label:'Name 4',
+    label:'Nameuez 4',
   }
 ]
 const optionsSelector= {

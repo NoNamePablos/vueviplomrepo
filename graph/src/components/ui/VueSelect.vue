@@ -4,12 +4,13 @@
     <div class="v-select-container"  v-show="isOpened">
       <div class="option-container">
         <div class="search-container">
-          <input type="text" class="inputFilter">
+          <input type="text" class="inputFilter" v-model="searchInput" >
           <button class="clear-button">x</button>
         </div>
       </div>
       <ul class="v-select-list"     >
-        <li class="v-select-list__item" @click="selectedItem(listItem,idx)"   v-for="(listItem,idx) in selectList">{{listItem}}</li>
+        <li :class="['v-select-list__item',{'active':config.activeId===listItem.localId}]" v-if="searchAndLoadList.length!==0" @click="selectedItem(listItem,idx)"   v-for="(listItem,idx) in searchAndLoadList">{{listItem.label}}</li>
+        <div class="v-select-error" v-else>Пусто(</div>
       </ul>
     </div>
   </div>
@@ -28,18 +29,29 @@ import {computed, onBeforeUnmount, onMounted, reactive, ref} from "vue";
       required:true,
     }
   })
+const searchInput=ref("");
 const config=ref({
   searchInput: '',
   globalModel:[],
+  activeId:-1
 })
 computed(()=>config.value)
-const selectList=props.data.map((item)=>item?.label);
+
+const selectList=props.data.map((item,idx)=>{
+  item.localId=idx;
+  return item;
+});
+const searchAndLoadList=computed(()=>{
+  return selectList.filter((item)=>item.label.toLowerCase().includes(searchInput.value.toLowerCase()))
+})
   const diselectAll=()=>{
         config.value.globalModel=[];
   }
   const selectedItem=(option,id)=>{
       diselectAll();
+      console.log("opt: ",option);
       config.value.globalModel.push(option);
+      config.value.activeId=option?.localId;
   }
 
   const isOpened=ref(false);
@@ -129,12 +141,21 @@ const selectList=props.data.map((item)=>item?.label);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     min-width: 278px;
   }
+  &-error{
+    color: #181818;
+  }
   &-list{
     padding: 0;
     &__item{
       list-style: none;
       padding: 0;
       margin: 0;
+      cursor: pointer;
+      &.active{
+        background-color: #5181b4;
+        color: #fff;
+        transition: all 0.3s ease-in;
+      }
     }
   }
   &-item{
