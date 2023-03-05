@@ -10,6 +10,7 @@ import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
 import BaseSelect from "@/components/ui/BaseSelect.vue";
+import VueSelect from "@/components/ui/VueSelect.vue";
 
 const tabs=[
   {name:"Create",
@@ -202,25 +203,29 @@ const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
 
-const arrt=ref([
+const selecter=[
   {
-    name:"opt1",
-    title:"Option 1",
+    label:'Name 1',
+    disabled:true,
   },
   {
-    name:"opt2",
-    title:"Option 2",
+    label:'Name 2 ',
   },
   {
-    name:"opt3",
-    title:"Option 3",
+    label:'Name 3',
   },
   {
-    name:"opt4",
-    title:"Option 4",
+    label:'Name 4',
   }
-])
-
+]
+const optionsSelector= {
+  multi: false,
+  groups: true,
+  labelName: 'label',
+  labelList: 'elements',
+  groupName: 'title',
+  cssSelected: option => (option.selected ? { 'background-color': '#5764c6' } : ''),
+}
 
 const isSaveGraph=ref(false);
 const selectSelectItem=ref({
@@ -330,8 +335,9 @@ const selectedSel=(val)=>{
       </div>
     </div>
     <div class="graph-editor__draw">
-      <vue-chart v-if="isSaveGraph||(isGraph&&dataFinal.length>0)" :options-data="dataFinal"/>
-      <h1 v-else>Здесь должен быть граф/график</h1>
+<!--      <vue-chart v-if="isSaveGraph||(isGraph&&dataFinal.length>0)" :options-data="dataFinal"/>-->
+      <vue-select :data="selecter"></vue-select>
+<!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>
 

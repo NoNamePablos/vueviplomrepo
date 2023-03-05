@@ -37,6 +37,12 @@ export const ParseOption=(options)=>{
         links:links
     }
 }
-
-
-
+export const converterGraphData=(array)=>{
+    return [...array.map((item)=>{
+        item['name']=item['title']
+        delete item['title'];
+        delete item['value'];
+        delete item['type'];
+        return item;
+    })]
+}
