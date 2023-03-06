@@ -38,7 +38,7 @@ export const ParseOption=(options)=>{
     }
 }
 export const converterGraphData=(array)=>{
-    let copyArr=[...array];
+    let copyArr=JSON.parse(JSON.stringify(array));
 /*    array.forEach((el)=>{
         el.name=el.title;
         delete el['title'];
@@ -47,11 +47,28 @@ export const converterGraphData=(array)=>{
         console.log("el ",el.name);
     })*/
     console.log("zzzz: ", )
-    return [...array.map((item)=>{
+    return [...copyArr.map((item)=>{
         item.name=item['title'];
         delete item['title'];
         delete item['value'];
         delete item['type'];
         return item;
     })];
+}
+export const converterGraphLinks=(array)=>{
+    console.log("addded");
+    let copyArr=JSON.parse(JSON.stringify(array));
+    copyArr.forEach((el)=>{
+        el.source=el.source.title;
+        el.target=el.target.title;
+    })
+
+    /*    array.forEach((el)=>{
+            el.name=el.title;
+            delete el['title'];
+            delete el['value'];
+            delete el['type'];
+            console.log("el ",el.name);
+        })*/
+    return copyArr;
 }

@@ -1,7 +1,8 @@
 <template>
-  <vue-echarts class="chart" :option="optionGraph" />
+  <vue-echarts class="chart" :option="option" />
 </template>
 <script setup>
+
   import {VueEcharts} from "@/components/vue-echarts/index";
   import {useCharts} from "@/hooks/useCharts";
   import {useGraph} from "@/hooks/useGraph";
@@ -21,7 +22,7 @@
     }
   })
   const {optionChart}=useCharts(props)
-  const {optionGraph}=useGraph(props);
+  const {option}=useGraph(props);
 
 
 </script>

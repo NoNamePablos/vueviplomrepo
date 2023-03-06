@@ -170,6 +170,7 @@ const appendToGraphic=()=>{
     if(lockedRadio==='graph'){
       console.log("graph added")
       console.log("test data:: ",data)
+      counterRender.value+=1;
     }
     dataGraphic.value.push(data);
   }
@@ -231,15 +232,19 @@ const selectedSel=(val)=>{
 }
 const graphLinkList=ref([])
 const graphLink=ref({
-  source:"",
-  target:""
+  source:{},
+  target:{}
 })
+const compLinks=computed(()=>{
+  return graphLinkList.value;
+})
+
 const appendToGraph=()=>{
   const data={
    source:graphLink.value.source,
     target:graphLink.value.target,
   }
-  console.log("add: ",data);
+  console.log("add to graph link: ",data);
   //Проверка на редактирование если tempData не !=Null;
   //Кастомное событие change-data;
   if(Object.keys(tempData.value).length != 0){
@@ -250,8 +255,14 @@ const appendToGraph=()=>{
     tempData.value={};
     console.log("tempData: ",tempData.value);
   }else{
+    console.log("graph link: ",graphLink.value);
     graphLinkList.value.push(data);
+    counterRender.value+=1;
+    console.log("comp links: ",compLinks.value);
   }
+  graphLink.value.source={};
+  graphLink.value.target= {};
+
 }
 
 const editDataGraph=(value)=>{
@@ -260,6 +271,10 @@ const editDataGraph=(value)=>{
   graphLink.value.target=tempData.value?.target;
 
 }
+const counterRender=ref(0);
+const counterKey = computed(
+   () => counterRender.value + 1,
+)
 const deleteDataGraph=(value)=>{
   let index=graphLinkList.value.findIndex(element => element?.source===value?.source);
   if (index > -1) {
@@ -267,7 +282,12 @@ const deleteDataGraph=(value)=>{
     console.log("dataaa: ",graphLinkList.value.length);
   }
 }
-
+const selectedSource=(value)=>{
+  graphLink.value.source=value
+}
+const selectedTarget=(value)=>{
+  graphLink.value.target=value
+}
 
 </script>
 
@@ -357,9 +377,9 @@ const deleteDataGraph=(value)=>{
               </div>
               <div class="tab-item-body">
                 <p>source</p>
-                <vue-select @v-selected="(value)=>graphLink.source=value"  :selected="graphLink.source?.title"  :data="dataGraphic"></vue-select>
+                <vue-select @v-selected="selectedSource"  :selected="graphLink.source?.title"  :data="dataGraphic"></vue-select>
                 <p>target</p>
-                <vue-select @v-selected="(value)=>graphLink.target=value"   :selected="graphLink.target?.title"  :data="dataGraphic"></vue-select>
+                <vue-select @v-selected="selectedTarget"   :selected="graphLink.target?.title"  :data="dataGraphic"></vue-select>
               </div>
               <div class="tab-item-form__controls">
                 <base-button :classes="['button-green']" @click="appendToGraph">Добавить</base-button>
@@ -379,7 +399,7 @@ const deleteDataGraph=(value)=>{
     </div>
     <div class="graph-editor__draw">
 <!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
-      <vue-chart v-if="isGraph&&dataFinal.length>0" :type="'graph'"  :links="graphLinkList" :options-data="dataFinal"   />
+      <vue-chart v-if="isGraph&&dataFinal.length>0" :key="counterKey" :type="'graph'"  :links="compLinks" :options-data="dataFinal"   />
 <!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>
