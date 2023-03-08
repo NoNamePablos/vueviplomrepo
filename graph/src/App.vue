@@ -398,8 +398,11 @@ const selectedTarget=(value)=>{
       </div>
     </div>
     <div class="graph-editor__draw">
+      <!----todo vue-echart set option and add dinamicly data  ---->
+
+
 <!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
-      <vue-chart v-if="isGraph&&dataFinal.length>0" :key="counterKey" :type="'graph'"  :links="compLinks" :options-data="dataFinal"   />
+      <vue-chart v-if="isGraph&&dataGraphic.length>0"  :type="'graph'"  :links="graphLinkList" :options-data="dataGraphic"   />
 <!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>
