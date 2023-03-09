@@ -3,7 +3,7 @@
 import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
 
-import {ref, computed, defineAsyncComponent, reactive, markRaw} from "vue";
+import {ref, computed, defineAsyncComponent, reactive, markRaw, provide} from "vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
@@ -105,6 +105,7 @@ const isGraphFunc = computed(() => {
 })
 
 
+const provideLinks = ref({});
 
 
 const selectedTab=ref(tabs[0].name);
@@ -170,7 +171,6 @@ const appendToGraphic=()=>{
     if(lockedRadio==='graph'){
       console.log("graph added")
       console.log("test data:: ",data)
-      counterRender.value+=1;
     }
     dataGraphic.value.push(data);
   }
@@ -238,6 +238,11 @@ const graphLink=ref({
 const compLinks=computed(()=>{
   return graphLinkList.value;
 })
+const provideLinksFunc = () => {
+  console.log("111");
+  console.log("provi: ",provideLinks.value);
+  provideLinks.value.updateOption=graphLinkList.value;
+};
 
 const appendToGraph=()=>{
   const data={
@@ -257,9 +262,12 @@ const appendToGraph=()=>{
   }else{
     console.log("graph link: ",graphLink.value);
     graphLinkList.value.push(data);
-    counterRender.value+=1;
+    provideLinksFunc();
     console.log("comp links: ",compLinks.value);
   }
+
+
+
   graphLink.value.source={};
   graphLink.value.target= {};
 
@@ -271,10 +279,8 @@ const editDataGraph=(value)=>{
   graphLink.value.target=tempData.value?.target;
 
 }
-const counterRender=ref(0);
-const counterKey = computed(
-   () => counterRender.value + 1,
-)
+
+
 const deleteDataGraph=(value)=>{
   let index=graphLinkList.value.findIndex(element => element?.source===value?.source);
   if (index > -1) {
@@ -288,7 +294,7 @@ const selectedSource=(value)=>{
 const selectedTarget=(value)=>{
   graphLink.value.target=value
 }
-
+provide("LINKS_UPDATE",provideLinks);
 </script>
 
 <template>
@@ -402,7 +408,7 @@ const selectedTarget=(value)=>{
 
 
 <!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
-      <vue-chart v-if="isGraph&&dataGraphic.length>0"  :type="'graph'"  :links="graphLinkList" :options-data="dataGraphic"   />
+      <vue-chart v-if="isGraph"  :type="'graph'" :update-links="graphLinkList" :update-data="dataGraphic" :links="graphLinkList" :options-data="dataGraphic"   />
 <!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>
