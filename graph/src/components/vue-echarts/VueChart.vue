@@ -2,8 +2,7 @@
   <div >
     <vue-echarts   class="chart"    :option="option" />
   </div>
-  <div>zzz{{reply}}</div>
-  <div>Props res: {{updOpt}}</div>
+  <div>Props res: {{experementData}}</div>
 </template>
 <script setup>
 
@@ -29,13 +28,13 @@
       type:Array,
       required:false,
     },
-    updateLinks:{
+    experementData:{
       type:Array,
       required:false,
     }
+
   })
   const linksArray=ref([]);
-  const provideLinks=ref(null);
   const logg=(val)=>{
     console.log( val );
   }
@@ -53,8 +52,6 @@
 
   /*const {optionChart}=useCharts(props)*/
   const {option}=useGraph(props);
-  const reply = inject("LINKS_UPDATE", null);
-
 
 </script>
 

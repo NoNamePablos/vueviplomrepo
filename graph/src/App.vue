@@ -11,6 +11,27 @@ import VueChart from "@/components/vue-echarts/VueChart.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
 import BaseSelect from "@/components/ui/BaseSelect.vue";
 import VueSelect from "@/components/ui/VueSelect.vue";
+import {useCardGraph} from "./hooks/useCardGraph";
+///graph import
+const {
+  graphNode,
+  graphLinkFields,
+  graphLinkList,
+  graphNodeList,
+  appendItem,
+  editNode,
+  deleteNode,
+  clearGraphNode,
+  appendLink,
+  editLink,
+  deleteLink,
+  selectedFieldSource,
+  selectedFieldTarget}=useCardGraph();
+
+///
+
+
+
 
 const tabs=[
   {name:"Create",
@@ -208,14 +229,6 @@ const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
 
-const optionsSelector= {
-  multi: false,
-  groups: true,
-  labelName: 'label',
-  labelList: 'elements',
-  groupName: 'title',
-  cssSelected: option => (option.selected ? { 'background-color': '#5764c6' } : ''),
-}
 
 const isSaveGraph=ref(false);
 const selectSelectItem=ref({
@@ -230,70 +243,7 @@ const selectedSel=(val)=>{
   selectSelectItem.value=val;
   console.log(selectSelectItem.value);
 }
-const graphLinkList=ref([])
-const graphLink=ref({
-  source:{},
-  target:{}
-})
-const compLinks=computed(()=>{
-  return graphLinkList.value;
-})
-const provideLinksFunc = () => {
-  console.log("111");
-  console.log("provi: ",provideLinks.value);
-  provideLinks.value.updateOption=graphLinkList.value;
-};
 
-const appendToGraph=()=>{
-  const data={
-   source:graphLink.value.source,
-    target:graphLink.value.target,
-  }
-  console.log("add to graph link: ",data);
-  //Проверка на редактирование если tempData не !=Null;
-  //Кастомное событие change-data;
-  if(Object.keys(tempData.value).length != 0){
-    let index=graphLinkList.value.findIndex(element => element?.source===tempData.value?.source);
-    console.log("under update graph: ",graphLinkList.value[index]);
-    graphLinkList.value[index]=data;
-    console.log("after update graph: ",graphLinkList.value[index]);
-    tempData.value={};
-    console.log("tempData: ",tempData.value);
-  }else{
-    console.log("graph link: ",graphLink.value);
-    graphLinkList.value.push(data);
-    provideLinksFunc();
-    console.log("comp links: ",compLinks.value);
-  }
-
-
-
-  graphLink.value.source={};
-  graphLink.value.target= {};
-
-}
-
-const editDataGraph=(value)=>{
-  tempData.value=value;
-  graphLink.value.source=tempData.value?.source;
-  graphLink.value.target=tempData.value?.target;
-
-}
-
-
-const deleteDataGraph=(value)=>{
-  let index=graphLinkList.value.findIndex(element => element?.source===value?.source);
-  if (index > -1) {
-    graphLinkList.value.splice(index, 1);
-    console.log("dataaa: ",graphLinkList.value.length);
-  }
-}
-const selectedSource=(value)=>{
-  graphLink.value.source=value
-}
-const selectedTarget=(value)=>{
-  graphLink.value.target=value
-}
 provide("LINKS_UPDATE",provideLinks);
 </script>
 
@@ -331,15 +281,17 @@ provide("LINKS_UPDATE",provideLinks);
               </form>
             </div>
         </base-tab-item>
+        <!---GRAPH FORM-->
         <base-tab-item v-if="selectedTab==='Graph'">
           <base-tab-wrapper  :is-horizontal="true"  :tabs="tabGraph" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
             <base-tab-item v-if="selectedGraphTab==='CreateGraph'">
               <h3 class="tab-item__name">
                 Создание графиков
               </h3>
-              <div class="tab-item__preview" v-show="dataGraphic.length>0" >
+              <div class="tab-item__preview" v-show="graphNodeList.length>0" >
                 <div class="preview-list">
-                  <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
+                  <preview-card  @change-data="editNode" @delete-data="deleteNode"  :data="card" :title="card.title" :value="card.value" v-for="card in graphNodeList" :key="card.title" />
+
                 </div>
               </div>
               <div class="tab-item-body">
@@ -347,21 +299,19 @@ provide("LINKS_UPDATE",provideLinks);
                   <p><strong>todo</strong> </p>
                   <div>Схема добавления удаления узла для графа</div>
                   <div>Вынести логику</div>
-                  <base-input :disabled="true" :default-value="'Graph'" @disabled-emit="(value)=>createGraphic.type=value" v-model="createGraphic.type">
-                    Тип
-                  </base-input>
-                  <base-input v-model="createGraphic.title">
+                  <div>Сделать id,нормально отрисовать граф,вынести логику графиков,начать делать ноде граф едитор</div>
+                  <base-input v-model="graphNode.title">
                     Название
                   </base-input>
-                  <base-input :type="'number'" v-model="createGraphic.x" >
+                  <base-input :type="'number'" v-model="graphNode.x" >
                     x
                   </base-input>
-                  <base-input :type="'number'" v-model="createGraphic.y" >
+                  <base-input :type="'number'" v-model="graphNode.y" >
                     y
                   </base-input>
                   <div class="tab-item-form__controls">
-                    <base-button :classes="['button-green']" @click="appendToGraphic">Добавить</base-button>
-                    <base-button :classes="['button-red']" @click="clearGraphicForm">Очистить</base-button>
+                    <base-button :classes="['button-green']" @click="appendItem">Добавить</base-button>
+                    <base-button :classes="['button-red']" @click="clearGraphNode">Очистить</base-button>
                   </div>
                 </form>
               </div>
@@ -370,26 +320,26 @@ provide("LINKS_UPDATE",provideLinks);
               <h3 class="tab-item__name">
                 Связи
               </h3>
-              <div class="tab-item__preview" v-show="dataGraphic.length>0" >
+              <div class="tab-item__preview" v-show="graphNodeList.length>0" >
 <!--                <div class="preview-list" v-if="selectedGraphTab!=='SetLinks'">
                   <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
                 </div>-->
-                <div class="preview-list" v-if="selectedGraphTab==='SetLinks'">
-                    <div class="item" v-for="(graphLink,idx) in graphLinkList" :key="idx">
-                      <div>{{graphLink?.source?.title}}</div>
-                      <div>{{graphLink?.target?.title}}</div>
+                <div class="preview-list" >
+                    <div class="item" v-for="(item,idx) in graphLinkList" :key="idx">
+                      <div>{{item?.source?.title}}</div>
+                      <div>{{item?.target?.title}}</div>
                     </div>
                 </div>
               </div>
               <div class="tab-item-body">
                 <p>source</p>
-                <vue-select @v-selected="selectedSource"  :selected="graphLink.source?.title"  :data="dataGraphic"></vue-select>
+                <vue-select @v-selected="selectedFieldSource"  :selected="graphLinkFields.source?.title"  :data="graphNodeList"></vue-select>
                 <p>target</p>
-                <vue-select @v-selected="selectedTarget"   :selected="graphLink.target?.title"  :data="dataGraphic"></vue-select>
+                <vue-select @v-selected="selectedFieldTarget"  :selected="graphLinkFields.target?.title"  :data="graphNodeList"></vue-select>
               </div>
               <div class="tab-item-form__controls">
-                <base-button :classes="['button-green']" @click="appendToGraph">Добавить</base-button>
-                <base-button :classes="['button-red']" @click="clearGraphicForm">Очистить</base-button>
+                <base-button :classes="['button-green']" @click="appendLink">Добавить</base-button>
+                <base-button :classes="['button-red']" @click="">Очистить</base-button>
               </div>
             </base-tab-item>
           </base-tab-wrapper>
@@ -408,7 +358,7 @@ provide("LINKS_UPDATE",provideLinks);
 
 
 <!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
-      <vue-chart v-if="isGraph"  :type="'graph'" :update-links="graphLinkList" :update-data="dataGraphic" :links="graphLinkList" :options-data="dataGraphic"   />
+      <vue-chart v-if="isGraph"  :type="'graph'" :experement-data="graphLinkList" :update-data="dataGraphic" :links="graphLinkList" :options-data="dataGraphic"   />
 <!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>

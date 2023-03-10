@@ -41,14 +41,12 @@ const buttonLabel=computed(()=>{
 const searchInput=ref("");
 const config=ref({
   globalModel:[],
+  selectedList:[],
   activeId:-1
 })
-const selectList=props.data.map((item,idx)=>{
-  item.localId=idx;
-  return item;
-});
+
 const searchAndLoadList=computed(()=>{
-  return selectList.filter((item)=>item?.title.toLowerCase().includes(searchInput.value.toLowerCase()))
+  return config.value.selectedList.filter((item)=>item?.title.toLowerCase().includes(searchInput.value.toLowerCase()))
 })
 
 
@@ -77,6 +75,10 @@ const searchAndLoadList=computed(()=>{
 
 
   onMounted(()=>{
+    config.value.selectedList=props.data.map((item,idx)=>{
+      item.localId=idx;
+      return item;
+    });
     document.addEventListener('click',externalClick,true)
   })
   onBeforeUnmount(()=>{
