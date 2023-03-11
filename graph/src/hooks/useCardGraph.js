@@ -1,4 +1,5 @@
 import {computed, ref} from "vue";
+import {tabBlock, tabUnlock} from "@/utils/tabs.routes";
 
 export const useCardGraph=()=>{
     const graphNode=ref({
@@ -58,7 +59,7 @@ export const useCardGraph=()=>{
 
     const tempData=ref({});
 
-
+    const isGraph=()=>graphNodeList.value.length>0?true:false;
 
 
 
@@ -86,6 +87,7 @@ export const useCardGraph=()=>{
         }else{
             console.log("is appended data: ",data);
             graphNodeList.value.push(data);
+            tabBlock('graph');
             console.log("Graph node list: ",graphNodeList.value);
         }
         clearGraphNode();
@@ -104,6 +106,9 @@ export const useCardGraph=()=>{
             graphNodeList.value.splice(index, 1);
             console.log("remove data in graph: ",graphNodeList.value);
         }
+        if(graphNodeList.value.length===0){
+            tabUnlock();
+        }
     }
 
     return {
@@ -120,7 +125,8 @@ export const useCardGraph=()=>{
         editLink,
         deleteLink,
         selectedFieldSource,
-        selectedFieldTarget
+        selectedFieldTarget,
+        isGraph
     }
 
 }

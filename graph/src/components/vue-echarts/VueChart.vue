@@ -29,43 +29,38 @@
       type:String,
       required:false,
     },
-    //update OBJECT not Array
-    updateData:{
-      type:Array,
-      required:false,
-    },
-    experementData:{
-      type:Object,
-      required:false,
-    }
-
   })
   const beforeUpdateLinks=ref([]);
   const chart = ref(null)
   //теоретически тут можно ускорить и обернуть пропсы в computed
   onBeforeUpdate(()=>{
-    beforeUpdateLinks.value=converterGarphLinks(props.links);
-    appendObject.value.series[0].links=beforeUpdateLinks.value;
+    if(props.type.toLowerCase()==='graph'){
+      beforeUpdateLinks.value=converterGarphLinks(props.links);
+      appendObject.value.series[0].links=beforeUpdateLinks.value;
+    }else{
+
+    }
     chart.value.refreshChart();
   })
   onUpdated(()=>{
-    chart.value.setOption(computedArray.value);
+    if(props.type.toLowerCase()==='graph'){
+      chart.value.setOption(computedArray.value);
+    }
   })
   onBeforeMount(()=>{
-    beforeUpdateLinks.value=converterGarphLinks(props.links);
+    if(props.type.toLowerCase()==='graph'){
+      beforeUpdateLinks.value=converterGarphLinks(props.links);
+    }
   })
   onMounted(()=>{
-    appendObject.value.series[0].links=beforeUpdateLinks.value;
-    chart.value.setOption(appendObject.value);
+    if(props.type.toLowerCase()==='graph'){
+      appendObject.value.series[0].links=beforeUpdateLinks.value;
+      chart.value.setOption(appendObject.value);
+    }
   })
   const computedArray=computed(()=>{
     return appendObject.value;
   },{},{cache:false})
-
-
-  const appOnj=computed(()=>{
-    return appendObject.value;
-  })
   const appendObject=ref({
     series:[{
       data:props.optionsData,

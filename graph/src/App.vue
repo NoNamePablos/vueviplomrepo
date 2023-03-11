@@ -2,18 +2,17 @@
 
 import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
-import {ref, computed, defineAsyncComponent, reactive, markRaw} from "vue";
+import {ref, computed, defineAsyncComponent, reactive, markRaw, watch} from "vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
-import BaseSelect from "@/components/ui/BaseSelect.vue";
 import VueSelect from "@/components/ui/VueSelect.vue";
 import {useCardGraph} from "./hooks/useCardGraph";
 import {useChartController} from "@/hooks/useChartController";
 import {radiogroup} from "@/utils/radiogroup.routes";
-
+import {tabs,tabGraph} from "@/utils/tabs.routes";
 ///graph import
 const {
   graphNode,
@@ -28,41 +27,16 @@ const {
   editLink,
   deleteLink,
   selectedFieldSource,
-  selectedFieldTarget}=useCardGraph();
+  selectedFieldTarget,isGraph}=useCardGraph();
 
 ///
 ///chart import
-const {chartNode,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem}=useChartController();
+const {chartNode,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isChart}=useChartController();
 
 ///
 
 
 
-const tabs=[
-  {name:"Create",
-   label:"Создание графиков",
-    icon:'',
-  },
-  {name:"Graph",
-    label:"Создание Дерева",
-    icon:'',
-  },
-  {name:"Node editor",
-    label:"Редактор графа",
-    icon:'',
-  },
-
-]
-
-const tabGraph=[{
-  name:"CreateGraph",
-  label:"Создать родителя",
-  icon:'',
-},{
-  name:"SetLinks",
-  label:"Создание связей",
-  icon:'',
-}]
 
 
 
@@ -73,7 +47,6 @@ computed(()=>{
 
 //Блокировка выбора типа графика после добавления элемента;
 
-const isGraph=ref(false);
 
 
 const selectedTab=ref(tabs[0].name);
@@ -82,27 +55,18 @@ const selectedGraphTab=ref(tabGraph[0].name)
 
 const changeTab=(value)=>{
   selectedTab.value=value;
-  isGraph.value=selectedTab.value.toLowerCase()==='graph'?true:false;
   console.log("selected tab: ",selectedTab.value);
-  console.log("is graph: ",isGraph.value);
 
 }
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
 
-//todo type graphic into radiobutton
-
 
 //todo Крайний срок 06.03.2023
-//todo Добавить поддержку нескольких видов-графиков(Приоритет высокий) (Визуализатор-Графики,деревья)
 //todo Оптимизировать базовый шаблон с опциями для графика (Приоритет средний)
-//todo Отрефакторить код (Приоритет мелкий)
-
-
 
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
-
 
 const isSaveGraph=ref(false);
 const selectSelectItem=ref({
@@ -158,7 +122,7 @@ computed(()=>{
               </h3>
               <div class="todo">
                 <ol>
-                  <li>Сделать динамическую привязку данных(Граф)</li>
+                  <li style="color: green; text-decoration: line-through;">Сделать динамическую привязку данных(Граф)</li>
                   <li>Сделать динамическую привязку данных(Графики)</li>
                   <li>Сделать возможность клика по любому елементу и переходить по ссылке</li>
                 </ol>
@@ -166,7 +130,6 @@ computed(()=>{
               <div class="tab-item__preview" v-show="graphNodeList.length>0" >
                 <div class="preview-list">
                   <preview-card  @change-data="editNode" @delete-data="deleteNode"  :data="card" :title="card.name" :value="card.value" v-for="card in graphNodeList" :key="card.name" />
-
                 </div>
               </div>
               <div class="tab-item-body">
@@ -230,11 +193,9 @@ computed(()=>{
     </div>
     <div class="graph-editor__draw">
       <!----todo vue-echart set option and add dinamicly data  ---->
-
-
-<!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
-      <vue-chart v-if="isGraph"  :type="'graph'" :experement-data="graphLinkList" :update-data="chartNodeList" :links="graphLinkList" :options-data="graphNodeList"   />
-<!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
+      <vue-chart v-if="isChart"  :type="'graph'"  :links="graphLinkList" :options-data="graphNodeList"   />
+      <vue-chart v-else-if="isGraph"  :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
+      <h1 v-else>Здесь должен быть граф/график</h1>
     </div>
   </div>
 

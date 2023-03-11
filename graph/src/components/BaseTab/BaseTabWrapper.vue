@@ -1,7 +1,7 @@
 <template>
     <div :class="['tab',{'tab-horizontal':isHorizontal}]">
       <div class="tab-nav">
-        <button v-for="tab in tabs" :class="['tab-nav__item',{'selected':tab.name===selectedTab}]" :key="tab.name" @click="changeTab(tab.name)">{{tab.name}}</button>
+        <button v-for="tab in tabs"  :class="['tab-nav__item',{'selected':tab.name===selectedTab},{'is-blocked':tab?.isBlocked}]" :key="tab.name" @click="changeTab(tab.name)">{{tab.name}}</button>
       </div>
       <div class="tab-content">
         <slot></slot>
@@ -32,7 +32,21 @@
 </script>
 
 <style lang="scss" scoped>
-
+.is-blocked{
+  pointer-events: none;
+  cursor: not-allowed !important;
+  &:after{
+    position: absolute;
+    content: "";
+    background: #f3f3f3;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0.3;
+    border-radius: 8px;
+  }
+}
     .tab{
       display: grid;
       grid-template-columns: auto 1fr;
@@ -43,6 +57,7 @@
         overflow-y: auto;
         border-right: 1px solid;
         &__item{
+          position: relative;
           width: 60px;
           height: 60px;
           padding: 3px;

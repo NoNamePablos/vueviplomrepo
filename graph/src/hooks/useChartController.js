@@ -1,5 +1,6 @@
 import {computed, ref} from "vue";
 import {radiogroup} from "@/utils/radiogroup.routes";
+import {tabBlock, tabUnlock} from "@/utils/tabs.routes";
 
 export const useChartController=()=>{
 
@@ -19,6 +20,7 @@ export const useChartController=()=>{
         chartNode.value.title="";
         chartNode.value.value="";
     }
+    const isChart=()=>chartNodeList.value.length>0?true:false;
     const appendChartItem=()=>{
         const data={
             type:chartNode.value.type,
@@ -45,6 +47,7 @@ export const useChartController=()=>{
                 console.log("test data:: ",data)
             }
             chartNodeList.value.push(data);
+            tabBlock('chart');
         }
         clearChartItem();
     }
@@ -61,10 +64,13 @@ export const useChartController=()=>{
             chartNodeList.value.splice(index, 1);
             console.log("dataaa: ",chartNodeList.value.length);
         }
+        if(chartNodeList.value.length===0){
+            tabUnlock();
+        }
     }
 
     return {
-        chartNode,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isLockedRadio
+        chartNode,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isLockedRadio,isChart
     }
 
 }
