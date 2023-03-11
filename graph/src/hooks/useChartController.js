@@ -1,59 +1,70 @@
-import {ref} from "vue";
+import {computed, ref} from "vue";
+import {radiogroup} from "@/utils/radiogroup.routes";
 
 export const useChartController=()=>{
-    const  graphNode=ref({
-        title:"",
-        x:"",
-        y:"",
+
+    const chartNode=ref({
+        type:radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title,
+        title:'',
+        value:'',
     })
-    const graphNodeList=ref([]);
+    const isLockedRadioButton=ref(false);
+    const isLockedRadio = computed(() => {
+        isLockedRadioButton.value=chartNodeList.value.length>0?true:false;
+        return isLockedRadioButton.value;
+    })
+    const chartNodeList=ref([]);
     const tempData=ref({});
-    const clearGraphNode=()=>{
-        graphNode.value.title="";
-        graphNode.value.x="";
-        graphNode.value.y="";
+    const clearChartItem=()=>{
+        chartNode.value.title="";
+        chartNode.value.value="";
     }
-    const appendItem=()=>{
+    const appendChartItem=()=>{
         const data={
-            title:graphNode.value.title,
-            x:graphNode.value.x,
-            y:graphNode.value.y,
+            type:chartNode.value.type,
+            title:chartNode.value.title,
+            value:chartNode.value.value,
         }
-        console.log("add: ",data);
+        console.log("add object data into chart: {data} ",data);
         //Проверка на редактирование если tempData не !=Null;
         //Кастомное событие change-data;
-        if(Object.keys(tempData.value).length !== 0){
-            let index=graphNodeList.value.findIndex(element => element?.title===tempData.value?.title);
-            console.log("before update graph node:  ",graphNodeList.value[index]);
-            graphNodeList.value[index]=data;
-            console.log("after update graph node: ",graphNodeList.value[index]);
+        if(Object.keys(tempData.value).length != 0){
+            let index=chartNodeList.value.findIndex(element => element?.title===tempData.value?.title);
+            console.log("before update chartlist: ",chartNodeList.value[index]);
+            chartNodeList.value[index]=data;
+            console.log("after update chartlist: ",chartNodeList.value[index]);
             tempData.value={};
-            console.log("tempData: ",tempData.value);
         }else{
-            console.log("is appended data: ",data);
-            graphNodeList.value.push(data);
-            console.log("Graph node list: ",graphNodeList.value);
+            console.log("before radiogroup: ",radiogroup);
+            let lockedRadio=data?.type.toLowerCase();
+            if(chartNodeList.value.length<1){
+                isLockedRadioButton.value=true;
+            }
+            if(lockedRadio==='graph'){
+                console.log("graph added")
+                console.log("test data:: ",data)
+            }
+            chartNodeList.value.push(data);
         }
-        clearGraphNode();
+        clearChartItem();
     }
-    const editNode=(value)=>{
+    const editChartItem=(value)=>{
         tempData.value=value;
-        graphNode.value.title=tempData.value?.title;
-        graphNode.value.x=tempData.value?.x;
-        graphNode.value.y=tempData.value?.y;
+        chartNode.value.type=tempData.value?.type;
+        chartNode.value.title=tempData.value?.title;
+        chartNode.value.value=tempData.value?.value;
 
     }
-    const deleteNode=(value)=>{
-        let index=graphNodeList.value.findIndex(element => element?.title===value?.title);
+    const deleteChartItem=(value)=>{
+        let index=chartNodeList.value.findIndex(element => element?.title===value?.title);
         if (index > -1) {
-            console.log("remove value node: ",graphNodeList[index]);
-            graphNodeList.value.splice(index, 1);
-            console.log("remove data in graph: ",graphNodeList.value);
+            chartNodeList.value.splice(index, 1);
+            console.log("dataaa: ",chartNodeList.value.length);
         }
     }
 
-   /* return {
-        graphNode,tempData,graphNodeList,clearGraphNode,appendItem,editNode,deleteNode
-    }*/
+    return {
+        chartNode,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isLockedRadio
+    }
 
 }

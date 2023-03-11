@@ -2,8 +2,7 @@
 
 import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
-
-import {ref, computed, defineAsyncComponent, reactive, markRaw, provide} from "vue";
+import {ref, computed, defineAsyncComponent, reactive, markRaw} from "vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
@@ -12,6 +11,9 @@ import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
 import BaseSelect from "@/components/ui/BaseSelect.vue";
 import VueSelect from "@/components/ui/VueSelect.vue";
 import {useCardGraph} from "./hooks/useCardGraph";
+import {useChartController} from "@/hooks/useChartController";
+import {radiogroup} from "@/utils/radiogroup.routes";
+
 ///graph import
 const {
   graphNode,
@@ -29,7 +31,10 @@ const {
   selectedFieldTarget}=useCardGraph();
 
 ///
+///chart import
+const {chartNode,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem}=useChartController(radiogroup);
 
+///
 
 
 
@@ -59,74 +64,16 @@ const tabGraph=[{
   icon:'',
 }]
 
-const radiogroup=reactive([
-  {
-    title:'Line',
-    radiotype:'typeChart',
-    component:markRaw(defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconLineChart.vue')
-    )),
-    selected:false,
-  },
-  {
-    title:'Bar',
-    radiotype:'typeChart',
-    component:markRaw(defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconBarChart.vue')
-    )),
-    selected:true,
-  },
-  {
-    title:'Pie',
-    radiotype:'typeChart',
-    component:markRaw(defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconPieChart.vue')
-    )),
-    selected:false,
-  },
-  {
-    title:'Graph',
-    radiotype:'typeChart',
-    component:markRaw(defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconGraphChart.vue')
-    )),
-    selected:false,
-  },
-  {
-    title:'Tree',
-    radiotype:'typeChart',
-    component:markRaw(defineAsyncComponent(() =>
-        import('@/components/icons/chart/IconTreeChart.vue')
-    )),
-    selected:false,
-  },
-])
+
 
 computed(()=>{
-  return radiogroup;
+  return radiogroup ;
 })
 
 
 //Блокировка выбора типа графика после добавления элемента;
-const isLockedRadioButton=ref(false);
-const isLockedRadio = computed(() => {
-  isLockedRadioButton.value=dataGraphic.value.length>0?true:false;
-  return isLockedRadioButton.value;
-})
+
 const isGraph=ref(false);
-const isGraphFunc = computed(() => {
-  const type=createGraphic.value?.type!==null?createGraphic.value?.type.toLowerCase():'';
-  if(type!==''&&type==='graph'){
-    isGraph.value=!isGraph.value;
-  }
-  else{
-    isGraph.value=false;
-  }
-  return isGraph.value;
-})
-
-
-const provideLinks = ref({});
 
 
 const selectedTab=ref(tabs[0].name);
@@ -145,86 +92,13 @@ const changeGraphTab=(value)=>selectedGraphTab.value=value;
 //todo type graphic into radiobutton
 
 
-const createGraphic=ref({
-  type:radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title,
-  title:'',
-  value:'',
-  x:'',
-  y:'',
-})
-
-const dataFinal=computed(()=>{
-  return dataGraphic.value;
-})
-
-const dataGraphic=ref([]);
-
-const links=ref([])
-computed(()=>links.value);
-
-
-const tempData=ref({});
-const appendToGraphic=()=>{
-
-  const data={
-    type:createGraphic.value.type,
-    title:createGraphic.value.title,
-    value:createGraphic.value.value,
-    x:createGraphic.value.x,
-    y:createGraphic.value.y,
-  }
-  console.log("add: ",data);
-  //Проверка на редактирование если tempData не !=Null;
-  //Кастомное событие change-data;
-  if(Object.keys(tempData.value).length != 0){
-    let index=dataGraphic.value.findIndex(element => element?.title===tempData.value?.title);
-    console.log("under update: ",dataGraphic.value[index]);
-    dataGraphic.value[index]=data;
-    console.log("after update: ",dataGraphic.value[index]);
-    tempData.value={};
-    console.log("tempData: ",tempData.value);
-  }else{
-    console.log("before: ",radiogroup);
-    let lockedRadio=data?.type.toLowerCase();
-    if(dataGraphic.value.length<1){
-        isLockedRadioButton.value=true;
-    }
-    if(lockedRadio==='graph'){
-      console.log("graph added")
-      console.log("test data:: ",data)
-    }
-    dataGraphic.value.push(data);
-  }
-  clearGraphicForm();
-}
 //todo Крайний срок 06.03.2023
 //todo Добавить поддержку нескольких видов-графиков(Приоритет высокий) (Визуализатор-Графики,деревья)
 //todo Оптимизировать базовый шаблон с опциями для графика (Приоритет средний)
 //todo Отрефакторить код (Приоритет мелкий)
 
 
-const clearGraphicForm=()=>{
-  createGraphic.value.title="";
-  createGraphic.value.value="";
-  createGraphic.value.x="";
-  createGraphic.value.y="";
-}
-const editData=(value)=>{
-  tempData.value=value;
-  createGraphic.value.type=tempData.value?.type;
-  createGraphic.value.title=tempData.value?.title;
-  createGraphic.value.value=tempData.value?.value;
-  createGraphic.value.x=tempData.value?.x;
-  createGraphic.value.y=tempData.value?.y;
 
-}
-const deleteData=(value)=>{
-  let index=dataGraphic.value.findIndex(element => element?.title===value?.title);
-  if (index > -1) {
-    dataGraphic.value.splice(index, 1);
-    console.log("dataaa: ",dataGraphic.value.length);
-  }
-}
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
@@ -238,13 +112,7 @@ const selectSelectItem=ref({
 computed(()=>{
   return selectSelectItem;
 })
-const selectedSel=(val)=>{
-  console.log("selected: ",val?.title);
-  selectSelectItem.value=val;
-  console.log(selectSelectItem.value);
-}
 
-provide("LINKS_UPDATE",provideLinks);
 </script>
 
 <template>
@@ -255,28 +123,28 @@ provide("LINKS_UPDATE",provideLinks);
             <h3 class="tab-item__name">
                 Создание графиков
             </h3>
-            <div class="tab-item__preview" v-show="dataGraphic.length>0" >
+            <div class="tab-item__preview" v-show="chartNodeList.length>0" >
               <div class="preview-list">
-                <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card"  v-for="card in dataGraphic" :key="card.title" />
+                <preview-card  @change-data="editChartItem" @delete-data="deleteChartItem"  :data="card"  v-for="card in chartNodeList" :key="card.title" />
               </div>
             </div>
             <div class="tab-item-body">
               <form @submit.prevent action="" class="tab-item-form">
                 <div class="radio-group">
-                  <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="createGraphic.type" :title="radio.title" :name="radio.radiotype">
+                  <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
                     <component :is=" radio.component"></component>
                   </BaseInputClickable>
                 </div>
-                <base-input v-model="createGraphic.title">
+                <base-input v-model="chartNode.title">
                   Название
                 </base-input>
 
-                <base-input :type="'number'" v-model="createGraphic.value">
+                <base-input :type="'number'" v-model="chartNode.value">
                   Количество
                 </base-input>
                 <div class="tab-item-form__controls">
-                  <base-button :classes="['button-green']" @click="appendToGraphic">Добавить</base-button>
-                  <base-button :classes="['button-red']" @click="clearGraphicForm">Очистить</base-button>
+                  <base-button :classes="['button-green']" @click="appendChartItem">Добавить</base-button>
+                  <base-button :classes="['button-red']" @click="clearChartItem">Очистить</base-button>
                 </div>
               </form>
             </div>
@@ -288,6 +156,13 @@ provide("LINKS_UPDATE",provideLinks);
               <h3 class="tab-item__name">
                 Создание графиков
               </h3>
+              <div class="todo">
+                <ol>
+                  <li>Сделать динамическую привязку данных(Граф)</li>
+                  <li>Сделать динамическую привязку данных(Графики)</li>
+                  <li>Сделать возможность клика по любому елементу и переходить по ссылке</li>
+                </ol>
+              </div>
               <div class="tab-item__preview" v-show="graphNodeList.length>0" >
                 <div class="preview-list">
                   <preview-card  @change-data="editNode" @delete-data="deleteNode"  :data="card" :title="card.title" :value="card.value" v-for="card in graphNodeList" :key="card.title" />
@@ -358,7 +233,7 @@ provide("LINKS_UPDATE",provideLinks);
 
 
 <!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
-      <vue-chart v-if="isGraph"  :type="'graph'" :experement-data="graphLinkList" :update-data="dataGraphic" :links="graphLinkList" :options-data="dataGraphic"   />
+      <vue-chart v-if="isGraph"  :type="'graph'" :experement-data="graphLinkList" :update-data="chartNodeList" :links="graphLinkList" :options-data="chartNodeList"   />
 <!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>
