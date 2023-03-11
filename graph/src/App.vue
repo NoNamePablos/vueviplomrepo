@@ -32,7 +32,7 @@ const {
 
 ///
 ///chart import
-const {chartNode,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem}=useChartController(radiogroup);
+const {chartNode,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem}=useChartController();
 
 ///
 
@@ -165,7 +165,7 @@ computed(()=>{
               </div>
               <div class="tab-item__preview" v-show="graphNodeList.length>0" >
                 <div class="preview-list">
-                  <preview-card  @change-data="editNode" @delete-data="deleteNode"  :data="card" :title="card.title" :value="card.value" v-for="card in graphNodeList" :key="card.title" />
+                  <preview-card  @change-data="editNode" @delete-data="deleteNode"  :data="card" :title="card.name" :value="card.value" v-for="card in graphNodeList" :key="card.name" />
 
                 </div>
               </div>
@@ -175,7 +175,7 @@ computed(()=>{
                   <div>Схема добавления удаления узла для графа</div>
                   <div>Вынести логику</div>
                   <div>Сделать id,нормально отрисовать граф,вынести логику графиков,начать делать ноде граф едитор</div>
-                  <base-input v-model="graphNode.title">
+                  <base-input v-model="graphNode.name">
                     Название
                   </base-input>
                   <base-input :type="'number'" v-model="graphNode.x" >
@@ -201,8 +201,8 @@ computed(()=>{
                 </div>-->
                 <div class="preview-list" >
                     <div class="item" v-for="(item,idx) in graphLinkList" :key="idx">
-                      <div>{{item?.source?.title}}</div>
-                      <div>{{item?.target?.title}}</div>
+                      <div>{{item?.source?.name}}</div>
+                      <div>{{item?.target?.name}}</div>
                     </div>
                 </div>
               </div>
@@ -233,7 +233,7 @@ computed(()=>{
 
 
 <!--      <vue-chart v-if="isSaveGraph&&!isGraph"  :type="dataFinal[0]?.type" :links="graphLinkList"  :options-data="dataFinal"/>-->
-      <vue-chart v-if="isGraph"  :type="'graph'" :experement-data="graphLinkList" :update-data="chartNodeList" :links="graphLinkList" :options-data="chartNodeList"   />
+      <vue-chart v-if="isGraph"  :type="'graph'" :experement-data="graphLinkList" :update-data="chartNodeList" :links="graphLinkList" :options-data="graphNodeList"   />
 <!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>

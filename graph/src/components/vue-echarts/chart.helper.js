@@ -55,12 +55,12 @@ export const converterGraphData=(array)=>{
         return item;
     })];
 }
-export const converterGraphLinks=(array)=>{
+export const converterGarphLinks=(array)=>{
     console.log("addded");
     let copyArr=JSON.parse(JSON.stringify(array));
     copyArr.forEach((el)=>{
-        el.source=el.source.title;
-        el.target=el.target.title;
+        el.source=el.source.name;
+        el.target=el.target.name;
     })
 
     /*    array.forEach((el)=>{

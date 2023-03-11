@@ -9,7 +9,7 @@
         </div>
       </div>
       <ul class="v-select-list"     >
-        <li :class="['v-select-list__item',{'active':config.activeId===listItem.localId}]" v-if="searchAndLoadList.length!==0" @click="selectedItem(listItem,idx)"   v-for="(listItem,idx) in searchAndLoadList">{{listItem?.title}}</li>
+        <li :class="['v-select-list__item',{'active':config.activeId===listItem.localId}]" v-if="searchAndLoadList.length!==0" @click="selectedItem(listItem,idx)"   v-for="(listItem,idx) in searchAndLoadList">{{listItem?.name}}</li>
         <div class="v-select-error" v-else>Пусто(</div>
       </ul>
     </div>
@@ -46,7 +46,7 @@ const config=ref({
 })
 
 const searchAndLoadList=computed(()=>{
-  return config.value.selectedList.filter((item)=>item?.title.toLowerCase().includes(searchInput.value.toLowerCase()))
+  return config.value.selectedList.filter((item)=>item?.name.toLowerCase().includes(searchInput.value.toLowerCase()))
 })
 
 

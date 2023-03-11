@@ -3,7 +3,7 @@
     <div class="preview-card__body">
       <div class="preview-card__prop">
         <h3 class="preview-card__prop-title">Название</h3>
-        <div class="preview-card__title">{{ data?.title }}</div>
+        <div class="preview-card__title">{{ title }}</div>
       </div>
 
       <div class="preview-card__prop" v-if="(data?.x==null||data.x=='')">
@@ -30,18 +30,29 @@
 </template>
 
 <script setup>
+import {computed} from "vue";
+
 const emits=defineEmits(['changeData','deleteData'])
  const props=defineProps({
    data:{
      type:Object,
      required:false,
-   }
+   },
+   title:{
+    type:String,
+    required: false,
+  }
 
  })
  const changeValue=()=>{
 
    emits('changeData',props.data);
  }
+ const title=computed(()=>{
+   if((props.data?.title===null||props.data?.title===""||props.data?.title==='undefined')&&(props.title!="")){
+     return props.title;
+   }
+ })
  const deleteValue=()=>{
    emits('deleteData',props.data);
  }

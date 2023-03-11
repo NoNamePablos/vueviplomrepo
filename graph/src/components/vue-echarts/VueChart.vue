@@ -1,15 +1,21 @@
 <template>
   <div >
-    <vue-echarts   class="chart"    :option="option" />
+    <vue-echarts   class="chart" @setOption="appendObject"  ref="chart"  :option="option" />
   </div>
   <div>Props res: {{experementData}}</div>
+  <div>Option: {{optionsData}}</div>
+  <div>append object: {{appendObject}}</div>
+  <div style="background-color: #1D9FE7;color:black">
+    {{beforeUpdateLinks}}
+  </div>
 </template>
 <script setup>
 
   import {VueEcharts} from "@/components/vue-echarts/index";
+  import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
  /* import {useCharts} from "@/hooks/useCharts";*/
   import {useGraph} from "@/hooks/useGraph";
-  import {computed, inject, onMounted, onUpdated, ref} from "vue";
+  import {computed, inject, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
   const props=defineProps({
     optionsData:{
       type:Array,
@@ -29,29 +35,51 @@
       required:false,
     },
     experementData:{
-      type:Array,
+      type:Object,
       required:false,
     }
 
   })
-  const linksArray=ref([]);
-  const logg=(val)=>{
-    console.log( val );
-  }
-  const refData=ref(null);
-  const links = computed({
-    // getter
-    get() {
-      return linksArray.value;
-    },
-    // setter
-    set(newValue) {
-     linksArray.value.push(newValue);
-    }
+  const beforeUpdateLinks=ref([]);
+  const chart = ref(null)
+  //теоретически тут можно ускорить и обернуть пропсы в computed
+  onBeforeUpdate(()=>{
+    beforeUpdateLinks.value=converterGarphLinks(props.links);
+    appendObject.value.series[0].links=beforeUpdateLinks.value;
+    chart.value.refreshChart();
   })
+  onUpdated(()=>{
+    chart.value.setOption(computedArray.value);
+  })
+  onBeforeMount(()=>{
+    beforeUpdateLinks.value=converterGarphLinks(props.links);
+  })
+  onMounted(()=>{
+    appendObject.value.series[0].links=beforeUpdateLinks.value;
+    chart.value.setOption(appendObject.value);
+  })
+  const computedArray=computed(()=>{
+    return appendObject.value;
+  },{},{cache:false})
 
+
+  const appOnj=computed(()=>{
+    return appendObject.value;
+  })
+  const appendObject=ref({
+    series:[{
+      data:props.optionsData,
+      links:beforeUpdateLinks.value,
+    }]
+  })
+  computed(()=>{
+    return appendObject.value;
+  })
   /*const {optionChart}=useCharts(props)*/
-  const {option}=useGraph(props);
+  const {option}=useGraph();
+
+
+
 
 </script>
 

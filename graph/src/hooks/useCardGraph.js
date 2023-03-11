@@ -2,7 +2,7 @@ import {computed, ref} from "vue";
 
 export const useCardGraph=()=>{
     const graphNode=ref({
-        title:"",
+        name:"",
         x:"",
         y:"",
     })
@@ -63,21 +63,21 @@ export const useCardGraph=()=>{
 
 
     const clearGraphNode=()=>{
-        graphNode.value.title="";
+        graphNode.value.name="";
         graphNode.value.x="";
         graphNode.value.y="";
     }
     const appendItem=()=>{
         const data={
-            title:graphNode.value.title,
+            name:graphNode.value.name,
             x:graphNode.value.x,
             y:graphNode.value.y,
         }
-        console.log("add: ",data);
+        console.log("add graph node: ",data);
         //Проверка на редактирование если tempData не !=Null;
         //Кастомное событие change-data;
         if(Object.keys(tempData.value).length !== 0){
-            let index=graphNodeList.value.findIndex(element => element?.title===tempData.value?.title);
+            let index=graphNodeList.value.findIndex(element => element?.name===tempData.value?.name);
             console.log("before update graph node:  ",graphNodeList.value[index]);
             graphNodeList.value[index]=data;
             console.log("after update graph node: ",graphNodeList.value[index]);
@@ -92,13 +92,13 @@ export const useCardGraph=()=>{
     }
     const editNode=(value)=>{
         tempData.value=value;
-        graphNode.value.title=tempData.value?.title;
+        graphNode.value.name=tempData.value?.name;
         graphNode.value.x=tempData.value?.x;
         graphNode.value.y=tempData.value?.y;
 
     }
     const deleteNode=(value)=>{
-        let index=graphNodeList.value.findIndex(element => element?.title===value?.title);
+        let index=graphNodeList.value.findIndex(element => element?.name===value?.name);
         if (index > -1) {
             console.log("remove value node: ",graphNodeList[index]);
             graphNodeList.value.splice(index, 1);
