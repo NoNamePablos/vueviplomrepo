@@ -2,11 +2,10 @@
   <div >
     <vue-echarts   class="chart" @setOption="appendObject"  ref="chart"  :option="option" />
   </div>
-  <div>Props res: {{experementData}}</div>
   <div>Option: {{optionsData}}</div>
   <div>append object: {{appendObject}}</div>
   <div style="background-color: #1D9FE7;color:black">
-    {{beforeUpdateLinks}}
+    {{links}}
   </div>
 </template>
 <script setup>
@@ -15,7 +14,7 @@
   import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
  /* import {useCharts} from "@/hooks/useCharts";*/
   import {useGraph} from "@/hooks/useGraph";
-  import {computed, inject, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
+  import {computed, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
   const props=defineProps({
     optionsData:{
       type:Array,
@@ -34,29 +33,38 @@
   const chart = ref(null)
   //теоретически тут можно ускорить и обернуть пропсы в computed
   onBeforeUpdate(()=>{
-    if(props.type.toLowerCase()==='graph'){
+    if(props.type==='graph'){
       beforeUpdateLinks.value=converterGarphLinks(props.links);
+      console.log("Before updated links: ",beforeUpdateLinks.value);
       appendObject.value.series[0].links=beforeUpdateLinks.value;
-    }else{
-
     }
-    chart.value.refreshChart();
+
+      chart.value.refreshChart();
   })
   onUpdated(()=>{
-    if(props.type.toLowerCase()==='graph'){
+    if(props.type==='graph') {
       chart.value.setOption(computedArray.value);
+
     }
   })
+  //Выдергивать объект с обновлением из внешнего файла
+  //Порабоать над карточками
+  //После того как всё будет красиво динамично доабавляться,проработать визуал
+
+
+
   onBeforeMount(()=>{
-    if(props.type.toLowerCase()==='graph'){
+    if(props.type==='graph') {
       beforeUpdateLinks.value=converterGarphLinks(props.links);
+      console.log("Before mounted links: ",beforeUpdateLinks.value);
     }
   })
   onMounted(()=>{
-    if(props.type.toLowerCase()==='graph'){
+    if(props.type==='graph') {
       appendObject.value.series[0].links=beforeUpdateLinks.value;
       chart.value.setOption(appendObject.value);
     }
+
   })
   const computedArray=computed(()=>{
     return appendObject.value;

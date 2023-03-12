@@ -4,6 +4,7 @@ import {tabBlock, tabUnlock} from "@/utils/tabs.routes";
 
 export const useChartController=()=>{
 
+    const chartType=ref(radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title);
     const chartNode=ref({
         type:radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title,
         title:'',
@@ -27,6 +28,7 @@ export const useChartController=()=>{
             title:chartNode.value.title,
             value:chartNode.value.value,
         }
+        chartType.value=chartNode.value.type;
         console.log("add object data into chart: {data} ",data);
         //Проверка на редактирование если tempData не !=Null;
         //Кастомное событие change-data;
@@ -66,11 +68,12 @@ export const useChartController=()=>{
         }
         if(chartNodeList.value.length===0){
             tabUnlock();
+            chartType.value=radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title;
         }
     }
 
     return {
-        chartNode,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isLockedRadio,isChart
+        chartNode,chartType,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isLockedRadio,isChart
     }
 
 }
