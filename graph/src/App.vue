@@ -13,6 +13,7 @@ import {useCardGraph} from "./hooks/useCardGraph";
 import {useChartController} from "@/hooks/useChartController";
 import {radiogroup} from "@/utils/radiogroup.routes";
 import {tabs,tabGraph} from "@/utils/tabs.routes";
+import VueGraph from "./components/vue-echarts/VueGraph.vue";
 ///graph import
 const {
   graphNode,
@@ -193,9 +194,9 @@ computed(()=>{
     </div>
     <div class="graph-editor__draw">
       <!----todo vue-echart set option and add dinamicly data  ---->
-      <vue-chart v-if="isChart"  :type="chartType"   :options-data="chartNodeList"   />
-<!--      <vue-chart v-if="isGraph"  :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />-->
-      <h1 v-else>Здесь должен быть граф/график</h1>
+<!--      <vue-chart v-if="isChart"  :type="chartType"   :options-data="chartNodeList"   />-->
+      <vue-graph  v-if="isGraph"  :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
+<!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
     </div>
   </div>
 

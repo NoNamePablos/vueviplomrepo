@@ -1,8 +1,58 @@
-import {ref} from "vue";
+import {computed, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
 import {ParseOption} from "@/components/vue-echarts/chart.helper";
 
 export const useCharts=(props)=>{
-    const parsedData=ParseOption(props.optionsData);
+        const parsedData=ref(ParseOption(props.optionsData));
+
+        const optionUpdate=ref({
+            xAxis:[
+                {
+                    data:[]
+                }
+            ],
+            series: [{
+                data: [],
+                type:'pie',
+            }]
+        })
+        const chartChart =ref(null);
+        const computedArray=computed(()=>{
+            return optionUpdate.value;
+        })
+    onBeforeUpdate(()=>{
+        if(props.type!=='graph'){
+            parsedData.value=ParseOption(props.optionsData);
+            optionUpdate.value.xAxis[0].data=parsedData.value?.xAxis;
+            optionUpdate.value.series[0].data=parsedData.value?.yAxis;
+            optionUpdate.value.series[0].type=parsedData.value?.typeChart;
+            console.log("Before updated data object chart: ",parsedData.value);
+            chartChart.value.refreshChart();
+        }
+    })
+    onUpdated(()=>{
+        if(props.type!=='graph'){
+
+            chartChart.value.setOption(computedArray.value);
+            console.log("type chart: ",props.type);
+        }
+    })
+    onBeforeMount(()=>{
+        if(props.type!=='graph'){
+
+            parsedData.value=ParseOption(props.optionsData);
+            optionUpdate.value.xAxis[0].data=parsedData.value?.xAxis;
+            optionUpdate.value.series[0].data=parsedData.value?.yAxis;
+            optionUpdate.value.series[0].type=parsedData.value?.typeChart;
+            console.log("Before mounted data object : ",parsedData.value);
+        }
+    })
+    onMounted(()=>{
+        if(props.type!=='graph'){
+
+            chartChart.value.setOption(optionUpdate.value);
+        }
+    })
+
     const optionChart=ref({
         tooltip: {
             trigger: 'item'
@@ -13,28 +63,15 @@ export const useCharts=(props)=>{
         },
         xAxis: {
             type: 'category',
-            data: parsedData?.xAxis
+            data: []
         },
         yAxis: {
             type: 'value'
         },
         series: [
             {
-                data: parsedData.yAxis,
-                links:parsedData?.links,
-                type: parsedData.typeChart,
-                edgeSymbol: ()=>{
-                    if(parsedData.typeChart==='graph'){
-                        return ['circle', 'arrow'];
-                    }
-                    return [];
-                },
-                edgeSymbolSize:()=>{
-                    if(parsedData.typeChart==='graph'){
-                        return [4, 10];
-                    }
-                    return [];
-                } ,
+                data: [],
+                type: "pie",
                 edgeLabel: {
                     fontSize: 20
                 },
@@ -52,10 +89,7 @@ export const useCharts=(props)=>{
             }
         ],
     })
-    const addChart=(props)=>{
-        console.log("add");
-    }
     return {
-        addChart,optionChart,parsedData,
+        optionChart,parsedData,chartChart,optionUpdate
     }
 }

@@ -59,7 +59,7 @@ export const useCardGraph=()=>{
 
     const tempData=ref({});
 
-    const isGraph=()=>graphNodeList.value.length>0?true:false;
+    const isGraph=ref(false);
 
 
 
@@ -87,6 +87,8 @@ export const useCardGraph=()=>{
         }else{
             console.log("is appended data: ",data);
             graphNodeList.value.push(data);
+            isGraph.value=true;
+
             tabBlock('graph');
             console.log("Graph node list: ",graphNodeList.value);
         }
@@ -107,6 +109,7 @@ export const useCardGraph=()=>{
             console.log("remove data in graph: ",graphNodeList.value);
         }
         if(graphNodeList.value.length===0){
+            isGraph.value=false;
             tabUnlock();
         }
     }

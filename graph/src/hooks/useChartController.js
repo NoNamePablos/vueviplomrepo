@@ -1,4 +1,4 @@
-import {computed, ref} from "vue";
+import {computed, ref,watch} from "vue";
 import {radiogroup} from "@/utils/radiogroup.routes";
 import {tabBlock, tabUnlock} from "@/utils/tabs.routes";
 
@@ -21,7 +21,8 @@ export const useChartController=()=>{
         chartNode.value.title="";
         chartNode.value.value="";
     }
-    const isChart=()=>chartNodeList.value.length>0?true:false;
+    const isChart=ref(false);
+
     const appendChartItem=()=>{
         const data={
             type:chartNode.value.type,
@@ -49,6 +50,7 @@ export const useChartController=()=>{
                 console.log("test data:: ",data)
             }
             chartNodeList.value.push(data);
+            isChart.value=true;
             tabBlock('chart');
         }
         clearChartItem();
@@ -68,6 +70,7 @@ export const useChartController=()=>{
         }
         if(chartNodeList.value.length===0){
             tabUnlock();
+            isChart.value=false;
             chartType.value=radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title;
         }
     }

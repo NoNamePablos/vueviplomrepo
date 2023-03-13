@@ -1,6 +1,9 @@
+import {computed, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
+import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
 
-export const useGraph=()=>{
+export const useGraph=(props)=>{
 
+    /*const {optionChart}=useCharts(props)*/
     const option = {
         title: {
             text: 'Basic Graph'
