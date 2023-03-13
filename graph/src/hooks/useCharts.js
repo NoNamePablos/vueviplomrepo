@@ -1,4 +1,4 @@
-import {computed, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
+import {computed, onBeforeMount, onErrorCaptured, onMounted, onUpdated, ref, watchEffect,watch,shallowRef} from "vue";
 import {ParseOption} from "@/components/vue-echarts/chart.helper";
 
 export const useCharts=(props)=>{
@@ -10,16 +10,18 @@ export const useCharts=(props)=>{
                     data:[]
                 }
             ],
-            series: [{
-                data: [],
-                type:'pie',
-            }]
+            series: [
+                {
+                    data: [],
+                    type:'pie',
+                }
+            ]
         })
         const chartChart =ref(null);
         const computedArray=computed(()=>{
             return optionUpdate.value;
         })
-    onBeforeUpdate(()=>{
+    /*onBeforeUpdate(()=>{
         if(props.type!=='graph'){
             parsedData.value=ParseOption(props.optionsData);
             optionUpdate.value.xAxis[0].data=parsedData.value?.xAxis;
@@ -35,24 +37,33 @@ export const useCharts=(props)=>{
             chartChart.value.setOption(computedArray.value);
             console.log("type chart: ",props.type);
         }
+    })*/
+    onErrorCaptured((err, instance, info)=>{
+        console.log("error: ",{err,instance,info});
     })
+    const data=shallowRef(props.optionsData);
+    const isMounted=ref(false)
     onBeforeMount(()=>{
-        if(props.type!=='graph'){
+        parsedData.value=ParseOption(props.optionsData);
+        console.log("parse1: ",parsedData.value);
 
-            parsedData.value=ParseOption(props.optionsData);
-            optionUpdate.value.xAxis[0].data=parsedData.value?.xAxis;
-            optionUpdate.value.series[0].data=parsedData.value?.yAxis;
-            optionUpdate.value.series[0].type=parsedData.value?.typeChart;
-            console.log("Before mounted data object : ",parsedData.value);
-        }
+        optionUpdate.value.xAxis[0].data=parsedData.value?.xAxis;
+        optionUpdate.value.series[0].data=parsedData.value?.yAxis;
+        optionUpdate.value.series[0].type=parsedData.value?.typeChart;
     })
     onMounted(()=>{
-        if(props.type!=='graph'){
-
-            chartChart.value.setOption(optionUpdate.value);
-        }
+        chartChart.value.setOption(optionUpdate.value);
     })
-
+    watch(() => props.optionsData, (newValue, oldValue) => {
+        data.value=newValue;
+        parsedData.value=ParseOption(data.value);
+        console.log("parse: watch ",parsedData.value);
+        optionUpdate.value.xAxis[0].data=parsedData.value?.xAxis;
+        optionUpdate.value.series[0].data=parsedData.value?.yAxis;
+        optionUpdate.value.series[0].type=parsedData.value?.typeChart;
+        console.log("option update: ",optionUpdate.value);
+        chartChart.value.setOption(optionUpdate.value);
+    },{deep:true})
     const optionChart=ref({
         tooltip: {
             trigger: 'item'

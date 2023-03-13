@@ -194,9 +194,9 @@ computed(()=>{
     </div>
     <div class="graph-editor__draw">
       <!----todo vue-echart set option and add dinamicly data  ---->
-<!--      <vue-chart v-if="isChart"  :type="chartType"   :options-data="chartNodeList"   />-->
-      <vue-graph  v-if="isGraph"  :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
-<!--      <h1 v-else>Здесь должен быть граф/график</h1>-->
+      <vue-chart v-if="isChart"  :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />
+      <vue-graph  v-else-if="isGraph"  :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
+      <h1 v-else>Здесь должен быть граф/график</h1>
     </div>
   </div>
 

@@ -1,6 +1,6 @@
 <template>
   <div >
-    <vue-echarts   class="chart chart-chart"   @setOption="optionUpdate"   ref="chartChart"  :option="optionChart" />
+    <vue-echarts   class="chart chart-chart"   ref="chartChart"  :option="optionChart" />
   </div>
 
 </template>

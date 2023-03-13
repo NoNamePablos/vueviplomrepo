@@ -34,7 +34,8 @@ export const ParseOption=(options)=>{
         xAxis:xAxisTemp,
         yAxis:yAxisTemp,
         typeChart:typeChart,
-        links:links
+        links:links,
+        length:xAxisTemp.length
     }
 }
 export const converterGraphData=(array)=>{
