@@ -1,7 +1,7 @@
 
 export const mockDataChart={
     production:false,//есть возможность добавлять элементы
-    type:"chart",
+    type:"chart",//chart
     typeChart:"pie",//Bar//Line
     optionData:[
         {
