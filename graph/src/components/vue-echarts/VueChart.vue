@@ -1,6 +1,6 @@
 <template>
   <div >
-    <vue-echarts   class="chart chart-chart"   ref="chartChart"  :option="optionChart" />
+    <vue-echarts @click="logger"  class="chart chart-chart"   ref="chartChart"  :option="optionChart" />
   </div>
 
 </template>
@@ -23,7 +23,7 @@
     },
   })
   const {
-    optionChart,chartChart,optionUpdate
+    optionChart,chartChart,logger
   }=useCharts(props);
 
 

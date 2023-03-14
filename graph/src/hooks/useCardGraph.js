@@ -6,6 +6,7 @@ export const useCardGraph=()=>{
         name:"",
         x:"",
         y:"",
+        link:""
     })
     const graphLinkFields=ref({
         source:{},
@@ -67,12 +68,14 @@ export const useCardGraph=()=>{
         graphNode.value.name="";
         graphNode.value.x="";
         graphNode.value.y="";
+        graphNode.value.link="";
     }
     const appendItem=()=>{
         const data={
             name:graphNode.value.name,
             x:graphNode.value.x,
             y:graphNode.value.y,
+            link:graphNode.value.link
         }
         console.log("add graph node: ",data);
         //Проверка на редактирование если tempData не !=Null;
@@ -99,6 +102,8 @@ export const useCardGraph=()=>{
         graphNode.value.name=tempData.value?.name;
         graphNode.value.x=tempData.value?.x;
         graphNode.value.y=tempData.value?.y;
+        graphNode.value.link=tempData.value?.link;
+
 
     }
     const deleteNode=(value)=>{

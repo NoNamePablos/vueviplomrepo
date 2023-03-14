@@ -64,6 +64,13 @@ export const useCharts=(props)=>{
         console.log("option update: ",optionUpdate.value);
         chartChart.value.setOption(optionUpdate.value);
     },{deep:true})
+
+    const logger=(value)=>{
+        console.log(value);
+        window.open(''+value.data.link,'_blank');
+    }
+
+
     const optionChart=ref({
         tooltip: {
             trigger: 'item'
@@ -101,6 +108,6 @@ export const useCharts=(props)=>{
         ],
     })
     return {
-        optionChart,parsedData,chartChart,optionUpdate
+        optionChart,parsedData,chartChart,optionUpdate,logger,
     }
 }

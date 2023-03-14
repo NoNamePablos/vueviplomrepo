@@ -25,20 +25,4 @@ export const radiogroup=reactive([
         )),
         selected:false,
     },
-    {
-        title:'Graph',
-        radiotype:'typeChart',
-        component:markRaw(defineAsyncComponent(() =>
-            import('@/components/icons/chart/IconGraphChart.vue')
-        )),
-        selected:false,
-    },
-    {
-        title:'Tree',
-        radiotype:'typeChart',
-        component:markRaw(defineAsyncComponent(() =>
-            import('@/components/icons/chart/IconTreeChart.vue')
-        )),
-        selected:false,
-    },
 ])

@@ -6,7 +6,7 @@ export const useChartController=()=>{
 
     const chartType=ref(radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title);
     const chartNode=ref({
-        type:radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title,
+        type:radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title.toLowerCase(),
         title:'',
         value:'',
     })
@@ -25,7 +25,7 @@ export const useChartController=()=>{
 
     const appendChartItem=()=>{
         const data={
-            type:chartNode.value.type,
+            type:chartNode.value.type.toLowerCase(),
             title:chartNode.value.title,
             value:chartNode.value.value,
         }
@@ -71,7 +71,7 @@ export const useChartController=()=>{
         if(chartNodeList.value.length===0){
             tabUnlock();
             isChart.value=false;
-            chartType.value=radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title;
+            chartType.value=radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title.toLowerCase();
         }
     }
 

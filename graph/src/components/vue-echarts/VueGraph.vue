@@ -1,13 +1,23 @@
 <template>
-  <vue-echarts   class="chart" @setOption="appendObject"  ref="chart"  :option="option" />
+  <vue-echarts @click="logger"  class="chart" @setOption="appendObject"  ref="chart"  :option="option" />
 </template>
 
 <script setup>
-import {computed, onBeforeMount, onBeforeUpdate, onErrorCaptured, onMounted, onUpdated, ref,watchEffect} from "vue";
+import {
+  computed,
+  onBeforeMount,
+  onBeforeUpdate,
+  onErrorCaptured,
+  onMounted,
+  onUpdated,
+  ref,
+  shallowRef, watch,
+  watchEffect
+} from "vue";
 
 import {VueEcharts} from "@/components/vue-echarts/index";
 import {useGraph} from "@/hooks/useGraph";
-import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
+import {converterGarphLinks, ParseOption} from "@/components/vue-echarts/chart.helper";
 
 const props=defineProps({
   optionsData:{
@@ -58,33 +68,38 @@ onErrorCaptured((err, instance, info)=>{
 //Порабоать над карточками
 //После того как всё будет красиво динамично доабавляться,проработать визуал
 
+const dataLinks=shallowRef(props.links);
+const data=shallowRef(props.optionsData);
+const parsedData=ref([]);
+watch(() => props.links, (newValue, oldValue) => {
+  dataLinks.value=newValue;
+  beforeUpdateLinks.value=converterGarphLinks(dataLinks.value);
+  console.log("parse: watch ",beforeUpdateLinks.value);
+  appendObject.value.series[0].links=beforeUpdateLinks.value;
+  chart.value.setOption(appendObject.value);
+},{deep:true})
+watch(() => props.optionsData, (newValue, oldValue) => {
+  data.value=newValue;
+  parsedData.value=data.value;
+  appendObject.value.series[0].data=parsedData.value;
+  chart.value.setOption(appendObject.value);
+},{deep:true})
+
+const logger=(value)=>{
+  console.log(value);
+  window.open(''+value.data.link,'_blank');
+}
 
 
 onBeforeMount(()=>{
-  if(props.type==='graph') {
-    console.log("graph1");
-
     beforeUpdateLinks.value=converterGarphLinks(props.links);
-    console.log("Before mounted links: ",beforeUpdateLinks.value);
-  }
 })
 onMounted(()=>{
-  if(props.type==='graph') {
-    console.log("graph1");
     appendObject.value.series[0].links=beforeUpdateLinks.value;
     chart.value.setOption(appendObject.value);
-  }
-
 })
 
-watchEffect(()=>{
-  beforeUpdateLinks.value=converterGarphLinks(props.links);
-  appendObject.value.series[0].links=beforeUpdateLinks.value;
-  appendObject.value.series[0].data=props.optionsData;
-  if(props.optionsData.length>1||props.links.length>0){
-    chart.value.setOption(appendObject.value);
-  }
-})
+
 
 
 </script>
