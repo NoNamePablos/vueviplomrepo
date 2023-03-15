@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "echarts": "^5.4.1",
+    "paper": "^0.12.17",
     "sass": "^1.58.3",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"

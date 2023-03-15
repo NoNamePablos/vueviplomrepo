@@ -1,11 +1,14 @@
 <template>
     <div class="header">
-      <div class="logo">
-        БЗ
-      </div>
+      <router-link to="/">
+        <div class="logo">
+          БЗ
+        </div>
+      </router-link>
       <ul class="nav-list">
         <router-link to="/">Создание графа</router-link>
         <router-link to="/load">Готовый граф</router-link>
+        <router-link to="/draw">Создать схему</router-link>
       </ul>
     </div>
 </template>
