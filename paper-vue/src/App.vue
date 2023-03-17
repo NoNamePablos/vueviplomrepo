@@ -43,8 +43,24 @@ import paper, {Group} from "paper";
       icon:'',
     },{
     id:5,
+      name:'hexagon',
+      icon:'',
+    },
+    {
+      id:6,
       name:'loop',
       icon:'',
+    },
+    {
+      id:7,
+      name:'romb',
+      icon:'',
+    },
+    {
+      id:8,
+      name:'arrow',
+      icon:'',
+
     }
     ]
 
@@ -71,8 +87,66 @@ import paper, {Group} from "paper";
     const index=paperController.findIndex((item)=>item.id===id);
     const name=paperController[index].name;
     const center = paper.view.center;
+    if(name==='arrow'){
+
+
+    }
+    if(name==='romb'){
+      var points2= [
+        new paper.Point(100, 100),
+         new paper.Point(150, 50),
+         new paper.Point(200, 100),
+        new  paper.Point(150, 150),
+      ];
+      var romb = new paper.Path({
+        segments: points2,
+        closed:true,
+        strokeColor:'black',
+        fillColor:"white",
+        strokeWidth:3,
+      });
+      romb.position=paper.view.center;
+      romb.onMouseDrag=(event)=>{
+        console.log("selected: ",selectedItem.value);
+
+        if (selectedItem.value){
+          romb.position = event.point.subtract(dragOffset);
+        }
+      }
+
+      paper.project.activeLayer.addChild(romb);
+    }
     if(name==='loop'){
-      /*var points = [
+      var points1= [
+        new paper.Point(0, 0),
+        new paper.Point(-100, 0),
+        new paper.Point(-100, -75),
+        new paper.Point(0,-100),
+        new paper.Point(100,-75),
+        new paper.Point(100,0),
+        new paper.Point(-100,0),
+      ];
+      // Создаем путь из точек
+      var loop = new paper.Path({
+        segments: points1,
+
+        strokeColor:'black',
+        fillColor:"white",
+        strokeWidth:3,
+      });
+      loop.position=paper.view.center;
+      loop.onMouseDrag=(event)=>{
+        console.log("selected: ",selectedItem.value);
+
+        if (selectedItem.value){
+          loop.position = event.point.subtract(dragOffset);
+        }
+      }
+
+      paper.project.activeLayer.addChild(loop);
+    }
+    if(name==='hexagon'){
+      var points = [
         new paper.Point(0, 0),
         new paper.Point(100, 0),
         new paper.Point(150, 75),
@@ -80,57 +154,27 @@ import paper, {Group} from "paper";
         new paper.Point(0, 150),
         new paper.Point(-50, 75)
       ];
-
-// Создаем путь из точек
+      // Создаем путь из точек
       var hexagon = new paper.Path({
         center:center,
         segments: points,
         closed: true,
         strokeColor:'black',
+        fillColor:"white",
         strokeWidth:2,
       });
-      var decagon = new paper.Path.RegularPolygon(new paper.Point(200, 50),5, 50);
-      decagon.fillColor = '#e9e9ff';
-      decagon.onMouseDrag=(event)=>{
+
+      hexagon.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
+        let bounds=hexagon.bounds;
+        let center=new paper.Point((bounds.left+bounds.right)/2,(bounds.top+bounds.bottom)/2);
+
         if (selectedItem.value){
-          decagon.position = event.point.subtract(dragOffset);
-        }
-      }*/
-      var rectangle = new paper.Path.Rectangle({
-        point: [50, 100], // начальная точка
-        size: [100, 50], // размер
-        fillColor: 'red' // цвет заливки
-      });
-
-// Создаем трапецию сверху
-      var trapezoid = new paper.Path({
-        segments: [
-          [75, 50], // верхняя левая точка
-          [125, 50], // верхняя правая точка
-          [150, 100], // нижняя правая точка
-          [50, 100] // нижняя левая точка
-        ],
-        fillColor: 'blue' // цвет заливки
-      });
-
-// Группируем оба объекта
-      var group = new paper.Group([rectangle, trapezoid]);
-
-      group.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
-        if (selectedItem.value){
-          group.position = event.point.subtract(dragOffset);
+          hexagon.position = event.point.subtract(dragOffset);
         }
       }
 
-      /*group.onMouseUp=(event)=>{
-        console.log("unselected");
-        selectedGroupItem.value=[];
-        isSelectedGroup.value=false;
-      }*/
-      /*paper.project.activeLayer.addChild(loopItemGroup());*/
-      paper.project.activeLayer.addChild(group);
+      paper.project.activeLayer.addChild(hexagon);
     }
     if(name==='text'){
       let text=new paper.PointText({
