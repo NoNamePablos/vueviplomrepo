@@ -61,6 +61,12 @@ import paper, {Group} from "paper";
       name:'arrow',
       icon:'',
 
+    },
+    {
+      id:9,
+      name:'process',
+      icon:'',
+
     }
     ]
 
@@ -87,18 +93,127 @@ import paper, {Group} from "paper";
     const index=paperController.findIndex((item)=>item.id===id);
     const name=paperController[index].name;
     const center = paper.view.center;
+    if(name==='process'){
+      // Создаем первый прямоугольник
+      let rect1 = new paper.Path.Rectangle({
+        point: [50, 50],
+        size: [100, 50],
+        fillColor: 'white',
+        strokeColor:'black',
+        strokeWidth:2,
+      });
+      // Создаем второй, меньший прямоугольник
+      let rect2 = new paper.Path.Rectangle({
+        point: [65, 50],
+        size: [70, 50],
+        fillColor: 'white',
+        strokeColor:'black',
+        strokeWidth:2,
+      });
+      // Создаем группу из двух прямоугольников
+      let group = new paper.Group([rect1, rect2]);
+      group.position=paper.view.center;
+      group.onMouseDrag=(event)=>{
+        if(paper.Key.isDown('shift')){
+          let scale =1.1;
+          let delta = event.delta;
+          if (delta.x < 0 && delta.y < 0) {
+            group.scale(1/scale);
+
+          }else if (delta.x > 0 && delta.y > 0) {
+            // движение мыши вниз-вправо, увеличиваем элемент
+              group.scale(scale);
+          }
+        }
+          group.position = event.point.subtract(dragOffset);
+      }
+      // Добавляем его на холст
+      paper.project.activeLayer.addChild(group);
+    }
     if(name==='arrow'){
+      let startPoint = new paper.Point(20, 20);
+      let endPoint = new paper.Point(80, 80);
+      let arrowVector = endPoint.subtract(startPoint);
+      let arrowSize = 60;
+      arrowVector.length -= arrowSize;
+
+// Создаем линию между начальной и конечной точками
+      let line = new paper.Path.Line(startPoint, endPoint);
+      line.strokeColor = 'black';
+      line.strokeWidth = 2;
+
+// Создаем стрелку
+      let arrow = new paper.Path([
+        endPoint,
+        endPoint.add(arrowVector.rotate(135)),
+        endPoint,
+        endPoint.add(arrowVector.rotate(-135))
+      ]);
+      arrow.fillColor = 'black';
+      arrow.strokeColor = 'black';
+      arrow.strokeWidth = 2;
+
+// Добавляем линию и стрелку на сцену
+      let group=new paper.Group([arrow,line]);
+
+      group.position=paper.view.center;
+      group.onMouseUp=(event)=>{
+        closestSegment.value=null;
+        segemntIndex.value=null;
+      }
+      group.onMouseDown=(event)=>{
+        console.log("ffff: ",group.firstChild);
+        const segmentDistances = group.firstChild.segments.map(segment => {
+          const distance = segment.point.getDistance(event.point);
+          return distance;
+        });
+        const closestSegmentIndex = segmentDistances.indexOf(Math.min(...segmentDistances));
+        const closestSegment1 = group.firstChild.segments[closestSegmentIndex]
+        if(event.point.getDistance(closestSegment1.point) <= 10){
+          closestSegment.value=closestSegment1;
+          segemntIndex.value=closestSegmentIndex;
+        }
+      }
+
+      group.onMouseMove = function(event) {
+        let delta = event.delta;
+        let direction = delta.normalize();
+
+        if (group.bounds.intersects(event.point)) {
+          if (direction.y > 0) {
+            group.position.y += delta.length;
+          } else if (direction.y < 0) {
+            group.position.y -= delta.length;
+          }
+        }
+      }
+      group.onMouseDrag=(event)=>{
+        if(paper.Key.isDown('shift')){
+          let scale =1.1;
+          let delta = event.delta;
+          if (delta.x < 0 && delta.y < 0) {
+            group.scale(1/scale);
+
+          }else if (delta.x > 0 && delta.y > 0) {
+            // движение мыши вниз-вправо, увеличиваем элемент
+            group.scale(scale);
+          }
+        }
+        /*group.position = event.point.subtract(dragOffset);*/
+      }
+
+      paper.project.activeLayer.addChild(group);
 
 
     }
     if(name==='romb'){
-      var points2= [
+      let points2= [
         new paper.Point(100, 100),
          new paper.Point(150, 50),
          new paper.Point(200, 100),
         new  paper.Point(150, 150),
       ];
-      var romb = new paper.Path({
+      let romb = new paper.Path({
         segments: points2,
         closed:true,
         strokeColor:'black',
@@ -107,17 +222,26 @@ import paper, {Group} from "paper";
       });
       romb.position=paper.view.center;
       romb.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
+        if(paper.Key.isDown('shift')){
+          let scale =1.1;
+          let delta = event.delta;
+          if (delta.x < 0 && delta.y < 0) {
 
-        if (selectedItem.value){
+            romb.scale(1/scale);
+
+          }else if (delta.x > 0 && delta.y > 0) {
+            // движение мыши вниз-вправо, увеличиваем элемент
+            romb.scale(scale);
+
+          }
+        }else{
           romb.position = event.point.subtract(dragOffset);
         }
       }
-
       paper.project.activeLayer.addChild(romb);
     }
     if(name==='loop'){
-      var points1= [
+      let points1= [
         new paper.Point(0, 0),
         new paper.Point(-100, 0),
         new paper.Point(-100, -75),
@@ -127,7 +251,7 @@ import paper, {Group} from "paper";
         new paper.Point(-100,0),
       ];
       // Создаем путь из точек
-      var loop = new paper.Path({
+      let loop = new paper.Path({
         segments: points1,
 
         strokeColor:'black',
@@ -146,7 +270,7 @@ import paper, {Group} from "paper";
       paper.project.activeLayer.addChild(loop);
     }
     if(name==='hexagon'){
-      var points = [
+      let points = [
         new paper.Point(0, 0),
         new paper.Point(100, 0),
         new paper.Point(150, 75),
@@ -155,7 +279,7 @@ import paper, {Group} from "paper";
         new paper.Point(-50, 75)
       ];
       // Создаем путь из точек
-      var hexagon = new paper.Path({
+      let hexagon = new paper.Path({
         center:center,
         segments: points,
         closed: true,
@@ -165,10 +289,6 @@ import paper, {Group} from "paper";
       });
 
       hexagon.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
-        let bounds=hexagon.bounds;
-        let center=new paper.Point((bounds.left+bounds.right)/2,(bounds.top+bounds.bottom)/2);
-
         if (selectedItem.value){
           hexagon.position = event.point.subtract(dragOffset);
         }
@@ -286,36 +406,48 @@ import paper, {Group} from "paper";
   }
   const onMouseDown=(event)=>{
     console.log("ev: ",event);
-    var hitResult = paper.project.hitTest(event.point);
-    if(hitResult&&hitResult.item){
-      /*if(paper.Key.isDown('Delete')){
-        hitResult.item.remove();
-      }*/
-
-      console.log("htr: ",hitResult);
-    }
+    let hitResult = paper.project.hitTest(event.point);
     if (hitResult && hitResult.item) {
       selectedItem.value = hitResult.item;
       selectedItem.value.selected=true;
-      dragOffset.value = event.point.subtract(selectedItem.position);
+      console.log("selected item: ",selectedItem.value);
+      dragOffset.value = event.point.subtract(selectedItem.value.position);
 
     }
   }
   const onMouseDrag=(event)=>{
-    if(paper.Key.isDown('shift')){
-      var scale =1.1;
-      var delta = event.delta;
+   /* if(paper.Key.isDown('shift')){
+      let scale =1.1;
+      let delta = event.delta;
       if (delta.x < 0 && delta.y < 0) {
-        selectedItem.value.scale(1/scale);
+        if(selectedItem.value.parent instanceof paper.Group){
+          selectedItem.value.parent.scale(1/scale);
+        }
+        else{
+          selectedItem.value.scale(1/scale);
+        }
+
       }else if (delta.x > 0 && delta.y > 0) {
         // движение мыши вниз-вправо, увеличиваем элемент
+        if(selectedItem.value.parent instanceof paper.Group)
+        {
+          selectedItem.value.parent.scale(scale);
+        }
+        else
+        {
           selectedItem.value.scale(scale);
-
+        }
       }
-    }
+    }*/
   }
   const onMouseUp=(event)=>{
     if(selectedItem.value){
+      if(selectedItem.value.parent instanceof paper.Group){
+        let parent=selectedItem.value.parent;
+        console.log("parent: ",parent);
+        unSelected(parent.children);
+        console.log("parent children: ",parent.children);
+      }
       selectedItem.value.selected = false;
       selectedItem.value = null;
       segemntIndex.value=null;
