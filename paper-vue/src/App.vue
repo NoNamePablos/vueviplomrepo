@@ -134,7 +134,7 @@ import paper, {Group} from "paper";
       let startPoint = new paper.Point(20, 20);
       let endPoint = new paper.Point(80, 80);
       let arrowVector = endPoint.subtract(startPoint);
-      let arrowSize = 60;
+      let arrowSize = 20;
       arrowVector.length -= arrowSize;
 
 // Создаем линию между начальной и конечной точками
@@ -145,9 +145,9 @@ import paper, {Group} from "paper";
 // Создаем стрелку
       let arrow = new paper.Path([
         endPoint,
-        endPoint.add(arrowVector.rotate(135)),
+        endPoint.add(arrowVector.normalize(arrowSize).rotate(135)),
         endPoint,
-        endPoint.add(arrowVector.rotate(-135))
+        endPoint.add(arrowVector.normalize(arrowSize).rotate(-135))
       ]);
       arrow.fillColor = 'black';
       arrow.strokeColor = 'black';
@@ -162,7 +162,26 @@ import paper, {Group} from "paper";
         segemntIndex.value=null;
       }
       group.onMouseDown=(event)=>{
-        console.log("ffff: ",group.firstChild);
+        const arrowPath = group.children[0]; // первый элемент группы - наконечник стрелки
+        const arrowPoint = arrowPath.segments[0].point; // первая точка наконечника
+        const distanceToArrow=event.point.getDistance(arrowPoint);
+        if(distanceToArrow<=10){
+          const segmentDistances =arrowPath.segments.map(segment=>{
+            const distance=segment.point.getDistance(event.point);
+            return distance;
+          })
+          const closestSegmentIndex=segmentDistances.indexOf(Math.min(...segmentDistances))
+          const closestSegment1 = arrowPath.segments[closestSegmentIndex];
+          if (closestSegment1.previous == null || closestSegment1.next == null) {
+            // ближайший сегмент является сегментом, крепящим наконечник
+            console.log("set");
+            closestSegment.value =closestSegment1;
+            segemntIndex.value=closestSegmentIndex;
+          }
+
+        }
+
+      /*  console.log("ffff: ",group.firstChild);
         const segmentDistances = group.firstChild.segments.map(segment => {
           const distance = segment.point.getDistance(event.point);
           return distance;
@@ -172,34 +191,44 @@ import paper, {Group} from "paper";
         if(event.point.getDistance(closestSegment1.point) <= 10){
           closestSegment.value=closestSegment1;
           segemntIndex.value=closestSegmentIndex;
-        }
-      }
-
-      group.onMouseMove = function(event) {
-        let delta = event.delta;
-        let direction = delta.normalize();
-
-        if (group.bounds.intersects(event.point)) {
-          if (direction.y > 0) {
-            group.position.y += delta.length;
-          } else if (direction.y < 0) {
-            group.position.y -= delta.length;
-          }
-        }
+        }*/
       }
       group.onMouseDrag=(event)=>{
+        if (closestSegment.value) {
+          console.log("klicked");
+          console.log("before update lastsegment point: ",line.lastSegment.point);
+          let segment = closestSegment.value;
+          // Перемещаем сегмент вместе с наконечником
+          segment.point = event.point;
+          // Обновляем позицию наконечника стрелки в соответствии с новым положением сегмента
+
+          let startPoint = line.firstSegment.point;
+          let endPoint = event.point;
+          line.lastSegment.point=endPoint;
+          console.log("after update lastsegment point: ",endPoint);
+
+          let arrowVector = endPoint.subtract(startPoint);
+          let arrowSize = 20;
+          arrowVector.length -= arrowSize;
+          arrow.segments[0].point = endPoint;
+          arrow.segments[1].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(135));
+          arrow.segments[2].point = endPoint;
+          arrow.segments[3].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(-135));
+        }else{
+          group.position = event.point.subtract(dragOffset);
+        }
         if(paper.Key.isDown('shift')){
           let scale =1.1;
           let delta = event.delta;
           if (delta.x < 0 && delta.y < 0) {
-            group.scale(1/scale);
+            group.children[1].scale(1/scale);
 
           }else if (delta.x > 0 && delta.y > 0) {
             // движение мыши вниз-вправо, увеличиваем элемент
-            group.scale(scale);
+            group.children[1].scale(scale);
           }
         }
-        /*group.position = event.point.subtract(dragOffset);*/
+
       }
 
       paper.project.activeLayer.addChild(group);
