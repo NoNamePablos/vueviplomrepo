@@ -67,6 +67,16 @@ import paper, {Group} from "paper";
       name:'process',
       icon:'',
 
+    },
+    {
+      id:10,
+      name:'arrow90',
+      icon:''
+    },
+    {
+      id:11,
+      name:'ellipse',
+      icon:'',
     }
     ]
 
@@ -93,6 +103,35 @@ import paper, {Group} from "paper";
     const index=paperController.findIndex((item)=>item.id===id);
     const name=paperController[index].name;
     const center = paper.view.center;
+    if(name==='ellipse'){
+      let shape = new paper.Path.Ellipse({
+        center: [110, 50],
+        radius: [90, 30],
+        fillColor: 'white',
+        strokeWidth:3,
+        strokeColor:'black'
+      });
+      shape.position=center;
+      shape.onMouseDrag=(event)=>{
+        console.log("selected: ",selectedItem.value);
+        if(paper.Key.isDown('delete')){
+          console.log("delete clicked");
+        }
+        if(event.modifiers.shift){
+          let scale =1.1;
+          let delta = event.delta;
+          if (delta.x < 0 && delta.y < 0) {
+            shape.scale(1/scale);
+          }else if (delta.x > 0 && delta.y > 0) {
+            shape.scale(scale);
+          }
+        }
+        if (selectedItem.value){
+          shape.position = event.point.subtract(dragOffset);
+        }
+      }
+      paper.project.activeLayer.addChild(shape);
+    }
     if(name==='process'){
       // Создаем первый прямоугольник
       let rect1 = new paper.Path.Rectangle({
@@ -129,6 +168,137 @@ import paper, {Group} from "paper";
       }
       // Добавляем его на холст
       paper.project.activeLayer.addChild(group);
+
+
+    }
+    if(name==='arrow90'){
+      let startPoint = new paper.Point(20, 20);
+      let endPoint = new paper.Point(20, 80);
+      let arrowVector = endPoint.subtract(startPoint);
+      let arrowSize = 20;
+      arrowVector.length -= arrowSize;
+
+// Создаем линию между начальной и конечной точками
+      let line = new paper.Path.Line(startPoint, endPoint);
+      line.strokeColor = 'black';
+      line.strokeWidth = 2;
+
+      let closestSegmentLine=null;
+      let closestSegmentIndexLine=null;
+
+// Создаем стрелку
+      let arrow = new paper.Path([
+        endPoint,
+        endPoint.add(arrowVector.normalize(arrowSize).rotate(135)),
+        endPoint,
+        endPoint.add(arrowVector.normalize(arrowSize).rotate(-135))
+      ]);
+      arrow.fillColor = 'black';
+      arrow.strokeColor = 'black';
+      arrow.strokeWidth = 2;
+      const line2= new paper.Path.Line({
+        from: [80, 20],  // начальная точка
+        to: [20, 20],     // конечная точка
+        strokeColor: 'black',
+        strokeWidth: 2
+      });
+
+// Добавляем линию и стрелку на сцену
+      let group=new paper.Group([arrow,line,line2]);
+
+      group.position=paper.view.center;
+      group.onMouseUp=(event)=>{
+        closestSegment.value=null;
+        segemntIndex.value=null;
+        closestSegmentLine=null;
+        closestSegmentIndexLine=null;
+      }
+      group.onMouseDown=(event)=>{
+        const arrowPath = group.children[0]; // первый элемент группы - наконечник стрелки
+        const arrowPoint = arrowPath.segments[0].point; // первая точка наконечника
+        const distanceToArrow=event.point.getDistance(arrowPoint);
+        const line=group.children[group.children.length-1];
+        const segmentDistancesLine = line.segments.map(segment => {
+          const distance = segment.point.getDistance(event.point);
+          return distance;
+        });
+        const closestSegmentIndexArrowLine = segmentDistancesLine.indexOf(Math.min(...segmentDistancesLine));
+        const closestSegmentLineArrow = line.segments[closestSegmentIndexArrowLine]
+        if(event.point.getDistance(closestSegmentLineArrow.point) <= 10){
+          closestSegmentLine=closestSegmentLineArrow;
+          closestSegmentIndexLine=closestSegmentIndexArrowLine;
+        }
+        else if(distanceToArrow<=10){
+          const segmentDistances =arrowPath.segments.map(segment=>{
+            const distance=segment.point.getDistance(event.point);
+            return distance;
+          })
+          const closestSegmentIndex=segmentDistances.indexOf(Math.min(...segmentDistances))
+          const closestSegment1 = arrowPath.segments[closestSegmentIndex];
+          if (closestSegment1.previous == null || closestSegment1.next == null) {
+            // ближайший сегмент является сегментом, крепящим наконечник
+            console.log("set");
+            closestSegment.value =closestSegment1;
+            segemntIndex.value=closestSegmentIndex;
+          }
+
+        }
+      }
+      group.onMouseDrag=(event)=>{
+        if(event.modifiers.shift){
+          console.log("shift");
+          if(closestSegmentLine!=null){
+
+            closestSegmentLine.point.x=event.point.x;
+          }else{
+            let startPoint = line.firstSegment.point;
+            let endPoint = event.point;
+            let endPointY=endPoint.y;
+            line.lastSegment.point.y=endPointY;
+            let arrowVector = line.lastSegment.point.subtract(startPoint);
+            let arrowSize = 20;
+            arrowVector.length -= arrowSize;
+            arrow.segments[0].point = line.lastSegment.point;
+            arrow.segments[1].point = line.lastSegment.point.add(arrowVector.normalize(arrowSize).rotate(135));
+            arrow.segments[2].point = line.lastSegment.point;
+            arrow.segments[3].point = line.lastSegment.point.add(arrowVector.normalize(arrowSize).rotate(-135));
+          }
+        }
+        else{
+            if(closestSegmentLine!=null){
+          console.log("zzz");
+          closestSegmentLine.point=event.point;
+        }
+        else if (closestSegment.value) {
+
+          let segment = closestSegment.value;
+          // Перемещаем сегмент вместе с наконечником
+          segment.point = event.point;
+          // Обновляем позицию наконечника стрелки в соответствии с новым положением сегмента
+
+          let startPoint = line.firstSegment.point;
+          let endPoint = event.point;
+          line.lastSegment.point=endPoint;
+          console.log("after update lastsegment point: ",endPoint);
+
+          let arrowVector = endPoint.subtract(startPoint);
+          let arrowSize = 20;
+          arrowVector.length -= arrowSize;
+          arrow.segments[0].point = endPoint;
+          arrow.segments[1].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(135));
+          arrow.segments[2].point = endPoint;
+          arrow.segments[3].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(-135));
+        }else{
+          group.position = event.point.subtract(dragOffset);
+        }
+        }
+
+
+      }
+
+      paper.project.activeLayer.addChild(group);
+
+
     }
     if(name==='arrow'){
       let startPoint = new paper.Point(20, 20);
@@ -368,10 +538,21 @@ import paper, {Group} from "paper";
       let circle=new paper.Path.Circle({
         center: center,
         radius: 50,
-        fillColor: 'green',
+        fillColor: 'white',
+        strokeColor:'black',
+        strokeWidth:3,
       });
       circle.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
+        if(event.modifiers.shift){
+          let scale =1.1;
+          let delta = event.delta;
+          if (delta.x < 0 && delta.y < 0) {
+            circle.scale(1/scale);
+          }else if (delta.x > 0 && delta.y > 0) {
+            circle.scale(scale);
+          }
+        }
         if (selectedItem.value){
           circle.position = event.point.subtract(dragOffset);
         }
@@ -383,10 +564,21 @@ import paper, {Group} from "paper";
       const rect = new paper.Path.Rectangle({
         point: center,  // начальная точка
         size: [100, 50],  // ширина и высота
-        fillColor: 'red'
+        fillColor: 'white',
+        strokeColor:'black',
+        strokeWidth:3,
       });
       rect.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
+        if(event.modifiers.shift){
+          let scale =1.1;
+          let delta = event.delta;
+          if (delta.x < 0 && delta.y < 0) {
+            rect.scale(1/scale);
+          }else if (delta.x > 0 && delta.y > 0) {
+            rect.scale(scale);
+          }
+        }
         if (selectedItem.value){
           rect.position = event.point.subtract(dragOffset);
         }
@@ -399,7 +591,7 @@ import paper, {Group} from "paper";
       const line = new paper.Path.Line({
         from: [200, 100],  // начальная точка
         to: [300, 50],     // конечная точка
-        strokeColor: 'blue',
+        strokeColor:'black',
         strokeWidth: 3
       });
       line.onMouseUp=(event)=>{
