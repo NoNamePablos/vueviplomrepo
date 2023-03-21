@@ -1,7 +1,10 @@
 <script setup>
 import paper, {Group} from "paper";
-  import {onMounted, ref} from "vue";
+import {onBeforeMount, onMounted, ref, watch} from "vue";
   import loopItemGroup from "@/items";
+  import mock from "@/../public/mock/mock.json"
+import mock2 from "@/../public/mock/mock2.json"
+import {paperController} from "@/utils/papercontrols.routes";
   const canvas=ref(null);
   const selectedItem=ref(null);
   const dragOffset=ref(null);
@@ -23,62 +26,6 @@ import paper, {Group} from "paper";
   const unSelected=(array)=>{
     array.forEach((item)=>item.selected=false);
   }
-  const paperController=[{
-    id:1,
-    name:"circle",
-    icon:'',
-  },
-    {
-    id:2,
-    name:"rectangle",
-    icon:'',
-  },
-    {
-    id:3,
-    name:"line",
-    icon:'',
-  },{
-    id:4,
-      name:'text',
-      icon:'',
-    },{
-    id:5,
-      name:'hexagon',
-      icon:'',
-    },
-    {
-      id:6,
-      name:'loop',
-      icon:'',
-    },
-    {
-      id:7,
-      name:'romb',
-      icon:'',
-    },
-    {
-      id:8,
-      name:'arrow',
-      icon:'',
-
-    },
-    {
-      id:9,
-      name:'process',
-      icon:'',
-
-    },
-    {
-      id:10,
-      name:'arrow90',
-      icon:''
-    },
-    {
-      id:11,
-      name:'ellipse',
-      icon:'',
-    }
-    ]
 
   const removeLast =()=>{
     const layer=paper.project.activeLayer;
@@ -99,19 +46,23 @@ import paper, {Group} from "paper";
     exportJson.value=paper.project.exportJSON({asString:true});
   }
 
-  const appendItem=(id)=>{
-    const index=paperController.findIndex((item)=>item.id===id);
-    const name=paperController[index].name;
+  const appendItem=(name,obj)=>{
     const center = paper.view.center;
-    if(name==='ellipse'){
-      let shape = new paper.Path.Ellipse({
+    if(name===null){
+      return;
+    }
+    if(name.toLowerCase()==='ellipse'){
+      console.log("obj: ",obj);
+      let shape = obj!=null?obj:new paper.Path.Ellipse({
         center: [110, 50],
         radius: [90, 30],
         fillColor: 'white',
         strokeWidth:3,
-        strokeColor:'black'
+        strokeColor:'black',
+        name:'ellipse'
       });
-      shape.position=center;
+      shape.position=obj!=null?obj.position:center;
+      console.log("shape: ",shape);
       shape.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
         if(paper.Key.isDown('delete')){
@@ -132,26 +83,34 @@ import paper, {Group} from "paper";
       }
       paper.project.activeLayer.addChild(shape);
     }
-    if(name==='process'){
+    if(name.toLowerCase()==='process'){
       // Создаем первый прямоугольник
-      let rect1 = new paper.Path.Rectangle({
+      const clone = JSON.parse(JSON.stringify(obj));
+      let rect1 =clone!=null?clone.children[0]:new paper.Path.Rectangle({
         point: [50, 50],
         size: [100, 50],
         fillColor: 'white',
         strokeColor:'black',
         strokeWidth:2,
       });
+      console.log("rect1 ,",rect1);
       // Создаем второй, меньший прямоугольник
-      let rect2 = new paper.Path.Rectangle({
+      let rect2 = clone!=null?clone.children[1]:new paper.Path.Rectangle({
         point: [65, 50],
         size: [70, 50],
         fillColor: 'white',
         strokeColor:'black',
         strokeWidth:2,
       });
+      console.log("rect2 ,",rect2);
+
       // Создаем группу из двух прямоугольников
       let group = new paper.Group([rect1, rect2]);
-      group.position=paper.view.center;
+      group.name='process';
+      group.position=obj!=null?obj.position:paper.view.center;
+      console.log("group: ",group);
+      console.log("poss: ",group.position);
+
       group.onMouseDrag=(event)=>{
         if(paper.Key.isDown('shift')){
           let scale =1.1;
@@ -171,9 +130,14 @@ import paper, {Group} from "paper";
 
 
     }
-    if(name==='arrow90'){
-      let startPoint = new paper.Point(20, 20);
-      let endPoint = new paper.Point(20, 80);
+    if(name.toLowerCase()==='arrow90'){
+      console.log("obj: ",obj);
+      let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
+      let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(20, 80);
+      console.log("start point ",startPoint);
+      console.log("end point ",startPoint);
+      /*let startPoint = new paper.Point(20, 20);
+      let endPoint = new paper.Point(20, 80);*/
       let arrowVector = endPoint.subtract(startPoint);
       let arrowSize = 20;
       arrowVector.length -= arrowSize;
@@ -196,17 +160,17 @@ import paper, {Group} from "paper";
       arrow.fillColor = 'black';
       arrow.strokeColor = 'black';
       arrow.strokeWidth = 2;
-      const line2= new paper.Path.Line({
-        from: [80, 20],  // начальная точка
-        to: [20, 20],     // конечная точка
-        strokeColor: 'black',
-        strokeWidth: 2
-      });
+
+      const line2= obj!=null?obj.children[2]:new paper.Path.Line([80, 20], [20, 20]);
+      line2.strokeColor='black';
+      line2.strokeWidth=2;
 
 // Добавляем линию и стрелку на сцену
       let group=new paper.Group([arrow,line,line2]);
-
-      group.position=paper.view.center;
+      console.log("arrow: line", arrow);
+      console.log("ffsdfds: ",line);
+      group.name='arrow90';
+      group.position=obj!=null?obj.position:paper.view.center;
       group.onMouseUp=(event)=>{
         closestSegment.value=null;
         segemntIndex.value=null;
@@ -268,6 +232,7 @@ import paper, {Group} from "paper";
             if(closestSegmentLine!=null){
           console.log("zzz");
           closestSegmentLine.point=event.point;
+
         }
         else if (closestSegment.value) {
 
@@ -300,9 +265,10 @@ import paper, {Group} from "paper";
 
 
     }
-    if(name==='arrow'){
-      let startPoint = new paper.Point(20, 20);
-      let endPoint = new paper.Point(80, 80);
+    if(name.toLowerCase()==='arrow'){
+      console.log(obj);
+      let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
+      let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(80, 80);
       let arrowVector = endPoint.subtract(startPoint);
       let arrowSize = 20;
       arrowVector.length -= arrowSize;
@@ -325,8 +291,10 @@ import paper, {Group} from "paper";
 
 // Добавляем линию и стрелку на сцену
       let group=new paper.Group([arrow,line]);
-
-      group.position=paper.view.center;
+      //TODO let group=obj!=null?obj:new paper.Group([arrow,line]);
+      //TODO group.position=obj!=null?obj.position:paper.view.center;
+      group.name='arrow';
+      group.position=obj!=null?obj.position:center;
       group.onMouseUp=(event)=>{
         closestSegment.value=null;
         segemntIndex.value=null;
@@ -405,21 +373,22 @@ import paper, {Group} from "paper";
 
 
     }
-    if(name==='romb'){
+    if(name.toLowerCase()==='romb'){
       let points2= [
         new paper.Point(100, 100),
          new paper.Point(150, 50),
          new paper.Point(200, 100),
         new  paper.Point(150, 150),
       ];
-      let romb = new paper.Path({
+      let romb = obj!=null?obj:new paper.Path({
         segments: points2,
         closed:true,
         strokeColor:'black',
         fillColor:"white",
         strokeWidth:3,
+        name:'romb',
       });
-      romb.position=paper.view.center;
+      romb.position=obj!=null?obj.position:center;
       romb.onMouseDrag=(event)=>{
         if(paper.Key.isDown('shift')){
           let scale =1.1;
@@ -439,7 +408,7 @@ import paper, {Group} from "paper";
       }
       paper.project.activeLayer.addChild(romb);
     }
-    if(name==='loop'){
+    if(name.toLowerCase()==='loop'){
       let points1= [
         new paper.Point(0, 0),
         new paper.Point(-100, 0),
@@ -450,14 +419,15 @@ import paper, {Group} from "paper";
         new paper.Point(-100,0),
       ];
       // Создаем путь из точек
-      let loop = new paper.Path({
+      let loop = obj!=null?obj:new paper.Path({
         segments: points1,
 
         strokeColor:'black',
         fillColor:"white",
         strokeWidth:3,
+        name:'loop'
       });
-      loop.position=paper.view.center;
+      loop.position=obj!=null?obj.position:center;
       loop.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
 
@@ -468,7 +438,7 @@ import paper, {Group} from "paper";
 
       paper.project.activeLayer.addChild(loop);
     }
-    if(name==='hexagon'){
+    if(name.toLowerCase()==='hexagon'){
       let points = [
         new paper.Point(0, 0),
         new paper.Point(100, 0),
@@ -478,13 +448,14 @@ import paper, {Group} from "paper";
         new paper.Point(-50, 75)
       ];
       // Создаем путь из точек
-      let hexagon = new paper.Path({
+      let hexagon = obj!=null?obj:new paper.Path({
         center:center,
         segments: points,
         closed: true,
         strokeColor:'black',
         fillColor:"white",
         strokeWidth:2,
+        name:'hexagon'
       });
 
       hexagon.onMouseDrag=(event)=>{
@@ -495,13 +466,14 @@ import paper, {Group} from "paper";
 
       paper.project.activeLayer.addChild(hexagon);
     }
-    if(name==='text'){
-      let text=new paper.PointText({
+    if(name.toLowerCase()==='text'){
+      let text=obj!=null?obj:new paper.PointText({
         point:center,
         content:"Text",
         justification: 'center',
         fontSize:20,
-        fillColor:'black'
+        fillColor:'black',
+        name:'text'
       })
       text.onDoubleClick=(event)=>{
           let textInput=document.createElement('input');
@@ -534,13 +506,14 @@ import paper, {Group} from "paper";
       }
       paper.project.activeLayer.addChild(text);
     }
-    if(name==='circle'){
-      let circle=new paper.Path.Circle({
+    if(name.toLowerCase()==='circle'){
+      let circle=obj!=null?obj:new paper.Path.Circle({
         center: center,
         radius: 50,
         fillColor: 'white',
         strokeColor:'black',
         strokeWidth:3,
+        name:'circle',
       });
       circle.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
@@ -559,14 +532,15 @@ import paper, {Group} from "paper";
       }
       paper.project.activeLayer.addChild(circle);
     }
-    if(name==='rectangle'){
+    if(name.toLowerCase()==='rectangle'){
       // создаем новый прямоугольник
-      const rect = new paper.Path.Rectangle({
+      const rect = obj!=null?obj:new paper.Path.Rectangle({
         point: center,  // начальная точка
         size: [100, 50],  // ширина и высота
         fillColor: 'white',
         strokeColor:'black',
         strokeWidth:3,
+        name:'rectangle',
       });
       rect.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
@@ -580,15 +554,15 @@ import paper, {Group} from "paper";
           }
         }
         if (selectedItem.value){
-          rect.position = event.point.subtract(dragOffset);
+          rect.position = event.point.subtract(dragOffset.value);
         }
       }
       paper.project.activeLayer.addChild(rect);
 
     }
-    if(name==='line'){
+    if(name.toLowerCase()==='line'){
       // создаем новую линию
-      const line = new paper.Path.Line({
+      const line = obj!=null?obj:new paper.Path.Line({
         from: [200, 100],  // начальная точка
         to: [300, 50],     // конечная точка
         strokeColor:'black',
@@ -661,6 +635,37 @@ import paper, {Group} from "paper";
       }
     }*/
   }
+  const scene=ref(null);
+  const loadForEdit=()=>{
+    let scense=paper.project.importJSON(mock);
+    let importedItems =  paper.project.activeLayer.children.slice();
+    paper.project.activeLayer.children=null;
+    console.log("layers: act",    paper.project.activeLayer);
+    console.log("ims: ",importedItems);
+    let newLayer=new paper.Layer();
+    paper.project.addLayer(newLayer);
+    newLayer.activate();
+    console.log("new layere ", newLayer)
+    importedItems.forEach((item)=>{
+      console.log("ifsf: ",item.name);
+      console.log("ifdfsfdsf:  ",item);
+       appendItem(item.name,item);
+    })
+
+
+    // Clean up the temporary project
+
+    /*scene.value.onLoad=function (){
+       console.log("imported: ", scene.children);
+       scene.children.forEach(function(child) {
+         console.log("xzxz");
+         appendItem(child.name,child);
+
+       });
+       scene.remove();
+       paper.view.draw();
+     }*/
+  }
   const onMouseUp=(event)=>{
     if(selectedItem.value){
       if(selectedItem.value.parent instanceof paper.Group){
@@ -675,23 +680,37 @@ import paper, {Group} from "paper";
       closestSegment.value=null;
     }
   }
+  onBeforeMount(()=>{
+
+    /*scene.value = paper.project.importJSON(mock);
+    console.log("sceee: ",scene.value);*/
+  })
+
   onMounted(()=>{
     paper.setup(canvas.value);
     paper.view.onMouseDown=onMouseDown;
     paper.view.onMouseDrag=onMouseDrag;
     paper.view.onMouseUp=onMouseUp;
     paper.view.draw();
-
   })
 </script>
 
 <template>
   <div class="paper-wrapper">
+    Экспорт компонента process работает с багом,всё остальное ок
     <div class="paper__controller">
-      <button v-for="(paperItem) of paperController" :key="paperItem.id"  @click="appendItem(paperItem.id)">{{paperItem.name}}</button>
-      <button @click="removeLast">Clear last</button>
-      <button @click="exporterSvg">Export SVG</button>
-      <button @click="exporterJson">Export JSON</button>
+      <div class="paper__controller_figures">
+        <button class="paper-button" v-for="(paperItem) of paperController" :key="paperItem.id"  @click="appendItem(paperItem.name,null)">
+          {{paperItem.name}}
+          <component :is=" paperItem.component"></component>
+        </button>
+      </div>
+      <div class="paper__controller_settings">
+        <button class="paper-button paper-button_controller" @click="removeLast">Clear last</button>
+        <button  class="paper-button paper-button_controller" @click="exporterSvg">Export SVG</button>
+        <button  class="paper-button paper-button_controller"  @click="exporterJson">Export JSON</button>
+        <button class="" @click="loadForEdit"></button>
+      </div>
       <div class="content">
         <textarea :value="exportSvg" v-if="exportSvg!==null"/>
         <textarea :value="exportJson" v-if="exportJson!==null"/>
@@ -702,6 +721,46 @@ import paper, {Group} from "paper";
 </template>
 
 <style lang="scss" scoped>
+  .paper-button{
+    outline: none;
+    border: none;
+    appearance: none;
+    background: rgba(1,1,1,0);
+    padding: 5px;
+    font-size: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    &:hover{
+      background-color: #a4a4a4;
+    }
+    &_controller{
+      font-weight: 700!important;
+      color: #fff;
+      background-color: #4299e1;
+      border-radius: 0.25rem!important;
+    }
+  }
+  .paper__controller{
+    padding: 20px 10px;
+
+    background-color: #cccccc;
+    border-right: 1px solid #181818;
+    max-width: 200px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-row-gap: 20px;
+    &_figures{
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 15px;
+    }
+    &_settings{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      grid-auto-rows:minmax(30px,max-content);
+    }
+  }
   .paper-wrapper{
     display: flex;
     gap: 50px;

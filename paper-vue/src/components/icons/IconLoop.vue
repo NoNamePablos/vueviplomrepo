@@ -1,0 +1,3 @@
+<template>
+  <svg style="left: 1px; top: 1px; width: 32px; height: 30px; display: block; position: relative; overflow: hidden; pointer-events: none;"><g style="pointer-events: none;"><g style="pointer-events: none;"></g><g style="pointer-events: none;"><g transform="translate(0.5,0.5)" style="visibility: visible; pointer-events: none;"><path d="M 7.25 3.19 L 24.65 3.19 L 30.45 7.83 L 30.45 26.39 L 1.45 26.39 L 1.45 7.83 Z" fill="rgb(241, 243, 244)" stroke="rgb(0, 0, 0)" stroke-width="1.3" stroke-miterlimit="10" style="pointer-events: none;"></path></g></g><g style="pointer-events: none;"></g><g style="pointer-events: none;"></g></g></svg>
+</template>
