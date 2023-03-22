@@ -2,8 +2,8 @@
 import paper, {Group} from "paper";
 import {onBeforeMount, onMounted, ref, watch} from "vue";
   import loopItemGroup from "@/items";
-  import mock from "@/../public/mock/mock.json"
-import mock2 from "@/../public/mock/mock2.json"
+  import mock1 from "@/mock/mock1.js";
+  import mock2 from "@/../public/mock/mock2.json"
 import {paperController} from "@/utils/papercontrols.routes";
   const canvas=ref(null);
   const selectedItem=ref(null);
@@ -84,10 +84,8 @@ import {paperController} from "@/utils/papercontrols.routes";
       paper.project.activeLayer.addChild(shape);
     }
     if(name.toLowerCase()==='process'){
-      // Создаем первый прямоугольник
-      const clone = JSON.parse(JSON.stringify(obj));
-      let rect1 =clone!=null?clone.children[0]:new paper.Path.Rectangle({
-        point: [50, 50],
+      let rect1 =obj!=null?obj.children[0]:new paper.Path.Rectangle({
+        point: [50,50],
         size: [100, 50],
         fillColor: 'white',
         strokeColor:'black',
@@ -95,21 +93,15 @@ import {paperController} from "@/utils/papercontrols.routes";
       });
       console.log("rect1 ,",rect1);
       // Создаем второй, меньший прямоугольник
-      let rect2 = clone!=null?clone.children[1]:new paper.Path.Rectangle({
-        point: [65, 50],
-        size: [70, 50],
-        fillColor: 'white',
-        strokeColor:'black',
-        strokeWidth:2,
-      });
-      console.log("rect2 ,",rect2);
-
+      let line = obj!=null?obj.children[1]:new paper.Path.Line(new paper.Point(70,50), new paper.Point(70,100));
+      line.strokeColor = 'black';
+      line.strokeWidth = 2;
+      let line2 = obj!=null?obj.children[2]:new paper.Path.Line(new paper.Point(130,50), new paper.Point(130,100));
+      line2.strokeColor = 'black';
+      line2.strokeWidth = 2;
       // Создаем группу из двух прямоугольников
-      let group = new paper.Group([rect1, rect2]);
+      let group = new paper.Group([rect1,line,line2]);
       group.name='process';
-      group.position=obj!=null?obj.position:paper.view.center;
-      console.log("group: ",group);
-      console.log("poss: ",group.position);
 
       group.onMouseDrag=(event)=>{
         if(paper.Key.isDown('shift')){
@@ -637,7 +629,7 @@ import {paperController} from "@/utils/papercontrols.routes";
   }
   const scene=ref(null);
   const loadForEdit=()=>{
-    let scense=paper.project.importJSON(mock);
+    let scense=paper.project.importJSON(mock1);
     let importedItems =  paper.project.activeLayer.children.slice();
     paper.project.activeLayer.children=null;
     console.log("layers: act",    paper.project.activeLayer);
