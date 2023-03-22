@@ -10,6 +10,8 @@ import {paperController} from "@/utils/papercontrols.routes";
   const dragOffset=ref(null);
   const isSelectedGroup=ref(false);
   const selectedGroupItem=ref([]);
+const copiedItem=ref(null);
+
   const selectGroup=(item)=>{
     if(item.parent instanceof paper.Group){
       console.log("dddd: ",item);
@@ -48,10 +50,10 @@ import {paperController} from "@/utils/papercontrols.routes";
 
   const appendItem=(name,obj)=>{
     const center = paper.view.center;
-    if(name===null){
+    if(name===null||name===undefined){
       return;
     }
-    if(name.toLowerCase()==='ellipse'){
+    if(name.toLowerCase().includes('ellipse')){
       console.log("obj: ",obj);
       let shape = obj!=null?obj:new paper.Path.Ellipse({
         center: [110, 50],
@@ -61,8 +63,6 @@ import {paperController} from "@/utils/papercontrols.routes";
         strokeColor:'black',
         name:'ellipse'
       });
-      shape.position=obj!=null?obj.position:center;
-      console.log("shape: ",shape);
       shape.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
         if(paper.Key.isDown('delete')){
@@ -84,6 +84,7 @@ import {paperController} from "@/utils/papercontrols.routes";
       paper.project.activeLayer.addChild(shape);
     }
     if(name.toLowerCase()==='process'){
+      console.log("zzz");
       let rect1 =obj!=null?obj.children[0]:new paper.Path.Rectangle({
         point: [50,50],
         size: [100, 50],
@@ -123,46 +124,55 @@ import {paperController} from "@/utils/papercontrols.routes";
 
     }
     if(name.toLowerCase()==='arrow90'){
-      console.log("obj: ",obj);
-      let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
-      let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(20, 80);
-      console.log("start point ",startPoint);
-      console.log("end point ",startPoint);
-      /*let startPoint = new paper.Point(20, 20);
-      let endPoint = new paper.Point(20, 80);*/
-      let arrowVector = endPoint.subtract(startPoint);
-      let arrowSize = 20;
-      arrowVector.length -= arrowSize;
-
-// Создаем линию между начальной и конечной точками
-      let line = new paper.Path.Line(startPoint, endPoint);
-      line.strokeColor = 'black';
-      line.strokeWidth = 2;
-
+      let group=null;
       let closestSegmentLine=null;
       let closestSegmentIndexLine=null;
+      let arrow=null;
+      let line=null;
+      let line2=null;
+      if(obj==null){
+        console.log("obj: ",obj);
+        let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
+        let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(20, 80);
+        console.log("start point ",startPoint);
+        console.log("end point ",startPoint);
+        /*let startPoint = new paper.Point(20, 20);
+        let endPoint = new paper.Point(20, 80);*/
+        let arrowVector = endPoint.subtract(startPoint);
+        let arrowSize = 20;
+        arrowVector.length -= arrowSize;
+
+// Создаем линию между начальной и конечной точками
+         line = new paper.Path.Line(startPoint, endPoint);
+        line.strokeColor = 'black';
+        line.strokeWidth = 2;
+
 
 // Создаем стрелку
-      let arrow = new paper.Path([
-        endPoint,
-        endPoint.add(arrowVector.normalize(arrowSize).rotate(135)),
-        endPoint,
-        endPoint.add(arrowVector.normalize(arrowSize).rotate(-135))
-      ]);
-      arrow.fillColor = 'black';
-      arrow.strokeColor = 'black';
-      arrow.strokeWidth = 2;
+         arrow = new paper.Path([
+          endPoint,
+          endPoint.add(arrowVector.normalize(arrowSize).rotate(135)),
+          endPoint,
+          endPoint.add(arrowVector.normalize(arrowSize).rotate(-135))
+        ]);
+        arrow.fillColor = 'black';
+        arrow.strokeColor = 'black';
+        arrow.strokeWidth = 2;
 
-      const line2= obj!=null?obj.children[2]:new paper.Path.Line([80, 20], [20, 20]);
-      line2.strokeColor='black';
-      line2.strokeWidth=2;
+         line2= obj!=null?obj.children[2]:new paper.Path.Line([80, 20], [20, 20]);
+        line2.strokeColor='black';
+        line2.strokeWidth=2;
+        group=new paper.Group([arrow,line,line2]);
+
+      }else{
+        line=obj.children[1];
+        line2=obj.children[2];
+        arrow=obj.children[0];
+        group=obj;
+      }
 
 // Добавляем линию и стрелку на сцену
-      let group=new paper.Group([arrow,line,line2]);
-      console.log("arrow: line", arrow);
-      console.log("ffsdfds: ",line);
       group.name='arrow90';
-      group.position=obj!=null?obj.position:paper.view.center;
       group.onMouseUp=(event)=>{
         closestSegment.value=null;
         segemntIndex.value=null;
@@ -592,31 +602,54 @@ import {paperController} from "@/utils/papercontrols.routes";
     }
   }
   const isClicked=ref(false);
+  const bufferItem=ref(null)
   const onMouseDown=(event)=>{
-    console.log("ev: ",event);
       let hitResult = paper.project.hitTest(event.point);
       if (hitResult && hitResult.item) {
         selectedItem.value = hitResult.item;
         selectedItem.value.selected=true;
-        console.log("selected item: ",selectedItem.value);
+        bufferItem.value = hitResult.item;
+        console.log("buffer item val: ",bufferItem.value);
+        bufferItem.value.selected=true;
         dragOffset.value = event.point.subtract(selectedItem.value.position);
       }
 
   }
-  const copiedItem=ref(null);
-  function onKeyDown(event){
+  function onKeyDown(event) {
     console.log("11");
-    if(event.key=='delete'){
-
-      if(selectedItem.value?.parent instanceof  paper.Group){
+    if (event.key == 'delete') {
+      if (selectedItem.value?.parent instanceof paper.Group) {
         selectedItem.value?.parent.remove();
-      }
-      else if(selectedItem.value){
+      } else if (selectedItem.value) {
         selectedItem.value.remove();
-        selectedItem.value=null;
+        selectedItem.value = null;
       }
     }
+    if (event.key === 'c' && event.modifiers.control && bufferItem.value) {
+      console.log("bbb: ",bufferItem.value);
 
+      if (bufferItem.value){
+        if(bufferItem.value.name!=null||bufferItem.value.name!=undefined){
+          console.log("is item copy");
+          copiedItem.value = bufferItem.value.clone();
+          copiedItem.value.visible=false;
+          const substring = bufferItem.value.name.slice(0, bufferItem.value.name.toString().length);
+          console.log("substring:L ",substring);
+          copiedItem.value.name=substring;
+        }else{
+          copiedItem.value = bufferItem.value.parent.clone();
+          copiedItem.value.visible=false;
+          const substring = bufferItem.value.parent.name.slice(0, bufferItem.value.parent.name.toString().length);
+          copiedItem.value.name=substring;
+        }
+
+      }
+    }else if(event.key === 'v' && event.modifiers.control && copiedItem.value){
+       console.log("copied item name: ",copiedItem.value.name);
+      console.log("paste: ",copiedItem.value);
+      appendItem(copiedItem.value.name,copiedItem.value);
+      copiedItem.value.visible=true;
+    }
   }
 
   const onMouseDrag=(event)=>{
@@ -708,7 +741,7 @@ import {paperController} from "@/utils/papercontrols.routes";
     <div class="paper__controller">
       <div class="paper__controller_figures">
         <button class="paper-button" v-for="(paperItem) of paperController" :key="paperItem.id"  @click="appendItem(paperItem.name,null)">
-          {{paperItem.name}}
+          <span> {{paperItem.name}}</span>
           <component :is=" paperItem.component"></component>
         </button>
       </div>
@@ -737,6 +770,14 @@ import {paperController} from "@/utils/papercontrols.routes";
     font-size: 10px;
     border-radius: 8px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    & span{
+      font-weight: 600;
+    }
     &:hover{
       background-color: #a4a4a4;
     }
@@ -749,7 +790,6 @@ import {paperController} from "@/utils/papercontrols.routes";
   }
   .paper__controller{
     padding: 20px 10px;
-
     background-color: #cccccc;
     border-right: 1px solid #181818;
     max-width: 200px;
@@ -775,6 +815,7 @@ import {paperController} from "@/utils/papercontrols.routes";
       position: relative;
       margin-top: 100px;
       border:1px solid black;
+      flex: 1;
     }
   }
   .content{
