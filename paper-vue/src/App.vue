@@ -591,17 +591,34 @@ import {paperController} from "@/utils/papercontrols.routes";
       paper.project.activeLayer.addChild(line);
     }
   }
+  const isClicked=ref(false);
   const onMouseDown=(event)=>{
     console.log("ev: ",event);
-    let hitResult = paper.project.hitTest(event.point);
-    if (hitResult && hitResult.item) {
-      selectedItem.value = hitResult.item;
-      selectedItem.value.selected=true;
-      console.log("selected item: ",selectedItem.value);
-      dragOffset.value = event.point.subtract(selectedItem.value.position);
+      let hitResult = paper.project.hitTest(event.point);
+      if (hitResult && hitResult.item) {
+        selectedItem.value = hitResult.item;
+        selectedItem.value.selected=true;
+        console.log("selected item: ",selectedItem.value);
+        dragOffset.value = event.point.subtract(selectedItem.value.position);
+      }
 
-    }
   }
+  const copiedItem=ref(null);
+  function onKeyDown(event){
+    console.log("11");
+    if(event.key=='delete'){
+
+      if(selectedItem.value?.parent instanceof  paper.Group){
+        selectedItem.value?.parent.remove();
+      }
+      else if(selectedItem.value){
+        selectedItem.value.remove();
+        selectedItem.value=null;
+      }
+    }
+
+  }
+
   const onMouseDrag=(event)=>{
    /* if(paper.Key.isDown('shift')){
       let scale =1.1;
@@ -674,8 +691,6 @@ import {paperController} from "@/utils/papercontrols.routes";
   }
   onBeforeMount(()=>{
 
-    /*scene.value = paper.project.importJSON(mock);
-    console.log("sceee: ",scene.value);*/
   })
 
   onMounted(()=>{
@@ -683,13 +698,13 @@ import {paperController} from "@/utils/papercontrols.routes";
     paper.view.onMouseDown=onMouseDown;
     paper.view.onMouseDrag=onMouseDrag;
     paper.view.onMouseUp=onMouseUp;
+    paper.view.onKeyDown=onKeyDown;
     paper.view.draw();
   })
 </script>
 
 <template>
   <div class="paper-wrapper">
-    Экспорт компонента process работает с багом,всё остальное ок
     <div class="paper__controller">
       <div class="paper__controller_figures">
         <button class="paper-button" v-for="(paperItem) of paperController" :key="paperItem.id"  @click="appendItem(paperItem.name,null)">
@@ -701,7 +716,7 @@ import {paperController} from "@/utils/papercontrols.routes";
         <button class="paper-button paper-button_controller" @click="removeLast">Clear last</button>
         <button  class="paper-button paper-button_controller" @click="exporterSvg">Export SVG</button>
         <button  class="paper-button paper-button_controller"  @click="exporterJson">Export JSON</button>
-        <button class="" @click="loadForEdit"></button>
+        <button  class="paper-button paper-button_controller" @click="loadForEdit">Import JSON</button>
       </div>
       <div class="content">
         <textarea :value="exportSvg" v-if="exportSvg!==null"/>
