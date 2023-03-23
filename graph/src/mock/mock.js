@@ -1,4 +1,7 @@
 
+export const loadEr={"production":false,"type":"chart","typeChart":"pie","optionData":[{"type":"pie","title":"hdfgh","value":"5656"},{"type":"pie","title":"lklghj","value":"324"},{"type":"pie","title":"lhjkl","value":"666"},{"type":"pie","title":"kghjkj","value":"3333"}]};
+
+
 export const mockDataChart={
     production:false,//есть возможность добавлять элементы
     type:"chart",//chart

@@ -15,7 +15,8 @@ import {radiogroup} from "@/utils/radiogroup.routes";
 import {tabs,tabGraph} from "@/utils/tabs.routes";
 import VueGraph from "@/components/vue-echarts/VueGraph.vue";
 import Header from "@/components/Header.vue";
-import {mockDataChart,mockDataGraph} from "@/mock/mock";
+import {loadEr, mockDataChart, mockDataGraph} from "@/mock/mock";
+
 ///graph import
 const {
   graphNode,
@@ -42,7 +43,7 @@ const isLoaded=ref(false);
 
 
 onBeforeMount(()=>{
-    loadData.value=mockDataGraph;
+    loadData.value=loadEr;
     console.log("Iterate into for mockadata");
     let isGraphLoading=false;
     for (let key in loadData.value) {

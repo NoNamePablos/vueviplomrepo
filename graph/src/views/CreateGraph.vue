@@ -1,6 +1,6 @@
 <script setup>
 
-import {ref, computed} from "vue";
+import {ref, computed,toRaw} from "vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
@@ -16,6 +16,22 @@ import Header from "@/components/Header.vue";
 const {chartNode,chartType,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isChart}=useChartController();
 
 ///
+
+const exportData=ref({
+  production:false,
+  type:"chart",
+  typeChart:chartType.value.toLowerCase(),
+  optionData:[]
+})
+
+const exportChartData=()=>{
+  //Запрос на серв со всеми данными
+  exportData.value.typeChart=chartType.value.toLowerCase();
+  exportData.value.optionData=chartNodeList.value;
+  const json=JSON.stringify(toRaw(exportData.value));
+  console.log("json ",json);
+}
+
 
 
 computed(()=>{
@@ -69,6 +85,9 @@ computed(()=>{
               <div class="tab-item-form__controls">
                 <base-button :classes="['button-green']" @click="appendChartItem">Добавить</base-button>
                 <base-button :classes="['button-red']" @click="clearChartItem">Очистить</base-button>
+              </div>
+              <div class="tab-item-form__controls">
+                <base-button :classes="['button-green']" @click="exportChartData">Экспорт</base-button>
               </div>
             </form>
           </div>
