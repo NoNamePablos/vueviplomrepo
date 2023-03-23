@@ -4,8 +4,9 @@
         БЗ
       </div>
       <ul class="nav-list">
-        <router-link to="/">Создание графа</router-link>
+        <router-link to="/">Создание графика</router-link>
         <router-link to="/load">Готовый граф</router-link>
+        <router-link to="/grpah-creater">Создать граф</router-link>
       </ul>
     </div>
 </template>

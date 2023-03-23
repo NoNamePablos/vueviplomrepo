@@ -3,24 +3,13 @@
     <div class="preview-card__body">
       <div class="preview-card__prop">
         <h3 class="preview-card__prop-title">Название</h3>
-        <div class="preview-card__title">{{ title }}</div>
+        <div class="preview-card__title">{{ data?.title }}</div>
       </div>
 
-      <div class="preview-card__prop" v-if="(data?.x==null||data.x=='')">
+      <div class="preview-card__prop">
         <h3 class="preview-card__prop-title">Значение</h3>
         <div class="preview-card__title">{{ data?.value }}</div>
       </div>
-      <div v-else>
-        <div class="preview-card__prop" >
-          <h3 class="preview-card__prop-title">x</h3>
-          <div class="preview-card__title">{{ data?.x }}</div>
-        </div>
-        <div class="preview-card__prop" >
-          <h3 class="preview-card__prop-title">y</h3>
-          <div class="preview-card__title">{{ data?.y }}</div>
-        </div>
-      </div>
-
     </div>
     <div class="preview-card__controls">
         <base-button :classes="['button-green']" @click="changeValue">Р</base-button>
@@ -48,11 +37,7 @@ const emits=defineEmits(['changeData','deleteData'])
 
    emits('changeData',props.data);
  }
- const title=computed(()=>{
-   if((props.data?.title===null||props.data?.title===""||props.data?.title==='undefined')&&(props.title!="")){
-     return props.title;
-   }
- })
+
  const deleteValue=()=>{
    emits('deleteData',props.data);
  }

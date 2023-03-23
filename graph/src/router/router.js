@@ -1,7 +1,7 @@
 import {createRouter,createWebHashHistory} from "vue-router";
 import CreateGraph from "@/views/CreateGraph.vue";
 import LoadGraph from "@/views/LoadGraph.vue";
-
+import CreateGraphOnce from "@/views/CreateGraphOnce.vue";
 const routes=[
     {
         path:"/",
@@ -11,6 +11,10 @@ const routes=[
         path:"/load",
         component:LoadGraph,
     },
+    {
+        path: "/grpah-creater",
+        component: CreateGraphOnce
+    }
 ]
 
 export const router=createRouter({
