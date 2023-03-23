@@ -40,10 +40,12 @@ const {chartNode,chartType,isLockedRadio,tempData,chartNodeList,clearChartItem,a
 ///
 const loadData=ref({});
 const isLoaded=ref(false);
+const globalSettings=ref({
 
+})
 
 onBeforeMount(()=>{
-    loadData.value=loadEr;
+    loadData.value=mockDataGraph;
     console.log("Iterate into for mockadata");
     let isGraphLoading=false;
     for (let key in loadData.value) {
@@ -54,6 +56,11 @@ onBeforeMount(()=>{
         isGraphLoading=loadData.value[key]==='graph'?true:false;
         if(isGraphLoading){
           changeTab("Graph");
+        }
+      }
+      if(key==='title'){
+        if(isGraphLoading){
+          globalSettings.value.title=loadData.value[key];
         }
       }
       if(key==='typeChart'){
@@ -250,7 +257,7 @@ computed(()=>{
     <div class="graph-editor__draw">
       <!----todo vue-echart set option and add dinamicly data  ---->
       <vue-chart v-if="isChart"  :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />
-      <vue-graph  v-else-if="isGraph"  :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
+      <vue-graph  v-else-if="isGraph" :global-settings="globalSettings" :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
       <h1 v-else>Здесь должен быть граф/график</h1>
     </div>
   </div>

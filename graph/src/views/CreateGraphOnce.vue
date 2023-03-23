@@ -12,8 +12,14 @@
        </div>
        <div class="tab-item-body">
          <form @submit.prevent action="" class="tab-item-form">
+           <base-input v-model="graphGlobSettings.title">
+             Глобальное название графа
+           </base-input>
            <base-input v-model="graphNode.name">
              Название
+           </base-input>
+           <base-input v-model="graphNode.link" >
+             Ссылка
            </base-input>
            <base-input :type="'number'" v-model="graphNode.x" >
              x
@@ -53,9 +59,13 @@
          <base-button :classes="['button-green']" @click="appendLink">Добавить</base-button>
          <base-button :classes="['button-red']" @click="">Очистить</base-button>
        </div>
+
      </base-tab-item>
+     <div class="tab-item-form__controls">
+       <base-button :classes="['button-green']" @click="exportGraphData">Экспорт</base-button>
+     </div>
    </base-tab-wrapper>
-   <vue-graph  v-if="isGraph"  :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
+   <vue-graph  v-if="isGraph" :global-settings="{title:graphGlobSettings.title}" :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
  </div>
 </template>
 
@@ -64,7 +74,7 @@
 //Блокировка выбора типа графика после добавления элемента;
 
 
-import {ref} from "vue";
+import {ref, toRaw} from "vue";
 import {tabGraph} from "@/utils/tabs.routes";
 import {useCardGraph} from "@/hooks/useCardGraph";
 import VueGraph from "@/components/vue-echarts/VueGraph.vue";
@@ -73,6 +83,23 @@ import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import PreviewCardGraph from "@/components/previewCard/PreviewCardGraph.vue";
 
 const selectedGraphTab=ref(tabGraph[0].name)
+const exportData=ref({
+  production:false,//Отключает форму с добавлеением элементов
+  title:"",
+  type:"graph",//chart
+  typeChart:"graph",
+  optionData:[],
+  links:[]
+})
+
+
+const exportGraphData=()=>{
+  exportData.value.title=graphGlobSettings.value.title;
+  exportData.value.optionData=graphNodeList.value;
+  exportData.value.links=graphLinkList.value;
+  const json=JSON.stringify(toRaw(exportData.value));
+  console.log("json ",json);
+}
 
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
 const {
@@ -87,6 +114,7 @@ const {
   appendLink,
   editLink,
   deleteLink,
+  graphGlobSettings,
   selectedFieldSource,
   selectedFieldTarget,isGraph}=useCardGraph();
 </script>

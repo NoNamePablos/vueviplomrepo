@@ -24,6 +24,7 @@ export const mockDataChart={
 export const mockDataGraph={
     production:true,//Отключает форму с добавлеением элементов
     type:"graph",//chart
+    title:"test",
     typeChart:"graph",
     optionData:[
         {

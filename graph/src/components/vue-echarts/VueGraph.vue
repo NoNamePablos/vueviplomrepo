@@ -32,7 +32,10 @@ const props=defineProps({
     type:String,
     required:false,
   },
-
+  globalSettings:{
+    type:Object,
+    required:false,
+  }
 })
 const beforeUpdateLinks=ref([]);
 const chart = ref(null)
@@ -41,6 +44,9 @@ const computedArray=computed(()=>{
   return appendObject.value;
 },{},{cache:false})
 const appendObject=ref({
+  title:{
+    text: props?.globalSettings?.title||'base'
+  },
   series:[{
     data:props.optionsData,
     links:beforeUpdateLinks.value,
@@ -71,6 +77,7 @@ onErrorCaptured((err, instance, info)=>{
 const dataLinks=shallowRef(props.links);
 const data=shallowRef(props.optionsData);
 const parsedData=ref([]);
+const globSetting=shallowRef(props.globalSettings);
 watch(() => props.links, (newValue, oldValue) => {
   dataLinks.value=newValue;
   beforeUpdateLinks.value=converterGarphLinks(dataLinks.value);
@@ -84,7 +91,12 @@ watch(() => props.optionsData, (newValue, oldValue) => {
   appendObject.value.series[0].data=parsedData.value;
   chart.value.setOption(appendObject.value);
 },{deep:true})
+watch(()=>props.globalSettings,(newValue,oldValue)=>{
+  globSetting.value=newValue;
+  appendObject.value.title.text=globSetting.value?.title;
+  chart.value.setOption(appendObject.value);
 
+},{deep:true})
 const logger=(value)=>{
   console.log(value);
   window.open(''+value.data.link,'_blank');

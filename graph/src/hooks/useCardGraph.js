@@ -2,6 +2,9 @@ import {computed, ref} from "vue";
 import {tabBlock, tabUnlock} from "@/utils/tabs.routes";
 
 export const useCardGraph=()=>{
+    const graphGlobSettings=ref({
+        title:""
+    })
     const graphNode=ref({
         name:"",
         x:"",
@@ -134,7 +137,7 @@ export const useCardGraph=()=>{
         deleteLink,
         selectedFieldSource,
         selectedFieldTarget,
-        isGraph
+        isGraph,graphGlobSettings
     }
 
 }
