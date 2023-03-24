@@ -1,4 +1,5 @@
-/*
+import paper from "paper";
+
 class TextInput {
     constructor(position, text) {
         this.position = position;
@@ -6,10 +7,9 @@ class TextInput {
         this.fontSize = 16;
         this.isEditing = false;
 
-        this.textItem = new PointText(this.position);
+        this.textItem = new paper.PointText(this.position);
         this.textItem.fontSize = this.fontSize;
-        this.textItem.content = this.text;
-
+        this.textItem.content =this.text;
         this.textItem.onDoubleClick = this.onDoubleClick.bind(this);
     }
 
@@ -26,17 +26,29 @@ class TextInput {
 
     onKeyDown(event) {
         if (this.isEditing) {
-            if (event.key === "backspace") {
+            console.log("is editing: ",this.isEditing);
+            console.log('event key: ',event.key);
+
+            if (event.key.toLowerCase() === "backspace") {
+                console.log("dfsdfds: ",this.textItem.content);
                 this.textItem.content = this.textItem.content.slice(0, -1) + "|";
-            } else if (event.key === "enter") {
-                this.textItem.content = this.textItem.content.slice(0, -1);
+
+            }
+            else if (event.key.toLowerCase() === "enter") {
+                console.log("this text item: ",this.textItem.content);
+                console.log("this text: ",this.text);
                 this.isEditing = false;
-                this.text = this.textItem.content;
+                this.text = this.textItem.content.slice(0, -1);
                 this.textItem.selected = false;
                 this.textItem.content = this.text;
+
+                // remove the "|" character if it's present
+                if (this.textItem.content.slice(-1) === "|") {
+                    this.textItem.content = this.textItem.content.slice(0, -1);
+                }
                 document.removeEventListener("keydown", this.onKeyDown);
                 document.removeEventListener("mousedown", this.onMouseDown);
-            } else if (event.key.length === 1) {
+            } else {
                 this.textItem.content = this.textItem.content.slice(0, -1) + event.key + "|";
             }
         }
@@ -58,8 +70,7 @@ class TextInput {
     }
 }
 
-/!*const textInput = new TextInput(new Point(100, 100), "Enter text here...");
+/*const textInput = new TextInput(new Point(100, 100), "Enter text here...");
 
-project.activeLayer.addChild(textInput.textItem);*!/
-
-*/
+project.activeLayer.addChild(textInput.textItem);*/
+export default  TextInput;

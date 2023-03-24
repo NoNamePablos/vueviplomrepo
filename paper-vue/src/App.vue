@@ -4,7 +4,8 @@ import {onBeforeMount, onMounted, ref, watch} from "vue";
   import loopItemGroup from "@/items";
   import mock1 from "@/mock/mock1.js";
   import mock2 from "@/../public/mock/mock2.json"
-import {paperController} from "@/utils/papercontrols.routes";
+  import {paperController} from "@/utils/papercontrols.routes";
+  import TextInput from "@/TextInput";
   const canvas=ref(null);
   const selectedItem=ref(null);
   const dragOffset=ref(null);
@@ -52,6 +53,11 @@ const copiedItem=ref(null);
     const center = paper.view.center;
     if(name===null||name===undefined){
       return;
+    }
+    if(name.toLowerCase()==='newtext'){
+      console.log("newtext");
+      const textInput=new TextInput(center,"new text availibale");
+      paper.project.activeLayer.addChild(textInput.textItem);
     }
     if(name.toLowerCase().includes('ellipse')){
       console.log("obj: ",obj);
@@ -542,7 +548,7 @@ const copiedItem=ref(null);
         fillColor: 'white',
         strokeColor:'black',
         strokeWidth:3,
-        name:'rectangle',
+        name:'rectangle'+paper.project.activeLayer.children.length+1,
       });
       rect.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
@@ -601,6 +607,7 @@ const copiedItem=ref(null);
       paper.project.activeLayer.addChild(line);
     }
   }
+  const deleteAll=()=>{paper.project.activeLayer.children=[];}
   const isClicked=ref(false);
   const bufferItem=ref(null)
   const onMouseDown=(event)=>{
@@ -618,8 +625,14 @@ const copiedItem=ref(null);
   function onKeyDown(event) {
     console.log("11");
     if (event.key == 'delete') {
+      //TODO В ЧЁМ ПРОБЛЕМА
+      //Поскольку Layer это група идея для удаления элемента в том,чтобы теперь к назвнаию 'rectangle'+paper.project.activeLayer.children+1 добавлять id
+      //затем проверять и искать совпадение и в мапе удалять элемент.
       if (selectedItem.value?.parent instanceof paper.Group) {
-        selectedItem.value?.parent.remove();
+        console.log("last el name: ",selectedItem.value.name);
+        console.log("last el: ",selectedItem.value?.parent);
+        let deleteItemName=selectedItem.value.name;
+        /*selectedItem.value?.parent.children.map((item)=>item?.name.toLowerCase().includes(deleteItemName)).remove();*/
       } else if (selectedItem.value) {
         selectedItem.value.remove();
         selectedItem.value = null;
@@ -750,6 +763,7 @@ const copiedItem=ref(null);
         <button  class="paper-button paper-button_controller" @click="exporterSvg">Export SVG</button>
         <button  class="paper-button paper-button_controller"  @click="exporterJson">Export JSON</button>
         <button  class="paper-button paper-button_controller" @click="loadForEdit">Import JSON</button>
+        <button  class="paper-button paper-button_controller" @click="deleteAll">Clear all</button>
       </div>
       <div class="content">
         <textarea :value="exportSvg" v-if="exportSvg!==null"/>
