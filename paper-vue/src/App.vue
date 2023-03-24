@@ -10,8 +10,10 @@ import {paperController} from "@/utils/papercontrols.routes";
   const dragOffset=ref(null);
   const isSelectedGroup=ref(false);
   const selectedGroupItem=ref([]);
-const copiedItem=ref(null);
-
+  const copiedItem=ref(null);
+  const logger=()=>{
+    console.log(paper.project.activeLayer.children.map(item=>item.name));
+  }
   const selectGroup=(item)=>{
     if(item.parent instanceof paper.Group){
       console.log("dddd: ",item);
@@ -50,10 +52,12 @@ const copiedItem=ref(null);
 
   const appendItem=(name,obj)=>{
     const center = paper.view.center;
+    let projectItems= +paper.project.activeLayer.children.length;
+    console.log("proj item: ",projectItems);
     if(name===null||name===undefined){
       return;
     }
-    if(name.toLowerCase().includes('ellipse')){
+    if(name.toLowerCase().includes('ellipse_')){
       console.log("obj: ",obj);
       let shape = obj!=null?obj:new paper.Path.Ellipse({
         center: [110, 50],
@@ -61,8 +65,13 @@ const copiedItem=ref(null);
         fillColor: 'white',
         strokeWidth:3,
         strokeColor:'black',
-        name:'ellipse'
+        name:'ellipse_'+ projectItems++,
       });
+      if(obj){
+        shape.name='ellipse_'+ projectItems++;
+      }
+      //name-id
+
       shape.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
         if(paper.Key.isDown('delete')){
@@ -83,7 +92,7 @@ const copiedItem=ref(null);
       }
       paper.project.activeLayer.addChild(shape);
     }
-    if(name.toLowerCase()==='process'){
+    if(name.toLowerCase().includes('process_')){
       console.log("zzz");
       let rect1 =obj!=null?obj.children[0]:new paper.Path.Rectangle({
         point: [50,50],
@@ -102,7 +111,8 @@ const copiedItem=ref(null);
       line2.strokeWidth = 2;
       // Создаем группу из двух прямоугольников
       let group = new paper.Group([rect1,line,line2]);
-      group.name='process';
+
+      group.name='process_'+projectItems++;
 
       group.onMouseDrag=(event)=>{
         if(paper.Key.isDown('shift')){
@@ -123,7 +133,7 @@ const copiedItem=ref(null);
 
 
     }
-    if(name.toLowerCase()==='arrow90'){
+    if(name.toLowerCase().includes("arrow90_")){
       let group=null;
       let closestSegmentLine=null;
       let closestSegmentIndexLine=null;
@@ -134,8 +144,6 @@ const copiedItem=ref(null);
         console.log("obj: ",obj);
         let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
         let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(20, 80);
-        console.log("start point ",startPoint);
-        console.log("end point ",startPoint);
         /*let startPoint = new paper.Point(20, 20);
         let endPoint = new paper.Point(20, 80);*/
         let arrowVector = endPoint.subtract(startPoint);
@@ -163,7 +171,6 @@ const copiedItem=ref(null);
         line2.strokeColor='black';
         line2.strokeWidth=2;
         group=new paper.Group([arrow,line,line2]);
-
       }else{
         line=obj.children[1];
         line2=obj.children[2];
@@ -172,7 +179,7 @@ const copiedItem=ref(null);
       }
 
 // Добавляем линию и стрелку на сцену
-      group.name='arrow90';
+      group.name='arrow90_'+projectItems++;
       group.onMouseUp=(event)=>{
         closestSegment.value=null;
         segemntIndex.value=null;
@@ -267,7 +274,7 @@ const copiedItem=ref(null);
 
 
     }
-    if(name.toLowerCase()==='arrow'){
+    if(name.toLowerCase().includes("arrow_")){
       console.log(obj);
       let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
       let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(80, 80);
@@ -293,9 +300,7 @@ const copiedItem=ref(null);
 
 // Добавляем линию и стрелку на сцену
       let group=new paper.Group([arrow,line]);
-      //TODO let group=obj!=null?obj:new paper.Group([arrow,line]);
-      //TODO group.position=obj!=null?obj.position:paper.view.center;
-      group.name='arrow';
+      group.name='arrow_'+projectItems++;
       group.position=obj!=null?obj.position:center;
       group.onMouseUp=(event)=>{
         closestSegment.value=null;
@@ -320,23 +325,9 @@ const copiedItem=ref(null);
           }
 
         }
-
-      /*  console.log("ffff: ",group.firstChild);
-        const segmentDistances = group.firstChild.segments.map(segment => {
-          const distance = segment.point.getDistance(event.point);
-          return distance;
-        });
-        const closestSegmentIndex = segmentDistances.indexOf(Math.min(...segmentDistances));
-        const closestSegment1 = group.firstChild.segments[closestSegmentIndex]
-        if(event.point.getDistance(closestSegment1.point) <= 10){
-          closestSegment.value=closestSegment1;
-          segemntIndex.value=closestSegmentIndex;
-        }*/
       }
       group.onMouseDrag=(event)=>{
         if (closestSegment.value) {
-          console.log("klicked");
-          console.log("before update lastsegment point: ",line.lastSegment.point);
           let segment = closestSegment.value;
           // Перемещаем сегмент вместе с наконечником
           segment.point = event.point;
@@ -345,7 +336,6 @@ const copiedItem=ref(null);
           let startPoint = line.firstSegment.point;
           let endPoint = event.point;
           line.lastSegment.point=endPoint;
-          console.log("after update lastsegment point: ",endPoint);
 
           let arrowVector = endPoint.subtract(startPoint);
           let arrowSize = 20;
@@ -375,7 +365,7 @@ const copiedItem=ref(null);
 
 
     }
-    if(name.toLowerCase()==='romb'){
+    if(name.toLowerCase().includes("romb_")){
       let points2= [
         new paper.Point(100, 100),
          new paper.Point(150, 50),
@@ -388,8 +378,11 @@ const copiedItem=ref(null);
         strokeColor:'black',
         fillColor:"white",
         strokeWidth:3,
-        name:'romb',
+        name:'romb_'+projectItems++,
       });
+      if(obj){
+        romb.name='romb_'+projectItems++;
+      }
       romb.position=obj!=null?obj.position:center;
       romb.onMouseDrag=(event)=>{
         if(paper.Key.isDown('shift')){
@@ -410,7 +403,7 @@ const copiedItem=ref(null);
       }
       paper.project.activeLayer.addChild(romb);
     }
-    if(name.toLowerCase()==='loop'){
+    if(name.toLowerCase().includes("loop_")){
       let points1= [
         new paper.Point(0, 0),
         new paper.Point(-100, 0),
@@ -427,8 +420,11 @@ const copiedItem=ref(null);
         strokeColor:'black',
         fillColor:"white",
         strokeWidth:3,
-        name:'loop'
+        name:'loop_'+projectItems++,
       });
+      if(obj){
+        loop.name='loop_'+projectItems++
+      }
       loop.position=obj!=null?obj.position:center;
       loop.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
@@ -440,7 +436,7 @@ const copiedItem=ref(null);
 
       paper.project.activeLayer.addChild(loop);
     }
-    if(name.toLowerCase()==='hexagon'){
+    if(name.toLowerCase().includes("hexagon_")){
       let points = [
         new paper.Point(0, 0),
         new paper.Point(100, 0),
@@ -457,9 +453,11 @@ const copiedItem=ref(null);
         strokeColor:'black',
         fillColor:"white",
         strokeWidth:2,
-        name:'hexagon'
+        name:'hexagon_'+projectItems++
       });
-
+      if(obj){
+        hexagon.name='hexagon_'+projectItems++;
+      }
       hexagon.onMouseDrag=(event)=>{
         if (selectedItem.value){
           hexagon.position = event.point.subtract(dragOffset);
@@ -468,15 +466,18 @@ const copiedItem=ref(null);
 
       paper.project.activeLayer.addChild(hexagon);
     }
-    if(name.toLowerCase()==='text'){
+    if(name.toLowerCase().includes("text_")){
       let text=obj!=null?obj:new paper.PointText({
         point:center,
         content:"Text",
         justification: 'center',
         fontSize:20,
         fillColor:'black',
-        name:'text'
+        name:'text_'+projectItems++,
       })
+      if(obj){
+        text.name="text_"+projectItems++;
+      }
       text.onDoubleClick=(event)=>{
           let textInput=document.createElement('input');
           textInput.type = 'text';
@@ -508,15 +509,18 @@ const copiedItem=ref(null);
       }
       paper.project.activeLayer.addChild(text);
     }
-    if(name.toLowerCase()==='circle'){
+    if(name.toLowerCase().includes("circle_")){
       let circle=obj!=null?obj:new paper.Path.Circle({
         center: center,
         radius: 50,
         fillColor: 'white',
         strokeColor:'black',
         strokeWidth:3,
-        name:'circle',
+        name:'circle_'+projectItems++,
       });
+      if(obj){
+        circle.name="cricle_"+projectItems++;
+      }
       circle.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
         if(event.modifiers.shift){
@@ -534,7 +538,7 @@ const copiedItem=ref(null);
       }
       paper.project.activeLayer.addChild(circle);
     }
-    if(name.toLowerCase()==='rectangle'){
+    if(name.toLowerCase().includes("rectangle_")){
       // создаем новый прямоугольник
       const rect = obj!=null?obj:new paper.Path.Rectangle({
         point: center,  // начальная точка
@@ -542,8 +546,11 @@ const copiedItem=ref(null);
         fillColor: 'white',
         strokeColor:'black',
         strokeWidth:3,
-        name:'rectangle',
+        name:'rectangle_'+projectItems++,
       });
+      if(obj){
+        rect.name='rectangle_'+projectItems++;
+      }
       rect.onMouseDrag=(event)=>{
         console.log("selected: ",selectedItem.value);
         if(event.modifiers.shift){
@@ -562,14 +569,18 @@ const copiedItem=ref(null);
       paper.project.activeLayer.addChild(rect);
 
     }
-    if(name.toLowerCase()==='line'){
+    if(name.toLowerCase().includes("line_")){
       // создаем новую линию
       const line = obj!=null?obj:new paper.Path.Line({
         from: [200, 100],  // начальная точка
         to: [300, 50],     // конечная точка
         strokeColor:'black',
-        strokeWidth: 3
+        strokeWidth: 3,
+        name:"line_"+projectItems++
       });
+      if(obj){
+        line.name="line_"+projectItems++;
+      }
       line.onMouseUp=(event)=>{
         closestSegment.value=null;
         segemntIndex.value=null;
@@ -618,12 +629,17 @@ const copiedItem=ref(null);
   function onKeyDown(event) {
     console.log("11");
     if (event.key == 'delete') {
-      if (selectedItem.value?.parent instanceof paper.Group) {
-        selectedItem.value?.parent.remove();
-      } else if (selectedItem.value) {
-        selectedItem.value.remove();
-        selectedItem.value = null;
-      }
+        const layer=selectedItem.value?.parent;
+        if(layer instanceof paper.Layer){
+          const deleteName=selectedItem.value?.name;
+          layer.children.map((item)=>{
+            if(item?.name===deleteName){
+              item.remove()
+            }
+          })
+        }else{
+          selectedItem.value.parent.remove();
+        }
     }
     if (event.key === 'c' && event.modifiers.control && bufferItem.value) {
       console.log("bbb: ",bufferItem.value);
@@ -740,7 +756,7 @@ const copiedItem=ref(null);
   <div class="paper-wrapper">
     <div class="paper__controller">
       <div class="paper__controller_figures">
-        <button class="paper-button" v-for="(paperItem) of paperController" :key="paperItem.id"  @click="appendItem(paperItem.name,null)">
+        <button class="paper-button" v-for="(paperItem) of paperController" :key="paperItem.id"  @click="appendItem(paperItem.sub_name,null)">
           <span> {{paperItem.name}}</span>
           <component :is=" paperItem.component"></component>
         </button>
@@ -750,6 +766,7 @@ const copiedItem=ref(null);
         <button  class="paper-button paper-button_controller" @click="exporterSvg">Export SVG</button>
         <button  class="paper-button paper-button_controller"  @click="exporterJson">Export JSON</button>
         <button  class="paper-button paper-button_controller" @click="loadForEdit">Import JSON</button>
+        <button  class="paper-button paper-button_controller" @click="logger">logger</button>
       </div>
       <div class="content">
         <textarea :value="exportSvg" v-if="exportSvg!==null"/>
