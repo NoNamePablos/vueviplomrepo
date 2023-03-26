@@ -11,7 +11,7 @@ import {onBeforeMount, onMounted, ref, watch} from "vue";
   const dragOffset=ref(null);
   const isSelectedGroup=ref(false);
   const selectedGroupItem=ref([]);
-const copiedItem=ref(null);
+  const copiedItem=ref(null);
 
   const selectGroup=(item)=>{
     if(item.parent instanceof paper.Group){
@@ -638,9 +638,8 @@ const copiedItem=ref(null);
         selectedItem.value = null;
       }
     }
-    if (event.key === 'c' && event.modifiers.control && bufferItem.value) {
+    else if (event.key === 'c' && event.modifiers.control && bufferItem.value) {
       console.log("bbb: ",bufferItem.value);
-
       if (bufferItem.value){
         if(bufferItem.value.name!=null||bufferItem.value.name!=undefined){
           console.log("is item copy");
@@ -753,7 +752,7 @@ const copiedItem=ref(null);
   <div class="paper-wrapper">
     <div class="paper__controller">
       <div class="paper__controller_figures">
-        <button class="paper-button" v-for="(paperItem) of paperController" :key="paperItem.id"  @click="appendItem(paperItem.name,null)">
+        <button class="paper-button" v-for="(paperItem) of paperController" :key="paperItem.id"  @mousedown="appendItem(paperItem.name,null)">
           <span> {{paperItem.name}}</span>
           <component :is=" paperItem.component"></component>
         </button>

@@ -16,10 +16,11 @@ class TextInput {
     onDoubleClick(event) {
         this.isEditing = true;
 
-        this.textItem.content = "|";
+        this.textItem.content = this.text + "|"; // отображаем текущий текст с символом '|'
         this.textItem.selected = true;
         this.textItem.bringToFront();
-
+        this.textItem.onMouseDown=this.onMouseDown.bind(this);
+        this.textItem.onKeyDown=this.onKeyDown.bind(this);
         document.addEventListener("keydown", this.onKeyDown.bind(this));
         document.addEventListener("mousedown", this.onMouseDown.bind(this));
     }
@@ -35,8 +36,6 @@ class TextInput {
 
             }
             else if (event.key.toLowerCase() === "enter") {
-                console.log("this text item: ",this.textItem.content);
-                console.log("this text: ",this.text);
                 this.isEditing = false;
                 this.text = this.textItem.content.slice(0, -1);
                 this.textItem.selected = false;
@@ -46,10 +45,12 @@ class TextInput {
                 if (this.textItem.content.slice(-1) === "|") {
                     this.textItem.content = this.textItem.content.slice(0, -1);
                 }
+                this.textItem.content = this.text;
                 document.removeEventListener("keydown", this.onKeyDown);
                 document.removeEventListener("mousedown", this.onMouseDown);
             } else {
                 this.textItem.content = this.textItem.content.slice(0, -1) + event.key + "|";
+
             }
         }
     }
