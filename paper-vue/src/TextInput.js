@@ -6,8 +6,8 @@ class TextInput {
         this.text = text;
         this.fontSize = 16;
         this.isEditing = false;
-
         this.textItem = new paper.PointText(this.position);
+        this.textItem.name="newtext_"+paper.project.activeLayer.children.length+1;
         this.textItem.fontSize = this.fontSize;
         this.textItem.content =this.text;
         this.textItem.onDoubleClick = this.onDoubleClick.bind(this);
@@ -15,7 +15,7 @@ class TextInput {
 
     onDoubleClick(event) {
         this.isEditing = true;
-
+        this.offset=this.textItem.position.subtract(event.point);
         this.textItem.content = this.text + "|"; // отображаем текущий текст с символом '|'
         this.textItem.selected = true;
         this.textItem.bringToFront();
@@ -54,7 +54,6 @@ class TextInput {
             }
         }
     }
-
     onMouseDown(event) {
         if (this.isEditing && !this.textItem.hitTest(event.point)) {
             this.isEditing = false;
