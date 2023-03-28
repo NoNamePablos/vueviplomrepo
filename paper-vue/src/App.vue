@@ -5,6 +5,7 @@ import {onBeforeMount, onMounted, ref, watch} from "vue";
   import mock1 from "@/mock/mock1.js";
   import mock2 from "@/../public/mock/mock2.json"
 import {paperController} from "@/utils/papercontrols.routes";
+import TextInput from "@/TextInput";
   const canvas=ref(null);
   const selectedItem=ref(null);
   const dragOffset=ref(null);
@@ -57,6 +58,16 @@ import {paperController} from "@/utils/papercontrols.routes";
     if(name===null||name===undefined){
       return;
     }
+   /* if(name.toLowerCase().includes('newtext_')){
+      let text=null;
+      if(obj){
+        text=new TextInput(obj.position,obj.content);
+      }else{
+        text=new TextInput(center,"default text");
+      }
+      console.log("text: ",text );
+      paper.project.activeLayer.addChild(text.textItem);
+    }*/
     if(name.toLowerCase().includes('ellipse_')){
       console.log("obj: ",obj);
       let shape = obj!=null?obj:new paper.Path.Ellipse({
