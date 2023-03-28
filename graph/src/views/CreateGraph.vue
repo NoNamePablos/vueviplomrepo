@@ -8,6 +8,8 @@ import {useChartController} from "@/hooks/useChartController";
 import {radiogroup} from "@/utils/radiogroup.routes";
 
 import Header from "@/components/Header.vue";
+import PreviewList from "@/components/PreviewList.vue";
+import BaseLayout from "@/components/BaseLayout.vue";
 ///graph import
 
 
@@ -59,50 +61,51 @@ computed(()=>{
 </script>
 
 <template>
-  <div class="graph-editor">
-    <div class="graph-editor__tabs" v-if="!isSaveGraph">
-          <h3 class="tab-item__name">
-            Создание графиков
-          </h3>
-          <div class="tab-item__preview" v-show="chartNodeList.length>0" >
-            <div class="preview-list">
-              <preview-card  @change-data="editChartItem" @delete-data="deleteChartItem"  :data="card"  v-for="card in chartNodeList" :key="card.title" />
+  <BaseLayout>
+    <div class="graph-editor">
+      <div class="graph-editor__tabs" v-if="!isSaveGraph">
+        <h3 class="tab-item__name">
+          Создание графиков
+        </h3>
+        <div class="tab-item__preview" v-show="chartNodeList.length>0" >
+          <preview-list>
+            <preview-card  @change-data="editChartItem" @delete-data="deleteChartItem"  :data="card"  v-for="card in chartNodeList" :key="card.title" />
+          </preview-list>
+        </div>
+        <div class="tab-item-body">
+          <form @submit.prevent action="" class="tab-item-form">
+            <div class="radio-group">
+              <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
+                <component :is=" radio.component"></component>
+              </BaseInputClickable>
             </div>
-          </div>
-          <div class="tab-item-body">
-            <form @submit.prevent action="" class="tab-item-form">
-              <div class="radio-group">
-                <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
-                  <component :is=" radio.component"></component>
-                </BaseInputClickable>
-              </div>
-              <base-input v-model="chartNode.title">
-                Название
-              </base-input>
-              <base-input :type="'number'" v-model="chartNode.value">
-                Количество
-              </base-input>
-              <div class="tab-item-form__controls">
-                <base-button :classes="['button-green']" @click="appendChartItem">Добавить</base-button>
-                <base-button :classes="['button-red']" @click="clearChartItem">Очистить</base-button>
-              </div>
-              <div class="tab-item-form__controls">
-                <base-button :classes="['button-green']" @click="exportChartData">Экспорт</base-button>
-              </div>
-            </form>
-          </div>
-<!--      <div class="graph-editor__controls">
-        <base-button :classes="['button-green']" @click="saveGraphEditor">Сохранить</base-button>
-        <base-button :classes="['button-red']" @click="">Отменить</base-button>
-      </div>-->
+            <base-input v-model="chartNode.title">
+              Название
+            </base-input>
+            <base-input :type="'number'" v-model="chartNode.value">
+              Количество
+            </base-input>
+            <div class="tab-item-form__controls">
+              <base-button :classes="['button-green']" @click="appendChartItem">Добавить</base-button>
+              <base-button :classes="['button-red']" @click="clearChartItem">Очистить</base-button>
+            </div>
+            <div class="tab-item-form__controls">
+              <base-button :classes="['button-green']" @click="exportChartData">Экспорт</base-button>
+            </div>
+          </form>
+        </div>
+        <!--      <div class="graph-editor__controls">
+                <base-button :classes="['button-green']" @click="saveGraphEditor">Сохранить</base-button>
+                <base-button :classes="['button-red']" @click="">Отменить</base-button>
+              </div>-->
+      </div>
+      <div class="graph-editor__draw">
+        <!----todo vue-echart set option and add dinamicly data  ---->
+        <vue-chart v-if="isChart"  :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />
+        <h1 v-else>Здесь должен быть граф/график</h1>
+      </div>
     </div>
-    <div class="graph-editor__draw">
-      <!----todo vue-echart set option and add dinamicly data  ---->
-      <vue-chart v-if="isChart"  :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />
-      <h1 v-else>Здесь должен быть граф/график</h1>
-    </div>
-  </div>
-
+  </BaseLayout>
 </template>
 
 <style lang="scss" scoped>
@@ -112,36 +115,6 @@ computed(()=>{
   flex-wrap: wrap;
 }
 
-.preview-list{
-  margin:15px 0;
-  max-height: 350px;
-  overflow-y: auto;
-  height: auto;
-  overflow-x: hidden;
-  padding: 0 10px;
-  &>*+*{
-    margin-top: 15px;
-  }
-  &::-webkit-scrollbar {
-    width: 7px;
-  }
-
-  /* Track */
-  &::-webkit-scrollbar-track {
-    background: var(--color-accent-3);
-
-  }
-
-  /* Handle */
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-accent-2);
-  }
-
-  /* Handle on hover */
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--color-accent-1);
-  }
-}
 .tab-item{
   &-form{
     &__controls{
@@ -165,6 +138,7 @@ computed(()=>{
   display: grid;
   grid-template-columns: 500px 1fr;
   grid-column-gap: 25px;
+  padding: 25px 50px;
   @media screen and (max-width: 1279px){
     grid-template-columns: 300px 1fr;
   }

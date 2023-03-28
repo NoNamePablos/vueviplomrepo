@@ -37,7 +37,7 @@ export  const tabs=reactive([
 
 export const tabGraph=[{
     name:"CreateGraph",
-    label:"Создать родителя",
+    label:"Создать узел",
     icon:'',
 },{
     name:"SetLinks",

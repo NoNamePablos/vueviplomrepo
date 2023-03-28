@@ -1,7 +1,7 @@
 <template>
     <div :class="['tab',{'tab-horizontal':isHorizontal}]">
       <div class="tab-nav">
-        <button v-for="tab in tabs"  :class="['tab-nav__item',{'selected':tab.name===selectedTab},{'is-blocked':tab?.isBlocked}]" :key="tab.name" @click="changeTab(tab.name)">{{tab.name}}</button>
+        <button v-for="tab in tabs"  :class="['tab-nav__item',{'selected':tab.name===selectedTab},{'is-blocked':tab?.isBlocked}]" :key="tab.name" @click="changeTab(tab.name)">{{tab.label}}</button>
       </div>
       <div class="tab-content">
         <slot></slot>

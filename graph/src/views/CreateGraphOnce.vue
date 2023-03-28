@@ -1,4 +1,5 @@
 <template>
+  <BaseLayout>
  <div class="wrapper">
    <base-tab-wrapper   :tabs="tabGraph" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
      <base-tab-item v-if="selectedGraphTab==='CreateGraph'">
@@ -6,9 +7,9 @@
          Создание графиков
        </h3>
        <div class="tab-item__preview" v-show="graphNodeList.length>0" >
-         <div class="preview-list">
+         <preview-list>
            <PreviewCardGraph  @change-data="editNode" @delete-data="deleteNode"  :data="card" :title="card.name" :value="card.value" v-for="card in graphNodeList" :key="card.name" />
-         </div>
+         </preview-list>
        </div>
        <div class="tab-item-body">
          <form @submit.prevent action="" class="tab-item-form">
@@ -67,6 +68,7 @@
    </base-tab-wrapper>
    <vue-graph  v-if="isGraph" :global-settings="{title:graphGlobSettings.title}" :type="'graph'" :links="graphLinkList" :options-data="graphNodeList"   />
  </div>
+  </BaseLayout>
 </template>
 
 <script setup>
@@ -81,6 +83,8 @@ import VueGraph from "@/components/vue-echarts/VueGraph.vue";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
 import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import PreviewCardGraph from "@/components/previewCard/PreviewCardGraph.vue";
+import PreviewList from "@/components/PreviewList.vue";
+import BaseLayout from "@/components/BaseLayout.vue";
 
 const selectedGraphTab=ref(tabGraph[0].name)
 const exportData=ref({
@@ -123,7 +127,7 @@ const {
   .wrapper{
     margin-top: 100px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 400px 1fr;
   }
 
 
