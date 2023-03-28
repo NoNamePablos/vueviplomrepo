@@ -88,7 +88,7 @@ export  const paperController=reactive(
             component:markRaw(defineAsyncComponent(() =>
                 import('@/components/icons/IconEllipse.vue')
             )),
-        }
+        },
     ]
 
 )
