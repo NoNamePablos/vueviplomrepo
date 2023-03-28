@@ -156,6 +156,35 @@ onMounted(()=>{
   border: 1px solid #ddd;
   padding: 15px 10px;
   border-radius: 6px;
+  max-height: 500px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background:#ddd;
+    border-radius: 12px;
+    cursor: pointer;
+
+
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-accent-2);
+    border-radius: 12px;
+    cursor: pointer;
+
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover {
+    background: #0073f7;
+    cursor: pointer;
+
+  }
 }
 
 

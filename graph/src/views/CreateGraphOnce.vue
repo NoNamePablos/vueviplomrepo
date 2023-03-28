@@ -1,5 +1,5 @@
 <template>
-  <BaseLayout>
+  <BaseLayout :add-class="['is-full']">
  <div class="wrapper">
    <base-tab-wrapper   :tabs="tabGraph" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
      <base-tab-item v-if="selectedGraphTab==='CreateGraph'">
@@ -127,7 +127,10 @@ const {
   .wrapper{
     margin-top: 100px;
     display: grid;
-    grid-template-columns: 400px 1fr;
+    grid-template-columns: 600px 1fr;
+  }
+  .is-full{
+    max-width: 100%;
   }
 
 
