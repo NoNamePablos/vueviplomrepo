@@ -16,7 +16,8 @@
     }
     .tab-item-form__controls{
       margin-top: 20px;
-      display: flex;
       gap: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
     }
 </style>

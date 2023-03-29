@@ -40,15 +40,9 @@
          Связи
        </h3>
        <div class="tab-item__preview" v-show="graphNodeList.length>0" >
-         <!--                <div class="preview-list" v-if="selectedGraphTab!=='SetLinks'">
-                           <preview-card  @change-data="editData" @delete-data="deleteData"  :data="card" :title="card.title" :value="card.value" v-for="card in dataGraphic" :key="card.title" />
-                         </div>-->
-         <div class="preview-list" >
-           <div class="item" v-for="(item,idx) in graphLinkList" :key="idx">
-             <div>{{item?.source?.name}}</div>
-             <div>{{item?.target?.name}}</div>
-           </div>
-         </div>
+         <preview-list>
+           <PreviewCard :is-selected-type="true"  @change-data="editLink" @delete-data="deleteLink"  :data="card" :title="card.name" :value="card.value" v-for="card in graphLinkList" :key="card.name" />
+         </preview-list>
        </div>
        <div class="tab-item-body">
          <p>source</p>
@@ -57,7 +51,7 @@
          <vue-select @v-selected="selectedFieldTarget"  :selected="graphLinkFields.target?.name"  :data="graphNodeList"></vue-select>
        </div>
        <div class="tab-item-form__controls">
-         <base-button :classes="['button-green']" @click="appendLink">Добавить</base-button>
+         <base-button :classes="['button-active']" @click="appendLink">Добавить</base-button>
          <base-button :classes="['button-red']" @click="">Очистить</base-button>
        </div>
 
@@ -85,6 +79,7 @@ import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import PreviewCardGraph from "@/components/previewCard/PreviewCardGraph.vue";
 import PreviewList from "@/components/PreviewList.vue";
 import BaseLayout from "@/components/BaseLayout.vue";
+import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 
 const selectedGraphTab=ref(tabGraph[0].name)
 const exportData=ref({
