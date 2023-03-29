@@ -12,7 +12,7 @@ const props=defineProps({
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
 button{
   appearance: none;
   outline: none;

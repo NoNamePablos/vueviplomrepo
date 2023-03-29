@@ -1,7 +1,9 @@
 <template>
     <div :class="['tab',{'tab-horizontal':isHorizontal}]">
       <div class="tab-nav">
-        <button v-for="tab in tabs"  :class="['tab-nav__item',{'selected':tab.name===selectedTab},{'is-blocked':tab?.isBlocked}]" :key="tab.name" @click="changeTab(tab.name)">{{tab.label}}</button>
+        <button v-for="tab in tabs"  :class="['tab-nav__item',{'selected':tab.name===selectedTab},{'is-blocked':tab?.isBlocked}]" :key="tab.name" @click="changeTab(tab.name)">
+          <component :is="tab?.icon"/>
+          {{tab.label}}</button>
       </div>
       <div class="tab-content">
         <slot></slot>
@@ -49,39 +51,64 @@
 }
     .tab{
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: 220px 1fr;
       gap: 10px;
+      padding: 0 10px;
       &-nav{
         display: flex;
         flex-direction: column;
         overflow-y: auto;
-        border-right: 1px solid;
+        border-right: 3px solid #f1f1f1;
         &__item{
           position: relative;
-          width: 60px;
           height: 60px;
-          padding: 3px;
           background-color: white;
           border:transparent;
           color:#181818;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           text-align: center;
           cursor: pointer;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: left;
+          gap: 10px;
+          font-size: 18px;
+          font-weight: 500;
+          transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
+          padding: 0 10px;
+          white-space: nowrap;
+          & svg {
+            width: 20px;
+            height: 20px;
+          }
+          &:hover,&:focus,&:focus-visible,&.selected{
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
+            &::before{
+              content: "";
+              width: 2px;
+              height: 100%;
+              display: block;
+              background: #2d69e8;
+              position: absolute;
+              top: 50%;
+              left: 0;
+              transform: translateY(-50%);
+            }
+          }
           &:hover{
-            background-color: #5181b4;
-            color:#fff;
-            transition: all 0.3s ease-in;
+            background-color: white;
+            color:#2d69e8;
+            transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
           }
           &:focus,&:focus-visible{
-            background-color: #38597c;
-            color:#fff;
+            background-color: white;
+            color:#2d69e8;
           }
           &.selected{
-            background-color: #5181b4;
-            color:#fff;
-            transition: all 0.3s ease-in;
+            background-color: white;
+            color:#2d69e8;
+            transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
           }
         }
       }

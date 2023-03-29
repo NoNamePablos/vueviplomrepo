@@ -1,4 +1,4 @@
-import {reactive} from "vue";
+import {defineAsyncComponent, markRaw, reactive} from "vue";
 
 export const tabBlock=(type)=>{
     tabs.map((item)=>{
@@ -34,13 +34,16 @@ export  const tabs=reactive([
         isBlocked: false,
     },
 ])
-
 export const tabGraph=[{
     name:"CreateGraph",
     label:"Создать узел",
-    icon:'',
+    icon:markRaw(defineAsyncComponent(() =>
+        import('@/components/icons/IconDiagram.vue')
+    )),
 },{
     name:"SetLinks",
     label:"Создание связей",
-    icon:'',
+    icon:markRaw(defineAsyncComponent(() =>
+        import('@/components/icons/IconLink.vue')
+    )),
 }]

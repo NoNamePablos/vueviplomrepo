@@ -1,7 +1,10 @@
 <template>
-  <div class="v-select" @click.prevent>
-    <button @click="open">{{buttonLabel}}</button>
-    <div class="v-select-container"  v-show="isOpened">
+  <div class="v-select"  >
+<!--    <button @click.prevent="open" class="v-select-button" ></button>-->
+    <base-button :classes="['is-full','color-lightblue']" @click.prevent="open">
+      {{buttonLabel}}
+    </base-button>
+    <div class="v-select-container" v-show="isOpened">
       <div class="option-container">
         <div class="search-container">
           <input type="text" class="inputFilter" v-model="searchInput" >
@@ -18,6 +21,7 @@
 
 <script setup>
 import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
+import BaseButton from "@/components/ui/BaseButton.vue";
   const emits=defineEmits(['v-selected'])
   const props=defineProps({
     search: {
@@ -58,6 +62,8 @@ const searchAndLoadList=computed(()=>{
       config.value.globalModel.push(option);
       config.value.activeId=option?.localId;
       emits('v-selected',option);
+      diselectAll();
+      config.value.activeId=-1;
   }
   const clearInput=()=>{
     searchInput.value="";
@@ -67,27 +73,44 @@ const searchAndLoadList=computed(()=>{
   const close=()=>{
     isOpened.value=false;
   }
-  const externalClick=(event)=>{
-    if(!event.target.closest('.v-select')){
+  const externalClick=(event)=> {
+    if (isOpened.value && !event.target.closest('.v-select')) {
       close();
     }
   }
-
 
   onMounted(()=>{
     config.value.selectedList=props.data.map((item,idx)=>{
       item.localId=idx;
       return item;
     });
-    document.addEventListener('click',externalClick,true)
+    document.addEventListener('click',externalClick)
   })
-  onBeforeUnmount(()=>{
-    document.removeEventListener('click',externalClick)
-  })
+    onBeforeUnmount(()=>{
+      document.removeEventListener('click',externalClick)
+    })
 
 </script>
 
 <style lang="scss" scoped>
+button.is-full{
+  width: 100%;
+  transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
+
+}
+button.color-lightblue{
+  background-color: #2d69e8;
+  color: white;
+  transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
+  &:hover{
+    background-color: #0d3383;
+  }
+  &:focus,&:focus-visible{
+    background-color: #0d3383;
+    -webkit-box-shadow: inset 0 0 0 1px #0d3383;
+    box-shadow: inset 0 0 0 2px #0d3383;
+  }
+}
 .tab-container{
   display: flex;
 }
