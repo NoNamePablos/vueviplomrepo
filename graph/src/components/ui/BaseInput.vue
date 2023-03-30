@@ -2,7 +2,7 @@
   <div class="input">
     <h3  class="input-title"><slot></slot></h3>
     <label >
-      <input :type="type" class="" :disabled="disabled"  :required="isRequired" :value="disabled?defaultValue:modelValue" @blur="handleBlur"   @input="$emit('update:modelValue', $event.target.value)">
+      <input :type="type" :class="['input-base',{'input-error':error}]" :disabled="disabled"   :required="isRequired" :value="disabled?defaultValue:modelValue" @blur="handleBlur"   @input="$emit('update:modelValue', $event.target.value)">
     </label>
     <span v-if="error" class="error">{{ error }}</span>
   </div>
@@ -57,6 +57,7 @@ onMounted(()=>{
 .input {
   padding-bottom: 20px;
   position: relative;
+
   &-title{
     font-size: 30px;
     line-height: 36px;
@@ -64,7 +65,7 @@ onMounted(()=>{
     color: #181818;
     margin-bottom: 5px;
   }
-  & input{
+  &-base{
     outline: none;
     appearance: none;
     border-radius: 6px;
@@ -72,6 +73,21 @@ onMounted(()=>{
     padding: 5px 15px;
     font-size: 24px;
     line-height: 34px;
+    background: #ffffff;
+    border: 1px solid #2d69e8;
+    &:focus,&:focus-visible{
+      -webkit-box-shadow: inset 0 0 0 2px #0073f7;
+      box-shadow: inset 0 0 0 2px #0073f7;
+    }
+
+  }
+  &-error{
+    border: 1px solid #dc3545;
+    &:focus,&:focus-visible{
+      -webkit-box-shadow: inset 0 0 0 2px #dc3545;
+      box-shadow: inset 0 0 0 2px #dc3545;
+    }
+
   }
   .error {
     position: absolute;
