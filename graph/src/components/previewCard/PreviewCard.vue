@@ -14,11 +14,11 @@
     <div class="preview-card__body" v-else>
 
       <div class="preview-card__prop">
-        <h3 class="preview-card__prop-title">От:</h3>
+        <h3 class="preview-card__prop-title">Откуда:</h3>
         <div class="preview-card__title">{{ data?.source?.name}}</div>
       </div>
       <div class="preview-card__prop">
-        <h3 class="preview-card__prop-title">К:</h3>
+        <h3 class="preview-card__prop-title">Куда:</h3>
         <div class="preview-card__title">{{ data?.target?.name }}</div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <button class="button" :class="classes">
+  <button class="button" :disabled="isDisabled||false"  :class="classes">
     <slot></slot>
   </button>
 </template>
@@ -7,7 +7,17 @@
 <script setup>
 import {defineProps} from 'vue';
 const props=defineProps({
-  classes: { type:Array }
+  classes: { type:Array },
+  btype:{
+    type:String,
+    required:false,
+    default:'button'
+  },
+  isDisabled:{
+    type:Boolean,
+    required:false,
+    default:false
+  }
 })
 
 </script>

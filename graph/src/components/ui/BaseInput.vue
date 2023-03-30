@@ -2,18 +2,19 @@
   <div class="input">
     <h3  class="input-title"><slot></slot></h3>
     <label >
-      <input :type="type" class="" :disabled="disabled"  :value="disabled?defaultValue:modelValue"    @input="$emit('update:modelValue', $event.target.value)">
+      <input :type="type" class="" :disabled="disabled"  :required="isRequired" :value="disabled?defaultValue:modelValue" @blur="handleBlur"   @input="$emit('update:modelValue', $event.target.value)">
     </label>
+    <span v-if="error" class="error">{{ error }}</span>
   </div>
 
 </template>
 
 <script setup>
-import {ref, defineEmits, defineProps, onMounted} from 'vue';
-const inputValue=ref('');
+import {ref, defineEmits, defineProps, onMounted, watch, computed} from 'vue';
+
 const emit=defineEmits(['update:modelValue','disabled-emit'])
 const props = defineProps({
-  modelValue: { type: String, required: true },
+  modelValue: { type: [String,Number], required: true },
   type:{
     type:String,
     required:false,
@@ -28,8 +29,23 @@ const props = defineProps({
     type:Boolean,
     required:false,
     default:false,
+  },
+  isRequired:{
+    type:Boolean,
+    required:false,
+  },
+  validation:{
+    type:Function,
+    default:()=>null,
   }
 })
+const errors=ref({});
+const error=computed(()=>props.validation(props.modelValue));
+
+const handleBlur=()=>{
+  const error=props.validation(props.modelValue);
+  errors.value=error;
+}
 onMounted(()=>{
   if(props?.disabled!=null&&props.disabled){
     emit('disabled-emit',props.defaultValue);
@@ -39,6 +55,8 @@ onMounted(()=>{
 
 <style lang="scss" scoped>
 .input {
+  padding-bottom: 20px;
+  position: relative;
   &-title{
     font-size: 30px;
     line-height: 36px;
@@ -54,6 +72,15 @@ onMounted(()=>{
     padding: 5px 15px;
     font-size: 24px;
     line-height: 34px;
+  }
+  .error {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
   }
 }
 </style>

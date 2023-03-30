@@ -3,6 +3,7 @@ import CreateGraph from "@/views/CreateGraph.vue";
 import LoadGraph from "@/views/LoadGraph.vue";
 import CreateGraphOnce from "@/views/CreateGraphOnce.vue";
 import HigilightCode from "@/views/HigilightCode.vue";
+import Polygon from "@/views/Polygon.vue";
 
 const routes=[
     {
@@ -19,6 +20,10 @@ const routes=[
     },{
         path:"/highlight",
         component: HigilightCode
+    },
+    {
+        path:"/polygon",
+        component: Polygon,
     }
 ]
 

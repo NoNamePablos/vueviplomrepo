@@ -12,27 +12,28 @@
          </preview-list>
        </div>
        <div class="tab-item-body">
-         <form @submit.prevent action="" class="tab-item-form">
-           <base-input v-model="graphGlobSettings.title">
-             Глобальное название графа
-           </base-input>
-           <base-input v-model="graphNode.name">
-             Название
-           </base-input>
-           <base-input v-model="graphNode.link" >
-             Ссылка
-           </base-input>
-           <base-input :type="'number'" v-model="graphNode.x" >
-             x
-           </base-input>
-           <base-input :type="'number'" v-model="graphNode.y" >
-             y
-           </base-input>
-           <div class="tab-item-form__controls">
-             <base-button :classes="['button-green']" @click="appendItem">Добавить</base-button>
-             <base-button :classes="['button-red']" @click="clearGraphNode">Очистить</base-button>
-           </div>
-         </form>
+         <base-input :is-required="false" v-model="graphGlobSettings.title"  >
+           Глобальное название графа
+         </base-input>
+         <base-form :handle-submit="handleSubmit">
+           <template #form-field>
+             <base-input :is-required="true" v-model="graphNode.name" :validation="validateName">
+               Название
+             </base-input>
+             <base-input :is-required="false" v-model="graphNode.link"  >
+               Ссылка
+             </base-input>
+             <base-input :is-required="true" type="number" v-model="graphNode.x" :validation="validateNumber" >
+               x
+             </base-input>
+             <base-input :is-required="true"  type="number" v-model="graphNode.y"  :validation="validateNumber" >
+               y
+             </base-input>
+           </template>
+          <template #form-button>
+            <base-button :classes="['button-red']" @click="">Очистить</base-button>
+          </template>
+         </base-form>
        </div>
      </base-tab-item>
      <base-tab-item v-if="selectedGraphTab==='SetLinks'">
@@ -45,9 +46,9 @@
          </preview-list>
        </div>
        <div class="tab-item-body">
-         <p>source</p>
+         <p>Откуда</p>
          <vue-select @v-selected="selectedFieldSource"  :selected="graphLinkFields.source?.name"  :data="graphNodeList"></vue-select>
-         <p>target</p>
+         <p>Куда</p>
          <vue-select @v-selected="selectedFieldTarget"  :selected="graphLinkFields.target?.name"  :data="graphNodeList"></vue-select>
        </div>
        <div class="tab-item-form__controls">
@@ -80,6 +81,7 @@ import PreviewCardGraph from "@/components/previewCard/PreviewCardGraph.vue";
 import PreviewList from "@/components/PreviewList.vue";
 import BaseLayout from "@/components/BaseLayout.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
+import BaseForm from "@/components/ui/BaseForm.vue";
 
 const selectedGraphTab=ref(tabGraph[0].name)
 const exportData=ref({
@@ -91,6 +93,19 @@ const exportData=ref({
   links:[]
 })
 
+const handleSubmit=()=>{
+  appendItem();
+}
+function validateName(value) {
+  if (!value) {
+    return 'Обязательное поле'
+  }
+}
+function validateNumber(value) {
+  if (value<=0) {
+    return 'значение должно быть больше 0'
+  }
+}
 
 const exportGraphData=()=>{
   exportData.value.title=graphGlobSettings.value.title;

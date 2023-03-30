@@ -10,6 +10,7 @@ import {radiogroup} from "@/utils/radiogroup.routes";
 import Header from "@/components/Header.vue";
 import PreviewList from "@/components/PreviewList.vue";
 import BaseLayout from "@/components/BaseLayout.vue";
+import BaseForm from "@/components/ui/BaseForm.vue";
 ///graph import
 
 
@@ -57,7 +58,20 @@ const selectSelectItem=ref({
 computed(()=>{
   return selectSelectItem;
 })
+function validateName(value) {
+  if (!value) {
+    return 'Обязательное поле'
+  }
+}
+function validateNumber(value) {
+  if (value<=0) {
+    return 'Значение должно быть больше 0'
+  }
+}
 
+const handleSubmit=()=>{
+  appendChartItem();
+}
 </script>
 
 <template>
@@ -73,26 +87,26 @@ computed(()=>{
           </preview-list>
         </div>
         <div class="tab-item-body">
-          <form @submit.prevent action="" class="tab-item-form">
-            <div class="radio-group">
-              <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
-                <component :is=" radio.component"></component>
-              </BaseInputClickable>
-            </div>
-            <base-input v-model="chartNode.title">
-              Название
-            </base-input>
-            <base-input :type="'number'" v-model="chartNode.value">
-              Количество
-            </base-input>
-            <div class="tab-item-form__controls">
-              <base-button :classes="['button-green']" @click="appendChartItem">Добавить</base-button>
+          <base-form :handle-submit="handleSubmit" class="tab-item-form">
+            <template #form-field>
+              <div class="radio-group">
+                <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
+                  <component :is=" radio.component"></component>
+                </BaseInputClickable>
+              </div>
+              <base-input v-model="chartNode.title" :is-required="true"  :validation="validateName">
+                Название
+              </base-input>
+              <base-input  type="number" v-model="chartNode.value" :is-required="true" :validation="validateNumber">
+                Количество
+              </base-input>
+
+            </template>
+            <template #form-button>
               <base-button :classes="['button-red']" @click="clearChartItem">Очистить</base-button>
-            </div>
-            <div class="tab-item-form__controls">
               <base-button :classes="['button-green']" @click="exportChartData">Экспорт</base-button>
-            </div>
-          </form>
+            </template>
+          </base-form>
         </div>
         <!--      <div class="graph-editor__controls">
                 <base-button :classes="['button-green']" @click="saveGraphEditor">Сохранить</base-button>

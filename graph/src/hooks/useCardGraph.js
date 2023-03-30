@@ -7,8 +7,8 @@ export const useCardGraph=()=>{
     })
     const graphNode=ref({
         name:"",
-        x:"",
-        y:"",
+        x:-1,
+        y:-1,
         link:""
     })
     const graphLinkFields=ref({
@@ -69,8 +69,8 @@ export const useCardGraph=()=>{
 
     const clearGraphNode=()=>{
         graphNode.value.name="";
-        graphNode.value.x="";
-        graphNode.value.y="";
+        graphNode.value.x=-1;
+        graphNode.value.y=-1;
         graphNode.value.link="";
     }
     const appendItem=()=>{
