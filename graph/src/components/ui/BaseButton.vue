@@ -38,6 +38,10 @@ button{
   justify-content: center;
   cursor: pointer;
   white-space: nowrap;
+  & svg{
+    width: auto;
+    height: auto;
+  }
 }
 .button-primary{
   color: var(--color-white);

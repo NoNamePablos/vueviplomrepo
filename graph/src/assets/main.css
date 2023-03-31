@@ -21,7 +21,8 @@ button.button-active{
 button.button-active:hover {
      background-color: #0d3383;
 }
-button.button-active:focus,button.button-active:focus-visible{
+button.button-active:focus,
+button.button-active:focus-visible{
              background-color: #0d3383;
              -webkit-box-shadow: inset 0 0 0 1px #0d3383;
              box-shadow: inset 0 0 0 2px #0d3383;

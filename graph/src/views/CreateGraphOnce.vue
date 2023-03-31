@@ -31,7 +31,7 @@
              </base-input>
            </template>
           <template #form-button>
-            <base-button :classes="['button-red']" @click="">Очистить</base-button>
+            <base-button :classes="['button-red']" @click="clearGraphNode">Очистить</base-button>
           </template>
          </base-form>
        </div>
@@ -46,14 +46,17 @@
          </preview-list>
        </div>
        <div class="tab-item-body">
-         <p>Откуда</p>
-         <vue-select @v-selected="selectedFieldSource"  :selected="graphLinkFields.source?.name"  :data="graphNodeList"></vue-select>
-         <p>Куда</p>
-         <vue-select @v-selected="selectedFieldTarget"  :selected="graphLinkFields.target?.name"  :data="graphNodeList"></vue-select>
-       </div>
-       <div class="tab-item-form__controls">
-         <base-button :classes="['button-active']" @click="appendLink">Добавить</base-button>
-         <base-button :classes="['button-red']" @click="">Очистить</base-button>
+         <base-form :handle-submit="handleSubmitLink" class="tab-item-form">
+           <template #form-field>
+             <p>Откуда</p>
+             <vue-select @v-selected="selectedFieldSource"   ref="selectFiledSourceRef"  :selected="graphLinkFields.source?.name"  :data="graphNodeList"></vue-select>
+             <p>Куда</p>
+             <vue-select @v-selected="selectedFieldTarget"  ref="selectFiledTargetRef" :selected="graphLinkFields.target?.name"  :data="graphNodeList"></vue-select>
+           </template>
+           <template #form-button>
+             <base-button :classes="['button-red']" @click="clearLink">Очистить</base-button>
+           </template>
+         </base-form>
        </div>
 
      </base-tab-item>
@@ -81,7 +84,6 @@ import PreviewCardGraph from "@/components/previewCard/PreviewCardGraph.vue";
 import PreviewList from "@/components/PreviewList.vue";
 import BaseLayout from "@/components/BaseLayout.vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
-import BaseForm from "@/components/ui/BaseForm.vue";
 
 const selectedGraphTab=ref(tabGraph[0].name)
 const exportData=ref({
@@ -114,7 +116,10 @@ const exportGraphData=()=>{
   const json=JSON.stringify(toRaw(exportData.value));
   console.log("json ",json);
 }
-
+//Ссылки на селекты
+const selectFiledSourceRef=ref(null);
+const selectFiledTargetRef=ref(null);
+///
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
 const {
   graphNode,
@@ -128,9 +133,17 @@ const {
   appendLink,
   editLink,
   deleteLink,
+  clearLink,
   graphGlobSettings,
   selectedFieldSource,
   selectedFieldTarget,isGraph}=useCardGraph();
+
+const handleSubmitLink=()=>{
+  appendLink();
+  clearLink();
+  selectFiledSourceRef.value.resetSelectedIndex();
+  selectFiledTargetRef.value.resetSelectedIndex();
+}
 </script>
 
 <style lang="scss" scoped>

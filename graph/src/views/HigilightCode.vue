@@ -10,6 +10,8 @@ import BaseLayout from "@/components/BaseLayout.vue";
 import {languages} from "@/utils/higilight.routes";
 import {useHighlight} from "@/hooks/useHighlight";
 import VueSelect from "@/components/ui/VueSelect.vue";
+import BaseInput from "@/components/ui/BaseInput.vue";
+import BaseForm from "@/components/ui/BaseForm.vue";
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
@@ -35,7 +37,28 @@ const appendHighlighting=()=>{
   coloredCode.value=hightlighting(hlCode.value);
 }
 
+const validateCheckbox=(value)=>{
+  if(value===""||value==="Выбрать"){
+    return 'Пожалуйста выберите язык'
+  }
+}
 
+const validateTextArea=(value)=>{
+  if (!value) {
+    return 'Обязательное поле'
+  }
+}
+//ссылка на select
+const selectLanguageRef=ref(null);
+const handleSubmit=()=>{
+  appendHighlighting();
+  handleClear();
+  selectLanguageRef.value.resetSelectedIndex();
+}
+const handleClear=()=>{
+  hlCode.value="";
+  selectedLanguage.value={};
+}
 onMounted(()=>{
   selectedLanguage.value=languages[0].code;
 })
@@ -48,29 +71,17 @@ onMounted(()=>{
         <h3 class="tab-item__name">
           Подсветка кода
         </h3>
-        <div class="tab-item__preview" v-show="" >
-          <preview-list>
-<!--            <preview-card  @change-data="editChartItem" @delete-data="deleteChartItem"  :data="card"  v-for="card in chartNodeList" :key="card.title" />-->
-          </preview-list>
-        </div>
         <div class="tab-item-body">
-          <form @submit.prevent action="" class="tab-item-form">
-            <div class="row">
-              <vue-select @v-selected="onChangeLanguage"  :selected="selectedLanguage?.name"  :data="languages"></vue-select>
-              <div class="textarea">
-                <textarea v-model="hlCode"></textarea>
-              </div>
-              <div class="tab-item-form__controls">
-                <base-button :classes="['button-green']" @click="appendHighlighting">Добавить</base-button>
-                <base-button :classes="['button-red']" @click="">Очистить</base-button>
-              </div>
-            </div>
-          </form>
+          <base-form :handle-submit="handleSubmit">
+            <template #form-field>
+              <vue-select @v-selected="onChangeLanguage" ref="selectLanguageRef"  :selected="selectedLanguage?.name"  :data="languages" :validation="validateCheckbox" ></vue-select>
+              <base-input :is-textarea="true" :is-required="true" v-model="hlCode" :validation="validateTextArea" />
+            </template>
+            <template #form-button>
+              <base-button :classes="['button-red']" @click="handleClear">Очистить</base-button>
+            </template>
+          </base-form>
         </div>
-        <!--      <div class="graph-editor__controls">
-                <base-button :classes="['button-green']" @click="saveGraphEditor">Сохранить</base-button>
-                <base-button :classes="['button-red']" @click="">Отменить</base-button>
-              </div>-->
       </div>
       <div class="graph-editor__draw" v-if="coloredCode">
         <div class="code-highlight">
@@ -82,75 +93,6 @@ onMounted(()=>{
 </template>
 
 <style lang="scss" scoped>
-.textarea{
-  max-height: 150px;
-  height: 150px;
-  textarea{
-    font-family: Graphik LC Web,-apple-system,system-ui,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Helvetica,Arial;
-    font-size: 15px;
-    line-height: 1.5;
-    min-width: 140px;
-    min-height: 44px;
-    height: 100%;
-    padding: 10px 12px;
-    border-radius: 6px;
-    display: block;
-    width: 100%;
-    border: 1px solid #c5d0db;
-    margin: 0;
-    background: #fff;
-    -webkit-box-shadow: inset 0 0 0 1px transparent;
-    box-shadow: inset 0 0 0 1px transparent;
-    color: #00244d;
-    overflow-x: hidden;
-    overflow-y: auto;
-    resize: none;
-    text-overflow: ellipsis;
-    -webkit-transition: background-color .1s ease-in-out,border-color .1s ease-in-out,-webkit-box-shadow .1s ease-in-out;
-    transition: background-color .1s ease-in-out,border-color .1s ease-in-out,-webkit-box-shadow .1s ease-in-out;
-    transition: background-color .1s ease-in-out,border-color .1s ease-in-out,box-shadow .1s ease-in-out;
-    transition: background-color .1s ease-in-out,border-color .1s ease-in-out,box-shadow .1s ease-in-out,-webkit-box-shadow .1s ease-in-out;
-    outline: none;
-    &:hover{
-      z-index: 1;
-      background-color: #fff;
-      border-color: #0073f7;
-    }
-    &:focus,&:focus-visible{
-      -webkit-box-shadow: inset 0 0 0 1px #0073f7;
-      box-shadow: inset 0 0 0 1px #0073f7;
-    }
-    &::-webkit-scrollbar {
-      width: 7px;
-    }
-
-    /* Track */
-    &::-webkit-scrollbar-track {
-      background: var(--color-accent-3);
-      border-radius: 12px;
-      cursor: pointer;
-
-
-    }
-
-    /* Handle */
-    &::-webkit-scrollbar-thumb {
-      background: var(--color-accent-2);
-      border-radius: 12px;
-      cursor: pointer;
-
-    }
-
-    /* Handle on hover */
-    &::-webkit-scrollbar-thumb:hover {
-      background: #0073f7;
-      cursor: pointer;
-
-    }
-  }
-
-}
-
 .code-highlight{
   background: white;
   border: 1px solid #ddd;
@@ -167,8 +109,6 @@ onMounted(()=>{
     background:#ddd;
     border-radius: 12px;
     cursor: pointer;
-
-
   }
 
   /* Handle */

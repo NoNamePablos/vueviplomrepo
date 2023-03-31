@@ -48,7 +48,6 @@ export const useCardGraph=()=>{
         let index=graphLinkList.value.findIndex(element => element?.source===value?.source);
         if (index > -1) {
             graphLinkList.value.splice(index, 1);
-            console.log("remove link: ",graphLinkList.value.length);
         }
     }
     const selectedFieldSource=(value)=>{
@@ -121,7 +120,10 @@ export const useCardGraph=()=>{
             tabUnlock();
         }
     }
-
+    const clearLink=()=>{
+        graphLinkFields.value.source={};
+        graphLinkFields.value.target= {};
+    }
     return {
         graphLinkFields,
         graphLinkList,
@@ -133,6 +135,7 @@ export const useCardGraph=()=>{
         editNode,
         deleteNode,
         appendLink,
+        clearLink,
         editLink,
         deleteLink,
         selectedFieldSource,
