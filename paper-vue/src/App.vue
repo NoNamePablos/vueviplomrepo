@@ -6,6 +6,19 @@ import {onBeforeMount, onMounted, ref, watch} from "vue";
   import mock2 from "@/../public/mock/mock2.json"
 import {paperController} from "@/utils/papercontrols.routes";
 import TextInput from "@/TextInput";
+import Ellipse from "@/paper-components/ellipse.paper";
+import Process from "@/paper-components/process.paper";
+import Arrow90 from "@/paper-components/arrow90.paper";
+import Arrow from "@/paper-components/arrow.paper";
+import Romb from "@/paper-components/romb.paper";
+import Circle from "@/paper-components/cricle.paper";
+import Rectangle from "@/paper-components/rectangle.paper";
+import Line from "@/paper-components/line.paper";
+import Loop from "@/paper-components/loop.paper";
+import Hexagon from "@/paper-components/hexagon.paper";
+import Text from "@/paper-components/text.paper";
+import Square from "@/paper-components/square.paper";
+import Triangle from "@/paper-components/triangle.paper";
   const canvas=ref(null);
   const selectedItem=ref(null);
   const dragOffset=ref(null);
@@ -54,576 +67,66 @@ import TextInput from "@/TextInput";
   const appendItem=(name,obj)=>{
     const center = paper.view.center;
     let projectItems= +paper.project.activeLayer.children.length;
-    console.log("proj item: ",projectItems);
     if(name===null||name===undefined){
       return;
     }
-   /* if(name.toLowerCase().includes('newtext_')){
-      let text=null;
-      if(obj){
-        text=new TextInput(obj.position,obj.content);
-      }else{
-        text=new TextInput(center,"default text");
-      }
-      console.log("text: ",text );
-      paper.project.activeLayer.addChild(text.textItem);
-    }*/
     if(name.toLowerCase().includes('ellipse_')){
-      console.log("obj: ",obj);
-      let shape = obj!=null?obj:new paper.Path.Ellipse({
-        center: [110, 50],
-        radius: [90, 30],
-        fillColor: 'white',
-        strokeWidth:3,
-        strokeColor:'black',
-        name:'ellipse_'+ projectItems++,
-      });
-      if(obj){
-        shape.name='ellipse_'+ projectItems++;
-      }
-      //name-id
-
-      shape.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
-        if(paper.Key.isDown('delete')){
-          console.log("delete clicked");
-        }
-        if(event.modifiers.shift){
-          let scale =1.1;
-          let delta = event.delta;
-          if (delta.x < 0 && delta.y < 0) {
-            shape.scale(1/scale);
-          }else if (delta.x > 0 && delta.y > 0) {
-            shape.scale(scale);
-          }
-        }
-        if (selectedItem.value){
-          shape.position = event.point.subtract(dragOffset);
-        }
-      }
-      paper.project.activeLayer.addChild(shape);
+      let shape=new Ellipse(obj);
+      paper.project.activeLayer.addChild(shape.shape);
     }
     if(name.toLowerCase().includes('process_')){
-      console.log("zzz");
-      let rect1 =obj!=null?obj.children[0]:new paper.Path.Rectangle({
-        point: [50,50],
-        size: [100, 50],
-        fillColor: 'white',
-        strokeColor:'black',
-        strokeWidth:2,
-      });
-      console.log("rect1 ,",rect1);
-      // Создаем второй, меньший прямоугольник
-      let line = obj!=null?obj.children[1]:new paper.Path.Line(new paper.Point(70,50), new paper.Point(70,100));
-      line.strokeColor = 'black';
-      line.strokeWidth = 2;
-      let line2 = obj!=null?obj.children[2]:new paper.Path.Line(new paper.Point(130,50), new paper.Point(130,100));
-      line2.strokeColor = 'black';
-      line2.strokeWidth = 2;
-      // Создаем группу из двух прямоугольников
-      let group = new paper.Group([rect1,line,line2]);
-
-      group.name='process_'+projectItems++;
-
-      group.onMouseDrag=(event)=>{
-        if(paper.Key.isDown('shift')){
-          let scale =1.1;
-          let delta = event.delta;
-          if (delta.x < 0 && delta.y < 0) {
-            group.scale(1/scale);
-
-          }else if (delta.x > 0 && delta.y > 0) {
-            // движение мыши вниз-вправо, увеличиваем элемент
-              group.scale(scale);
-          }
-        }
-          group.position = event.point.subtract(dragOffset);
-      }
-      // Добавляем его на холст
-      paper.project.activeLayer.addChild(group);
-
-
+      let process=new Process(obj);
+      paper.project.activeLayer.addChild(process.groupItem);
     }
     if(name.toLowerCase().includes("arrow90_")){
-      let group=null;
-      let closestSegmentLine=null;
-      let closestSegmentIndexLine=null;
-      let arrow=null;
-      let line=null;
-      let line2=null;
-      if(obj==null){
-        console.log("obj: ",obj);
-        let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
-        let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(20, 80);
-        /*let startPoint = new paper.Point(20, 20);
-        let endPoint = new paper.Point(20, 80);*/
-        let arrowVector = endPoint.subtract(startPoint);
-        let arrowSize = 20;
-        arrowVector.length -= arrowSize;
-
-// Создаем линию между начальной и конечной точками
-         line = new paper.Path.Line(startPoint, endPoint);
-        line.strokeColor = 'black';
-        line.strokeWidth = 2;
-
-
-// Создаем стрелку
-         arrow = new paper.Path([
-          endPoint,
-          endPoint.add(arrowVector.normalize(arrowSize).rotate(135)),
-          endPoint,
-          endPoint.add(arrowVector.normalize(arrowSize).rotate(-135))
-        ]);
-        arrow.fillColor = 'black';
-        arrow.strokeColor = 'black';
-        arrow.strokeWidth = 2;
-
-         line2= obj!=null?obj.children[2]:new paper.Path.Line([80, 20], [20, 20]);
-        line2.strokeColor='black';
-        line2.strokeWidth=2;
-        group=new paper.Group([arrow,line,line2]);
-      }else{
-        line=obj.children[1];
-        line2=obj.children[2];
-        arrow=obj.children[0];
-        group=obj;
-      }
-
-// Добавляем линию и стрелку на сцену
-      group.name='arrow90_'+projectItems++;
-      group.onMouseUp=(event)=>{
-        closestSegment.value=null;
-        segemntIndex.value=null;
-        closestSegmentLine=null;
-        closestSegmentIndexLine=null;
-      }
-      group.onMouseDown=(event)=>{
-        const arrowPath = group.children[0]; // первый элемент группы - наконечник стрелки
-        const arrowPoint = arrowPath.segments[0].point; // первая точка наконечника
-        const distanceToArrow=event.point.getDistance(arrowPoint);
-        const line=group.children[group.children.length-1];
-        const segmentDistancesLine = line.segments.map(segment => {
-          const distance = segment.point.getDistance(event.point);
-          return distance;
-        });
-        const closestSegmentIndexArrowLine = segmentDistancesLine.indexOf(Math.min(...segmentDistancesLine));
-        const closestSegmentLineArrow = line.segments[closestSegmentIndexArrowLine]
-        if(event.point.getDistance(closestSegmentLineArrow.point) <= 10){
-          closestSegmentLine=closestSegmentLineArrow;
-          closestSegmentIndexLine=closestSegmentIndexArrowLine;
-        }
-        else if(distanceToArrow<=10){
-          const segmentDistances =arrowPath.segments.map(segment=>{
-            const distance=segment.point.getDistance(event.point);
-            return distance;
-          })
-          const closestSegmentIndex=segmentDistances.indexOf(Math.min(...segmentDistances))
-          const closestSegment1 = arrowPath.segments[closestSegmentIndex];
-          if (closestSegment1.previous == null || closestSegment1.next == null) {
-            // ближайший сегмент является сегментом, крепящим наконечник
-            console.log("set");
-            closestSegment.value =closestSegment1;
-            segemntIndex.value=closestSegmentIndex;
-          }
-
-        }
-      }
-      group.onMouseDrag=(event)=>{
-        if(event.modifiers.shift){
-          console.log("shift");
-          if(closestSegmentLine!=null){
-
-            closestSegmentLine.point.x=event.point.x;
-          }else{
-            let startPoint = line.firstSegment.point;
-            let endPoint = event.point;
-            let endPointY=endPoint.y;
-            line.lastSegment.point.y=endPointY;
-            let arrowVector = line.lastSegment.point.subtract(startPoint);
-            let arrowSize = 20;
-            arrowVector.length -= arrowSize;
-            arrow.segments[0].point = line.lastSegment.point;
-            arrow.segments[1].point = line.lastSegment.point.add(arrowVector.normalize(arrowSize).rotate(135));
-            arrow.segments[2].point = line.lastSegment.point;
-            arrow.segments[3].point = line.lastSegment.point.add(arrowVector.normalize(arrowSize).rotate(-135));
-          }
-        }
-        else{
-            if(closestSegmentLine!=null){
-          console.log("zzz");
-          closestSegmentLine.point=event.point;
-
-        }
-        else if (closestSegment.value) {
-
-          let segment = closestSegment.value;
-          // Перемещаем сегмент вместе с наконечником
-          segment.point = event.point;
-          // Обновляем позицию наконечника стрелки в соответствии с новым положением сегмента
-
-          let startPoint = line.firstSegment.point;
-          let endPoint = event.point;
-          line.lastSegment.point=endPoint;
-          console.log("after update lastsegment point: ",endPoint);
-
-          let arrowVector = endPoint.subtract(startPoint);
-          let arrowSize = 20;
-          arrowVector.length -= arrowSize;
-          arrow.segments[0].point = endPoint;
-          arrow.segments[1].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(135));
-          arrow.segments[2].point = endPoint;
-          arrow.segments[3].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(-135));
-        }else{
-          group.position = event.point.subtract(dragOffset);
-        }
-        }
-
-
-      }
-
-      paper.project.activeLayer.addChild(group);
-
-
+      let arrow90=new Arrow90(obj);
+      paper.project.activeLayer.addChild(arrow90.groupItem);
     }
     if(name.toLowerCase().includes("arrow_")){
-      console.log(obj);
-      let startPoint = obj!=null?obj.children[1].firstSegment.point:new paper.Point(20, 20);
-      let endPoint = obj!=null?obj.children[1].lastSegment.point:new paper.Point(80, 80);
-      let arrowVector = endPoint.subtract(startPoint);
-      let arrowSize = 20;
-      arrowVector.length -= arrowSize;
-
-// Создаем линию между начальной и конечной точками
-      let line = new paper.Path.Line(startPoint, endPoint);
-      line.strokeColor = 'black';
-      line.strokeWidth = 2;
-
-// Создаем стрелку
-      let arrow = new paper.Path([
-        endPoint,
-        endPoint.add(arrowVector.normalize(arrowSize).rotate(135)),
-        endPoint,
-        endPoint.add(arrowVector.normalize(arrowSize).rotate(-135))
-      ]);
-      arrow.fillColor = 'black';
-      arrow.strokeColor = 'black';
-      arrow.strokeWidth = 2;
-
-// Добавляем линию и стрелку на сцену
-      let group=new paper.Group([arrow,line]);
-      group.name='arrow_'+projectItems++;
-      group.position=obj!=null?obj.position:center;
-      group.onMouseUp=(event)=>{
-        closestSegment.value=null;
-        segemntIndex.value=null;
-      }
-      group.onMouseDown=(event)=>{
-        const arrowPath = group.children[0]; // первый элемент группы - наконечник стрелки
-        const arrowPoint = arrowPath.segments[0].point; // первая точка наконечника
-        const distanceToArrow=event.point.getDistance(arrowPoint);
-        if(distanceToArrow<=10){
-          const segmentDistances =arrowPath.segments.map(segment=>{
-            const distance=segment.point.getDistance(event.point);
-            return distance;
-          })
-          const closestSegmentIndex=segmentDistances.indexOf(Math.min(...segmentDistances))
-          const closestSegment1 = arrowPath.segments[closestSegmentIndex];
-          if (closestSegment1.previous == null || closestSegment1.next == null) {
-            // ближайший сегмент является сегментом, крепящим наконечник
-            console.log("set");
-            closestSegment.value =closestSegment1;
-            segemntIndex.value=closestSegmentIndex;
-          }
-
-        }
-      }
-      group.onMouseDrag=(event)=>{
-        if (closestSegment.value) {
-          let segment = closestSegment.value;
-          // Перемещаем сегмент вместе с наконечником
-          segment.point = event.point;
-          // Обновляем позицию наконечника стрелки в соответствии с новым положением сегмента
-
-          let startPoint = line.firstSegment.point;
-          let endPoint = event.point;
-          line.lastSegment.point=endPoint;
-
-          let arrowVector = endPoint.subtract(startPoint);
-          let arrowSize = 20;
-          arrowVector.length -= arrowSize;
-          arrow.segments[0].point = endPoint;
-          arrow.segments[1].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(135));
-          arrow.segments[2].point = endPoint;
-          arrow.segments[3].point = endPoint.add(arrowVector.normalize(arrowSize).rotate(-135));
-        }else{
-          group.position = event.point.subtract(dragOffset);
-        }
-        if(paper.Key.isDown('shift')){
-          let scale =1.1;
-          let delta = event.delta;
-          if (delta.x < 0 && delta.y < 0) {
-            group.children[1].scale(1/scale);
-
-          }else if (delta.x > 0 && delta.y > 0) {
-            // движение мыши вниз-вправо, увеличиваем элемент
-            group.children[1].scale(scale);
-          }
-        }
-
-      }
-
-      paper.project.activeLayer.addChild(group);
-
-
+      let arrow=new Arrow(obj);
+      paper.project.activeLayer.addChild(arrow.groupItem);
     }
     if(name.toLowerCase().includes("romb_")){
-      let points2= [
-        new paper.Point(100, 100),
-         new paper.Point(150, 50),
-         new paper.Point(200, 100),
-        new  paper.Point(150, 150),
-      ];
-      let romb = obj!=null?obj:new paper.Path({
-        segments: points2,
-        closed:true,
-        strokeColor:'black',
-        fillColor:"white",
-        strokeWidth:3,
-        name:'romb_'+projectItems++,
-      });
-      if(obj){
-        romb.name='romb_'+projectItems++;
-      }
-      romb.position=obj!=null?obj.position:center;
-      romb.onMouseDrag=(event)=>{
-        if(paper.Key.isDown('shift')){
-          let scale =1.1;
-          let delta = event.delta;
-          if (delta.x < 0 && delta.y < 0) {
-
-            romb.scale(1/scale);
-
-          }else if (delta.x > 0 && delta.y > 0) {
-            // движение мыши вниз-вправо, увеличиваем элемент
-            romb.scale(scale);
-
-          }
-        }else{
-          romb.position = event.point.subtract(dragOffset);
-        }
-      }
-      paper.project.activeLayer.addChild(romb);
+      let romb=new Romb(obj);
+      paper.project.activeLayer.addChild(romb.rombItem);
     }
     if(name.toLowerCase().includes("loop_")){
-      let points1= [
-        new paper.Point(0, 0),
-        new paper.Point(-100, 0),
-        new paper.Point(-100, -75),
-        new paper.Point(0,-100),
-        new paper.Point(100,-75),
-        new paper.Point(100,0),
-        new paper.Point(-100,0),
-      ];
-      // Создаем путь из точек
-      let loop = obj!=null?obj:new paper.Path({
-        segments: points1,
-
-        strokeColor:'black',
-        fillColor:"white",
-        strokeWidth:3,
-        name:'loop_'+projectItems++,
-      });
-      if(obj){
-        loop.name='loop_'+projectItems++
-      }
-      loop.position=obj!=null?obj.position:center;
-      loop.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
-
-        if (selectedItem.value){
-          loop.position = event.point.subtract(dragOffset);
-        }
-      }
-
-      paper.project.activeLayer.addChild(loop);
+      let loop=new Loop(obj);
+      paper.project.activeLayer.addChild(loop.loopItem);
     }
-    if(name.toLowerCase().includes("hexagon_")){
-      let points = [
-        new paper.Point(0, 0),
-        new paper.Point(100, 0),
-        new paper.Point(150, 75),
-        new paper.Point(100, 150),
-        new paper.Point(0, 150),
-        new paper.Point(-50, 75)
-      ];
-      // Создаем путь из точек
-      let hexagon = obj!=null?obj:new paper.Path({
-        center:center,
-        segments: points,
-        closed: true,
-        strokeColor:'black',
-        fillColor:"white",
-        strokeWidth:2,
-        name:'hexagon_'+projectItems++
-      });
-      if(obj){
-        hexagon.name='hexagon_'+projectItems++;
-      }
-      hexagon.onMouseDrag=(event)=>{
-        if (selectedItem.value){
-          hexagon.position = event.point.subtract(dragOffset);
-        }
-      }
 
-      paper.project.activeLayer.addChild(hexagon);
+    if(name.toLowerCase().includes("hexagon_")){
+      let hexagon=new Hexagon(obj);
+      paper.project.activeLayer.addChild(hexagon.hexagonItem);
     }
     if(name.toLowerCase().includes("text_")){
-      let text=obj!=null?obj:new paper.PointText({
-        point:center,
-        content:"Text",
-        justification: 'center',
-        fontSize:20,
-        fillColor:'black',
-        name:'text_'+projectItems++,
-      })
-      if(obj){
-        text.name="text_"+projectItems++;
-      }
-      text.onDoubleClick=(event)=>{
-          let textInput=document.createElement('input');
-          textInput.type = 'text';
-          textInput.style.position = 'absolute';
-          textInput.style.top = event.point.y + 'px';
-          textInput.style.left = event.point.x + 'px';
-          textInput.style.width = '200px';
-          textInput.style.height = '20px';
-          textInput.style.border = '1px solid black';
-          textInput.style.fontFamily = 'Arial';
-          textInput.style.fontSize = '20px';
-          textInput.style.fontWeight = 'bold';
-          textInput.style.padding = '5px';
-          textInput.value = text.content;
-          document.body.appendChild(textInput);
-          textInput.onkeypress=(event)=>{
-          if(event.key==='Enter'){
-            text.content=textInput.value;
-            textInput.remove();
-          }
-        }
-
-      }
-      text.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
-        if (selectedItem.value){
-          text.position = event.point.subtract(dragOffset);
-        }
-      }
-      paper.project.activeLayer.addChild(text);
+      let text=new Text(obj);
+      paper.project.activeLayer.addChild(text.textItem);
     }
+
+
     if(name.toLowerCase().includes("circle_")){
-      let circle=obj!=null?obj:new paper.Path.Circle({
-        center: center,
-        radius: 50,
-        fillColor: 'white',
-        strokeColor:'black',
-        strokeWidth:3,
-        name:'circle_'+projectItems++,
-      });
-      if(obj){
-        circle.name="cricle_"+projectItems++;
-      }
-      circle.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
-        if(event.modifiers.shift){
-          let scale =1.1;
-          let delta = event.delta;
-          if (delta.x < 0 && delta.y < 0) {
-            circle.scale(1/scale);
-          }else if (delta.x > 0 && delta.y > 0) {
-            circle.scale(scale);
-          }
-        }
-        if (selectedItem.value){
-          circle.position = event.point.subtract(dragOffset);
-        }
-      }
-      paper.project.activeLayer.addChild(circle);
+      let cirlce=new Circle(obj);
+      paper.project.activeLayer.addChild(cirlce.circleItem);
     }
     if(name.toLowerCase().includes("rectangle_")){
-      // создаем новый прямоугольник
-      const rect = obj!=null?obj:new paper.Path.Rectangle({
-        point: center,  // начальная точка
-        size: [100, 50],  // ширина и высота
-        fillColor: 'white',
-        strokeColor:'black',
-        strokeWidth:3,
-        name:'rectangle_'+projectItems++,
-      });
-      if(obj){
-        rect.name='rectangle_'+projectItems++;
-      }
-      rect.onMouseDrag=(event)=>{
-        console.log("selected: ",selectedItem.value);
-        if(event.modifiers.shift){
-          let scale =1.1;
-          let delta = event.delta;
-          if (delta.x < 0 && delta.y < 0) {
-            rect.scale(1/scale);
-          }else if (delta.x > 0 && delta.y > 0) {
-            rect.scale(scale);
-          }
-        }
-        if (selectedItem.value){
-          rect.position = event.point.subtract(dragOffset.value);
-        }
-      }
-      paper.project.activeLayer.addChild(rect);
-
+      let rect=new Rectangle(obj);
+      paper.project.activeLayer.addChild(rect.rectangleItem);
     }
-    if(name.toLowerCase().includes("line_")){
-      // создаем новую линию
-      const line = obj!=null?obj:new paper.Path.Line({
-        from: [200, 100],  // начальная точка
-        to: [300, 50],     // конечная точка
-        strokeColor:'black',
-        strokeWidth: 3,
-        name:"line_"+projectItems++
-      });
-      if(obj){
-        line.name="line_"+projectItems++;
-      }
-      line.onMouseUp=(event)=>{
-        closestSegment.value=null;
-        segemntIndex.value=null;
-      }
-      line.sendToBack();
-      line.onMouseDrag=(event)=>{
-        //2варик
-        if(closestSegment.value){
-          closestSegment.value.point=event.point;
-          line.smooth();
-        }else{
-          line.position = event.point.subtract(dragOffset);
-        }
+    if(name.toLowerCase().includes("triangle_")){
+      let rect=new Triangle(obj);
+      paper.project.activeLayer.addChild(rect.triangleItem);
+    }
+    if(name.toLowerCase().includes("square_")){
+      let rect=new Square(obj);
+      paper.project.activeLayer.addChild(rect.squareItem);
+    }
 
-      }
-      line.onMouseDown =(event)=>{
-        const segmentDistances = line.segments.map(segment => {
-          const distance = segment.point.getDistance(event.point);
-          return distance;
-        });
-        const closestSegmentIndex = segmentDistances.indexOf(Math.min(...segmentDistances));
-        const closestSegment1 = line.segments[closestSegmentIndex]
-        if(event.point.getDistance(closestSegment1.point) <= 10){
-          closestSegment.value=closestSegment1;
-          segemntIndex.value=closestSegmentIndex;
-        }
-        dragOffset.value = event.point.subtract(line.position);
-      }
-      paper.project.activeLayer.addChild(line);
+    if(name.toLowerCase().includes("line_")){
+      let line = new Line(obj);
+      paper.project.activeLayer.addChild(line.lineItem);
     }
   }
-  const isClicked=ref(false);
   const bufferItem=ref(null)
   const onMouseDown=(event)=>{
       let hitResult = paper.project.hitTest(event.point);

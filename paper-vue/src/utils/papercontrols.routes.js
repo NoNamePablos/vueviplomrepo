@@ -88,6 +88,22 @@ export  const paperController=reactive(
             component:markRaw(defineAsyncComponent(() =>
                 import('@/components/icons/IconEllipse.vue')
             )),
+       },
+        {
+            id:12,
+            name:"square",
+            sub_name:"square_",
+            component:markRaw(defineAsyncComponent(() =>
+                import('@/components/icons/IconRectangle.vue')
+            )),
+        },
+        {
+            id:13,
+            name:"triangle",
+            sub_name:"triangle_",
+            component:markRaw(defineAsyncComponent(() =>
+                import('@/components/icons/IconRectangle.vue')
+            )),
         },
     ]
 
