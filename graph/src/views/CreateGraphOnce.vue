@@ -49,9 +49,9 @@
          <base-form :handle-submit="handleSubmitLink" class="tab-item-form">
            <template #form-field>
              <p>Откуда</p>
-             <vue-select @v-selected="selectedFieldSource"   ref="selectFiledSourceRef"  :selected="graphLinkFields.source?.name"  :data="graphNodeList"></vue-select>
+             <vue-select @v-selected="selectedFieldSource"  :validation="validateCheckbox"  ref="selectFiledSourceRef"  :selected="graphLinkFields.source?.name"  :data="graphNodeList"></vue-select>
              <p>Куда</p>
-             <vue-select @v-selected="selectedFieldTarget"  ref="selectFiledTargetRef" :selected="graphLinkFields.target?.name"  :data="graphNodeList"></vue-select>
+             <vue-select @v-selected="selectedFieldTarget"  :validation="validateCheckbox"  ref="selectFiledTargetRef" :selected="graphLinkFields.target?.name"  :data="graphNodeList"></vue-select>
            </template>
            <template #form-button>
              <base-button :classes="['button-red']" @click="clearLink">Очистить</base-button>
@@ -108,7 +108,11 @@ function validateNumber(value) {
     return 'значение должно быть больше 0'
   }
 }
-
+const validateCheckbox=(value)=>{
+  if(value===""||value==="Выбрать"){
+    return 'Пожалуйста выберите элемент';
+  }
+}
 const exportGraphData=()=>{
   exportData.value.title=graphGlobSettings.value.title;
   exportData.value.optionData=graphNodeList.value;
