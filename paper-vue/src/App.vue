@@ -1,11 +1,8 @@
 <script setup>
-import paper, {Group} from "paper";
-import {onBeforeMount, onMounted, ref, watch} from "vue";
-  import loopItemGroup from "@/items";
-  import mock1 from "@/mock/mock1.js";
-  import mock2 from "@/../public/mock/mock2.json"
+import paper from "paper";
+import {onBeforeMount, onMounted, ref,} from "vue";
+import mock1 from "@/mock/mock1.js";
 import {paperController} from "@/utils/papercontrols.routes";
-import TextInput from "@/TextInput";
 import Ellipse from "@/paper-components/ellipse.paper";
 import Process from "@/paper-components/process.paper";
 import Arrow90 from "@/paper-components/arrow90.paper";
@@ -22,24 +19,9 @@ import Triangle from "@/paper-components/triangle.paper";
   const canvas=ref(null);
   const selectedItem=ref(null);
   const dragOffset=ref(null);
-  const isSelectedGroup=ref(false);
-  const selectedGroupItem=ref([]);
   const copiedItem=ref(null);
   const logger=()=>{
     console.log(paper.project.activeLayer.children.map(item=>item.name));
-  }
-  const selectGroup=(item)=>{
-    if(item.parent instanceof paper.Group){
-      console.log("dddd: ",item);
-      let children=item.parent.children;
-      paper.project.deselectAll();
-      children.forEach((el)=>{
-        el.selected=true;
-        selectedGroupItem.value.push(el);
-        isSelectedGroup.value=true;
-      })
-      console.log(selectedGroupItem.value);
-    }
   }
   const unSelected=(array)=>{
     array.forEach((item)=>item.selected=false);
@@ -52,9 +34,6 @@ import Triangle from "@/paper-components/triangle.paper";
       lastItem.remove();
     }
   }
-  const closestSegment=ref(null);
-  const segemntIndex=ref(null);
-
   const exportSvg=ref(null);
   const exportJson=ref(null);
   const exporterSvg=()=>{
@@ -134,7 +113,6 @@ import Triangle from "@/paper-components/triangle.paper";
         selectedItem.value = hitResult.item;
         selectedItem.value.selected=true;
         bufferItem.value = hitResult.item;
-        console.log("buffer item val: ",bufferItem.value);
         bufferItem.value.selected=true;
         dragOffset.value = event.point.subtract(selectedItem.value.position);
       }
@@ -156,15 +134,11 @@ import Triangle from "@/paper-components/triangle.paper";
         }
     }
     if (event.key === 'c' && event.modifiers.control && bufferItem.value) {
-      console.log("bbb: ",bufferItem.value);
-
       if (bufferItem.value){
-        if(bufferItem.value.name!=null||bufferItem.value.name!=undefined){
-          console.log("is item copy");
+        if(bufferItem.value.name!=null||bufferItem.value.name!==undefined){
           copiedItem.value = bufferItem.value.clone();
           copiedItem.value.visible=false;
           const substring = bufferItem.value.name.slice(0, bufferItem.value.name.toString().length);
-          console.log("substring:L ",substring);
           copiedItem.value.name=substring;
         }else{
           copiedItem.value = bufferItem.value.parent.clone();
@@ -175,81 +149,31 @@ import Triangle from "@/paper-components/triangle.paper";
 
       }
     }else if(event.key === 'v' && event.modifiers.control && copiedItem.value){
-       console.log("copied item name: ",copiedItem.value.name);
-      console.log("paste: ",copiedItem.value);
       appendItem(copiedItem.value.name,copiedItem.value);
       copiedItem.value.visible=true;
     }
   }
 
-  const onMouseDrag=(event)=>{
-   /* if(paper.Key.isDown('shift')){
-      let scale =1.1;
-      let delta = event.delta;
-      if (delta.x < 0 && delta.y < 0) {
-        if(selectedItem.value.parent instanceof paper.Group){
-          selectedItem.value.parent.scale(1/scale);
-        }
-        else{
-          selectedItem.value.scale(1/scale);
-        }
-
-      }else if (delta.x > 0 && delta.y > 0) {
-        // движение мыши вниз-вправо, увеличиваем элемент
-        if(selectedItem.value.parent instanceof paper.Group)
-        {
-          selectedItem.value.parent.scale(scale);
-        }
-        else
-        {
-          selectedItem.value.scale(scale);
-        }
-      }
-    }*/
-  }
   const scene=ref(null);
   const loadForEdit=()=>{
     let scense=paper.project.importJSON(mock1);
     let importedItems =  paper.project.activeLayer.children.slice();
     paper.project.activeLayer.children=null;
-    console.log("layers: act",    paper.project.activeLayer);
-    console.log("ims: ",importedItems);
     let newLayer=new paper.Layer();
     paper.project.addLayer(newLayer);
     newLayer.activate();
-    console.log("new layere ", newLayer)
     importedItems.forEach((item)=>{
-      console.log("ifsf: ",item.name);
-      console.log("ifdfsfdsf:  ",item);
        appendItem(item.name,item);
     })
-
-
-    // Clean up the temporary project
-
-    /*scene.value.onLoad=function (){
-       console.log("imported: ", scene.children);
-       scene.children.forEach(function(child) {
-         console.log("xzxz");
-         appendItem(child.name,child);
-
-       });
-       scene.remove();
-       paper.view.draw();
-     }*/
   }
   const onMouseUp=(event)=>{
     if(selectedItem.value){
       if(selectedItem.value.parent instanceof paper.Group){
         let parent=selectedItem.value.parent;
-        console.log("parent: ",parent);
         unSelected(parent.children);
-        console.log("parent children: ",parent.children);
       }
       selectedItem.value.selected = false;
       selectedItem.value = null;
-      segemntIndex.value=null;
-      closestSegment.value=null;
     }
   }
   onBeforeMount(()=>{
@@ -259,7 +183,6 @@ import Triangle from "@/paper-components/triangle.paper";
   onMounted(()=>{
     paper.setup(canvas.value);
     paper.view.onMouseDown=onMouseDown;
-    paper.view.onMouseDrag=onMouseDrag;
     paper.view.onMouseUp=onMouseUp;
     paper.view.onKeyDown=onKeyDown;
     paper.view.draw();
@@ -276,11 +199,11 @@ import Triangle from "@/paper-components/triangle.paper";
         </button>
       </div>
       <div class="paper__controller_settings">
-        <button class="paper-button paper-button_controller" @click="removeLast">Clear last</button>
-        <button  class="paper-button paper-button_controller" @click="exporterSvg">Export SVG</button>
-        <button  class="paper-button paper-button_controller"  @click="exporterJson">Export JSON</button>
-        <button  class="paper-button paper-button_controller" @click="loadForEdit">Import JSON</button>
-        <button  class="paper-button paper-button_controller" @click="logger">logger</button>
+        <button class="paper-button paper-button_controller button-active" @click="removeLast">Clear last</button>
+        <button  class="paper-button paper-button_controller button-active" @click="exporterSvg">Export SVG</button>
+        <button  class="paper-button paper-button_controller button-active"  @click="exporterJson">Export JSON</button>
+        <button  class="paper-button paper-button_controller button-active" @click="loadForEdit">Import JSON</button>
+        <button  class="paper-button paper-button_controller button-active" @click="logger">logger</button>
       </div>
       <div class="content">
         <textarea :value="exportSvg" v-if="exportSvg!==null"/>
@@ -306,22 +229,23 @@ import Triangle from "@/paper-components/triangle.paper";
     justify-content: center;
     flex-direction: column;
     gap: 5px;
+    border:1px solid rgba(1,1,1,0);
     & span{
       font-weight: 600;
     }
     &:hover{
-      background-color: #a4a4a4;
+      border:1px solid #2d69e8;
     }
     &_controller{
       font-weight: 700!important;
       color: #fff;
-      background-color: #4299e1;
+      background-color: #2d69e8;
       border-radius: 0.25rem!important;
     }
   }
   .paper__controller{
     padding: 20px 10px;
-    background-color: #cccccc;
+    background-color: #FFFFFF;
     border-right: 1px solid #181818;
     max-width: 200px;
     display: grid;
@@ -341,7 +265,7 @@ import Triangle from "@/paper-components/triangle.paper";
   }
   .paper-wrapper{
     display: flex;
-    gap: 50px;
+    gap: 25px;
     & canvas{
       position: relative;
       margin-top: 100px;
@@ -355,4 +279,19 @@ import Triangle from "@/paper-components/triangle.paper";
       resize: vertical;
     }
   }
+  button.button-active{
+    background-color: #2d69e8;
+    color: white;
+    transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
+  }
+  button.button-active:hover {
+    background-color: #0d3383;
+  }
+  button.button-active:focus,
+  button.button-active:focus-visible{
+    background-color: #0d3383;
+    -webkit-box-shadow: inset 0 0 0 1px #0d3383;
+    box-shadow: inset 0 0 0 2px #0d3383;
+  }
+
 </style>
