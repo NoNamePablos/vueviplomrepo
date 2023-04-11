@@ -5,7 +5,7 @@
     </div>
     <div class="form-group">
       <span class="form-group__label">Действия</span>
-      <base-button :classes="['button-green','button-z']" type="submit" >Добавить</base-button>
+      <base-button :classes="['button-green']" type="submit" >Добавить</base-button>
       <slot name="form-button"></slot>
     </div>
   </form>
@@ -42,8 +42,5 @@
         left: 7px;
       }
     }
-  }
-  .button-z{
-    pointer-events: all !important;
   }
 </style>

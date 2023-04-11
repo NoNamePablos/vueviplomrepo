@@ -22,7 +22,7 @@ const {chartNode,chartType,isLockedRadio,tempData,chartNodeList,clearChartItem,a
 ///
 
 const exportData=ref({
-  production:false,
+  production:true,
   type:"chart",
   typeChart:chartType.value.toLowerCase(),
   optionData:[]
@@ -69,7 +69,64 @@ function validateNumber(value) {
     return 'Значение должно быть больше 0'
   }
 }
+const exportChartData=()=>{
+  //Запрос на серв со всеми данными
+  exportData.value.typeChart=chartType.value.toLowerCase();
+  exportData.value.optionData=chartNodeList.value;
+  const json=JSON.stringify(toRaw(exportData.value));
+  let hiddenParent=document.querySelector('.chart-component');
+  hiddenParent.querySelector('.chart-component-hidden').textContent=json;
+}
+const loadData=ref({});
+onBeforeMount(()=>{
 
+  let hiddenParent=document.querySelector('.chart-component');
+  let hiddenObject=hiddenParent.querySelector('.chart-component-hidden');
+
+  loadData.value=JSON.parse(hiddenObject.textContent);
+  console.log("134: ",loadData.value);
+  console.log("Iterate into for mockadata");
+  let isGraphLoading=false;
+  for (let key in loadData.value) {
+    if(key==='production'){
+      isSaveGraph.value=loadData.value[key];
+      console.log("isSaveL ",isSaveGraph.value);
+    }
+    if(key==="type"){
+      isGraphLoading=loadData.value[key]==='graph'?true:false;
+    }
+    if(key==='typeChart'){
+      if(!isGraphLoading){
+        chartType.value=radiogroup[radiogroup.findIndex((el)=>el.title.toLowerCase()===loadData.value[key].toLowerCase())].title;
+      }
+    }
+    if(key==='optionData'){
+      if(isGraphLoading){
+        for ( let {name,x,y,link} of loadData.value[key]){
+          graphNode.value.name=name;
+          graphNode.value.x=x;
+          graphNode.value.y=y;
+          graphNode.value.link=link;
+          appendItem();
+        }
+      }else{
+        for ( let {title,value,link} of loadData.value[key]){
+          chartNode.value.type=chartType.value;
+          chartNode.value.title=title;
+          chartNode.value.value=value;
+          appendChartItem();
+        }
+      }
+    }
+    if(key==='links'&&isGraphLoading){
+      for ( let {source,target} of loadData.value[key]){
+        graphLinkFields.value.source=source;
+        graphLinkFields.value.target=target;
+        appendLink();
+      }
+    }
+  }
+})
 const handleSubmit=()=>{
   appendChartItem();
 }
@@ -92,7 +149,7 @@ const handleSubmit=()=>{
             <template #form-field>
               <div class="radio-group">
                 <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
-                  <component :is=" radio.component"></component>
+                  <div v-html="radio.component"></div>
                 </BaseInputClickable>
               </div>
               <base-input v-model="chartNode.title" :is-required="true"  :validation="validateName">

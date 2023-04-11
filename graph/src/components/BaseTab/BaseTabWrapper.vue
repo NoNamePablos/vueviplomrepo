@@ -2,7 +2,7 @@
     <div :class="['tab',{'tab-horizontal':isHorizontal}]">
       <div class="tab-nav">
         <button v-for="tab in tabs"  :class="['tab-nav__item',{'selected':tab.name===selectedTab},{'is-blocked':tab?.isBlocked}]" :key="tab.name" @click="changeTab(tab.name)">
-          <component :is="tab?.icon"/>
+          <div v-html="tab.icon"></div>
           {{tab.label}}</button>
       </div>
       <div class="tab-content">

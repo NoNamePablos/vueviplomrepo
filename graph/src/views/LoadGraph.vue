@@ -142,7 +142,6 @@ computed(()=>{
 </script>
 
 <template>
-  <h2 style="display: block;margin-top: 80px;">LOAD COMPONENT</h2>
   <div class="graph-editor">
     <div class="graph-editor__tabs" v-if="!isSaveGraph">
       <base-tab-wrapper :tabs="tabs" :selected-tab="selectedTab" @change-tab="changeTab">

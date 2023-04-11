@@ -121,5 +121,6 @@ onMounted(()=>{
   width: 100%;
   height: 500px;
   border:1px solid;
+  max-width: 1000px;
 }
 </style>

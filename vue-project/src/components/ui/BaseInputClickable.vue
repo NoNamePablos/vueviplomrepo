@@ -39,6 +39,9 @@ const props=defineProps({
 
 .input-clickable{
   cursor: pointer;
+  & img{
+    width: 20px;
+  }
   &.is-locked{
     &:hover{
       cursor: not-allowed !important;
@@ -62,14 +65,12 @@ const props=defineProps({
   }
   &-input{
     &:checked~.chart{
-      background-color: #5470c6;
-      color: #fff;
       border-radius: 8px;
+      border: 1px solid #5470c6;
+      color:#5470c6;
+
       & .chart-name{
         color: inherit;
-      }
-      & .chart-icon *{
-        fill: #fff;
       }
     }
   }
@@ -88,6 +89,7 @@ const props=defineProps({
   padding: 10px;
   display: block;
   position: relative;
+  border:1px solid rgba(1,1,1,0);
   &-name{
     display: inline-block;
     position: relative;

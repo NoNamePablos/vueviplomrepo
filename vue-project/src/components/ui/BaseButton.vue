@@ -38,6 +38,7 @@ button{
   justify-content: center;
   cursor: pointer;
   white-space: nowrap;
+  pointer-events: all !important;
   & svg{
     width: auto;
     height: auto;

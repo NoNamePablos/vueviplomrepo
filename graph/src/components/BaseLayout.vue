@@ -14,9 +14,7 @@
 </script>
 
 <style lang="scss">
-    .layout{
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-
+      .layout{
+        width: 100%;
+      }
 </style>
