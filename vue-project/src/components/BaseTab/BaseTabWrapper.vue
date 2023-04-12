@@ -61,6 +61,7 @@
         border-right: 3px solid #f1f1f1;
         &__item{
           position: relative;
+          pointer-events: all !important;
           height: 60px;
           background-color: white;
           border:transparent;

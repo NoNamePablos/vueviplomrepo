@@ -35,17 +35,3 @@ button.button-transparent:hover{
     background-color: #cacaca;
     color: #2d69e8;
 }
-.button.button-blocked{
-    pointer-events: none !important;
-    position: relative;
-}
-.button-blocked::after{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    content: "";
-    background: rgb(190 190 190 / 50%);
-    border-radius: 6px;
-}

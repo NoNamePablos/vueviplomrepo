@@ -7,8 +7,8 @@
       </div>
       <div class="preview-card__props">
         <div class="preview-card__prop">
-          <h3 class="preview-card__prop-title">Ссылка на страницу</h3>
-          <div class="preview-card__title">{{ data?.link }}</div>
+          <h3 class="preview-card__prop-title">Ссылка</h3>
+          <div class="preview-card__title">{{ data?.link?data?.link:"Пусто"}}</div>
         </div>
         <div class="preview-card__prop">
           <h3 class="preview-card__prop-title">x</h3>
@@ -53,7 +53,7 @@ const props=defineProps({
 
 })
 const changeValue=()=>{
-
+  console.log(props.data);
   emits('changeData',props.data);
 }
 
