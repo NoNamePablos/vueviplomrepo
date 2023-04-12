@@ -1,6 +1,6 @@
 <script setup>
 
-import {ref, computed,toRaw} from "vue";
+import {ref, computed,toRaw,onBeforeMount} from "vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
@@ -28,24 +28,11 @@ const exportData=ref({
   optionData:[]
 })
 
-const exportChartData=()=>{
-  //Запрос на серв со всеми данными
-  exportData.value.typeChart=chartType.value.toLowerCase();
-  exportData.value.optionData=chartNodeList.value;
-  const json=JSON.stringify(toRaw(exportData.value));
-  console.log("json ",json);
-}
-
-
 
 computed(()=>{
   return radiogroup ;
 })
 
-
-
-//todo Крайний срок 06.03.2023
-//todo Оптимизировать базовый шаблон с опциями для графика (Приоритет средний)
 
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
@@ -79,62 +66,46 @@ const exportChartData=()=>{
 }
 const loadData=ref({});
 onBeforeMount(()=>{
-
   let hiddenParent=document.querySelector('.chart-component');
   let hiddenObject=hiddenParent.querySelector('.chart-component-hidden');
-
-  loadData.value=JSON.parse(hiddenObject.textContent);
-  console.log("134: ",loadData.value);
-  console.log("Iterate into for mockadata");
-  let isGraphLoading=false;
-  for (let key in loadData.value) {
-    if(key==='production'){
-      isSaveGraph.value=loadData.value[key];
-      console.log("isSaveL ",isSaveGraph.value);
-    }
-    if(key==="type"){
-      isGraphLoading=loadData.value[key]==='graph'?true:false;
-    }
-    if(key==='typeChart'){
-      if(!isGraphLoading){
-        chartType.value=radiogroup[radiogroup.findIndex((el)=>el.title.toLowerCase()===loadData.value[key].toLowerCase())].title;
+  if(hiddenObject.textContent!=""){
+    loadData.value=JSON.parse(hiddenObject.textContent);
+    let isGraphLoading=false;
+    for (let key in loadData.value) {
+      if(key==='production'){
+        isSaveGraph.value=loadData.value[key];
       }
-    }
-    if(key==='optionData'){
-      if(isGraphLoading){
-        for ( let {name,x,y,link} of loadData.value[key]){
-          graphNode.value.name=name;
-          graphNode.value.x=x;
-          graphNode.value.y=y;
-          graphNode.value.link=link;
-          appendItem();
-        }
-      }else{
-        for ( let {title,value,link} of loadData.value[key]){
-          chartNode.value.type=chartType.value;
-          chartNode.value.title=title;
-          chartNode.value.value=value;
-          appendChartItem();
+      if(key==="type"){
+        isGraphLoading=loadData.value[key]==='graph'?true:false;
+      }
+      if(key==='typeChart'){
+        if(!isGraphLoading){
+          chartType.value=radiogroup[radiogroup.findIndex((el)=>el.title.toLowerCase()===loadData.value[key].toLowerCase())].title;
         }
       }
-    }
-    if(key==='links'&&isGraphLoading){
-      for ( let {source,target} of loadData.value[key]){
-        graphLinkFields.value.source=source;
-        graphLinkFields.value.target=target;
-        appendLink();
+      if(key==='optionData'){
+        if(!isGraphLoading){
+          for ( let {title,value,link} of loadData.value[key]){
+            chartNode.value.type=chartType.value;
+            chartNode.value.title=title;
+            chartNode.value.value=value;
+            appendChartItem();
+          }
+        }
       }
     }
   }
 })
 const handleSubmit=()=>{
-  appendChartItem();
+  if(chartNode.value.title&&chartNode.value.value){
+    appendChartItem();
+  }
 }
 </script>
 
 <template>
   <BaseLayout>
-    <div class="graph-editor">
+    <div :class="['graph-editor',{'graph-centered':isSaveGraph}]">
       <div class="graph-editor__tabs" v-if="!isSaveGraph">
         <h3 class="tab-item__name">
           Создание графиков
@@ -152,29 +123,24 @@ const handleSubmit=()=>{
                   <div v-html="radio.component"></div>
                 </BaseInputClickable>
               </div>
-              <base-input v-model="chartNode.title" :is-required="true"  :validation="validateName">
+              <base-input v-model="chartNode.title"   :validation="validateName">
                 Название
               </base-input>
-              <base-input  type="number" v-model="chartNode.value" :is-required="true" :validation="validateNumber">
-                Количество
+              <base-input  type="number" v-model="chartNode.value" :validation="validateNumber">
+                Значение
               </base-input>
 
             </template>
             <template #form-button>
               <base-button :classes="['button-red']" @click="clearChartItem">Очистить</base-button>
-              <base-button :classes="['button-green']" @click="exportChartData">Экспорт</base-button>
+              <base-button :classes="['button-green',{'button-blocked':chartNodeList.length===0}]" @click="exportChartData">Экспорт</base-button>
             </template>
           </base-form>
         </div>
-        <!--      <div class="graph-editor__controls">
-                <base-button :classes="['button-green']" @click="saveGraphEditor">Сохранить</base-button>
-                <base-button :classes="['button-red']" @click="">Отменить</base-button>
-              </div>-->
       </div>
       <div class="graph-editor__draw">
-        <!----todo vue-echart set option and add dinamicly data  ---->
         <vue-chart v-if="isChart"  :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />
-        <h1 v-else>Здесь должен быть граф/график</h1>
+        <h1 v-else>Здесь должен быть график</h1>
       </div>
     </div>
   </BaseLayout>
@@ -227,5 +193,11 @@ const handleSubmit=()=>{
       line-height: 80px;
     }
   }
+}
+.graph-centered{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0;
 }
 </style>
