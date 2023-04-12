@@ -54,6 +54,21 @@
       grid-template-columns: 220px 1fr;
       gap: 10px;
       padding: 0 10px;
+      @media screen and (max-width: 1280px) {
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+      }
+      @media screen and (max-width: 1024px) {
+        display: flex;
+        flex-direction: column;
+        max-width: 600px;
+        width: 100%;
+        justify-content: center;
+      }
+      @media screen and (max-width: 767px) {
+        max-width: 100%;
+      }
       &-nav{
         display: flex;
         flex-direction: column;

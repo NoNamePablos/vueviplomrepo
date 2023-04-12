@@ -121,5 +121,14 @@ onMounted(()=>{
   width: 100%;
   height: 500px;
   border:1px solid;
+  max-width: 1000px;
+  @media screen and (max-width: 1700px) {
+    max-width: 800px;
+  }
+  @media screen and (max-width: 1024px)  {
+    max-width: calc(100% - 50px);
+    margin: 0 auto;
+  }
 }
+
 </style>

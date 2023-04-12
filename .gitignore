@@ -11,7 +11,8 @@
 *.sln.docstates
 .idea
 node_modules
-
+/vue-project
+vue-project
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
