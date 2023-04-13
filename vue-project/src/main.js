@@ -6,4 +6,4 @@ const app=createApp(App);
 ui.forEach((uiItem)=>{
     app.component(uiItem.__name,uiItem)
 })
-app.mount('#app2')
+app.mount('#app3')

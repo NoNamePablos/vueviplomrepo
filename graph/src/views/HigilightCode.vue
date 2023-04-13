@@ -1,6 +1,6 @@
 <script setup>
 
-import {ref, computed, toRaw, onMounted} from "vue";
+import {ref, computed, toRaw, onMounted, onBeforeMount} from "vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 
 import Header from "@/components/Header.vue";
@@ -12,6 +12,7 @@ import {useHighlight} from "@/hooks/useHighlight";
 import VueSelect from "@/components/ui/VueSelect.vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseForm from "@/components/ui/BaseForm.vue";
+import {radiogroup} from "@/utils/radiogroup.routes";
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
@@ -31,10 +32,19 @@ const onChangeLanguage=(value)=> {
   selectedLanguage.value =value;
   console.log("item: ",selectedLanguage.value);
 }
+const exportData=ref({
+  production:true,
+  language:{},
+  rawCode:"",
+})
 const appendHighlighting=()=>{
-  console.log("13")
   setLanguage(selectedLanguage.value);
+  exportData.value.language=selectedLanguage.value;
+  exportData.value.rawCode=hlCode.value;
   coloredCode.value=hightlighting(hlCode.value);
+  const json=JSON.stringify(toRaw(exportData.value));
+  let hiddenParent=document.querySelector('.chart-component-hljs');
+  hiddenParent.querySelector('.chart-component-hljs-hidden').textContent=json;
 }
 
 const validateCheckbox=(value)=>{
@@ -51,10 +61,33 @@ const validateTextArea=(value)=>{
 //ссылка на select
 const selectLanguageRef=ref(null);
 const handleSubmit=()=>{
-  appendHighlighting();
-  handleClear();
-  selectLanguageRef.value.resetSelectedIndex();
+  if(hlCode.value&&selectLanguageRef.value){
+    appendHighlighting();
+    handleClear();
+    selectLanguageRef.value.resetSelectedIndex();
+  }
 }
+const loadData=ref({});
+onBeforeMount(()=>{
+  let hiddenParent=document.querySelector('.chart-component-hljs');
+  let hiddenObject=hiddenParent.querySelector('.chart-component-hljs-hidden');
+  if(hiddenObject.textContent!=""){
+    loadData.value=JSON.parse(hiddenObject.textContent);
+    for (let key in loadData.value) {
+      if(key==='production'){
+        isSaveGraph.value=loadData.value[key];
+      }
+      if(key==='language'){
+        selectedLanguage.value=loadData.value[key];
+        setLanguage(selectedLanguage.value);
+      }
+      if(key==='rawCode'){
+        hlCode.value=loadData.value[key];
+        coloredCode.value=hightlighting(hlCode.value);
+      }
+    }
+  }
+})
 const handleClear=()=>{
   hlCode.value="";
   selectedLanguage.value={};
@@ -88,6 +121,7 @@ onMounted(()=>{
           <pre><code v-html="coloredCode"></code></pre>
         </div>
       </div>
+      <h1 v-else>Здесь должен быть код</h1>
     </div>
   </BaseLayout>
 </template>
