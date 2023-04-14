@@ -1,6 +1,6 @@
 <script setup>
 
-import {ref, computed, toRaw, onMounted, onBeforeMount} from "vue";
+import {ref, computed, toRaw, onMounted, onBeforeMount, watch, shallowRef} from "vue";
 import PreviewCard from "@/components/previewCard/PreviewCard.vue";
 
 import Header from "@/components/Header.vue";
@@ -13,10 +13,17 @@ import VueSelect from "@/components/ui/VueSelect.vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseForm from "@/components/ui/BaseForm.vue";
 import {radiogroup} from "@/utils/radiogroup.routes";
+import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
+import {tabGraph} from "@/utils/tabs.routes";
+import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
+import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
+
+const hlcodeList=ref([])
+
 const hlCode=ref("");
 const coloredCode=ref("");
 const isSaveGraph=ref(false);
@@ -34,14 +41,22 @@ const onChangeLanguage=(value)=> {
 }
 const exportData=ref({
   production:true,
+  hlarray:[],
+})
+const exportDataItem=ref({
   language:{},
   rawCode:"",
 })
 const appendHighlighting=()=>{
   setLanguage(selectedLanguage.value);
-  exportData.value.language=selectedLanguage.value;
-  exportData.value.rawCode=hlCode.value;
-  coloredCode.value=hightlighting(hlCode.value);
+  exportDataItem.value.language=selectedLanguage.value;
+  exportDataItem.value.rawCode=hlCode.value;
+  exportData.value.hlarray.push(exportDataItem.value);
+  hlcodeList.value.push({name:selectedLanguage.value.name,label:selectedLanguage.value.name,code:hightlighting(hlCode.value)});
+  if(hlcodeList.value.length==1){
+    selectedGraphTab.value=hlcodeList.value[0].label;
+  }
+  console.log(hlcodeList.value);
   const json=JSON.stringify(toRaw(exportData.value));
   let hiddenParent=document.querySelector('.chart-component-hljs');
   hiddenParent.querySelector('.chart-component-hljs-hidden').textContent=json;
@@ -95,6 +110,10 @@ const handleClear=()=>{
 onMounted(()=>{
   selectedLanguage.value=languages[0].code;
 })
+const sss=shallowRef(hlcodeList.value);
+const selectedGraphTab=ref(null);
+
+const changeGraphTab=(value)=>selectedGraphTab.value=value;
 </script>
 
 <template>
@@ -116,10 +135,19 @@ onMounted(()=>{
           </base-form>
         </div>
       </div>
-      <div class="graph-editor__draw" v-if="coloredCode">
-        <div class="code-highlight">
-          <pre><code v-html="coloredCode"></code></pre>
-        </div>
+      <!-- Сделать подгрузку и визуал табов        -->
+      <div class="graph-editor__draw"  v-if="hlcodeList.length>0">
+        {{selectedGraphTab}}
+        <base-tab-wrapper  :tabs="hlcodeList" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
+          <base-tab-item v-for="(hlcodeItem,idx) in hlcodeList" :key="idx" :showed="selectedGraphTab==hlcodeItem.label?true:false">
+            sel {{selectedGraphTab}}
+            <div class="code-highlight">
+              <pre><code v-html="hlcodeItem.code"></code></pre>
+            </div>
+          </base-tab-item>
+          </base-tab-wrapper>
+
+
       </div>
       <h1 v-else>Здесь должен быть код</h1>
     </div>
