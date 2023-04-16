@@ -17,6 +17,7 @@ import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
 import {tabGraph} from "@/utils/tabs.routes";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
 import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
+import TabContainer from "@/components/Tabs2.0/TabContainer.vue";
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
@@ -112,6 +113,10 @@ onMounted(()=>{
 })
 const sss=shallowRef(hlcodeList.value);
 const selectedGraphTab=ref(null);
+const changeTab=(tabId)=>{
+  const tabIndex=hlcodeList.value.find((item)=>item?.label===tabId);
+  selectedGraphTab.value=tabIndex?.label;
+}
 
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
 </script>
@@ -137,15 +142,24 @@ const changeGraphTab=(value)=>selectedGraphTab.value=value;
       </div>
       <!-- Сделать подгрузку и визуал табов        -->
       <div class="graph-editor__draw"  v-if="hlcodeList.length>0">
-        {{selectedGraphTab}}
-        <base-tab-wrapper  :tabs="hlcodeList" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
+        <TabContainer>
+          <template #n-button>
+            <base-button :classes="['button-select',{'active':selectedGraphTab===tab.label}]" v-for="tab in hlcodeList" :key="tab.name" @click="changeTab(tab.label)">{{tab.label}}</base-button>
+          </template>
+          <template #n-list>
+            <div class="code-highlight" v-for="(hlcodeItem,idx) in hlcodeList" :key="hlcodeItem.label" v-show="hlcodeItem.label===selectedGraphTab">
+              <pre><code v-html="hlcodeItem.code"></code></pre>
+            </div>
+          </template>
+        </TabContainer>
+<!--        <base-tab-wrapper  :tabs="hlcodeList" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
           <base-tab-item v-for="(hlcodeItem,idx) in hlcodeList" :key="idx" :showed="selectedGraphTab==hlcodeItem.label?true:false">
             sel {{selectedGraphTab}}
             <div class="code-highlight">
               <pre><code v-html="hlcodeItem.code"></code></pre>
             </div>
           </base-tab-item>
-          </base-tab-wrapper>
+          </base-tab-wrapper>-->
 
 
       </div>

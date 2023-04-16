@@ -67,6 +67,7 @@ const exportChartData=()=>{
 const loadData=ref({});
 onBeforeMount(()=>{
   let hiddenParent=document.querySelector('.chart-component');
+  if(hiddenParent)return;
   let hiddenObject=hiddenParent.querySelector('.chart-component-hidden');
   if(hiddenObject.textContent!=""){
     loadData.value=JSON.parse(hiddenObject.textContent);

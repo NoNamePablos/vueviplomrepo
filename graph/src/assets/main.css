@@ -35,6 +35,24 @@ button.button-transparent:hover{
     background-color: #cacaca;
     color: #2d69e8;
 }
+
+.button-select{
+    border-radius: 6px;
+    border: 1px solid #5470c6;
+    color:#5470c6;
+    background-color: #fff;
+}
+.button-select:hover,.button-select:focus{
+    background-color: #5470c6;
+    color: #fff;
+    transition: all 0.3s ease-in;
+}
+.button-select.active{
+    color: #fff;
+    background-color: #5470c6;
+}
+
+
 .button.button-blocked{
     pointer-events: none !important;
     position: relative;
