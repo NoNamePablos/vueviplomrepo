@@ -120,8 +120,19 @@ const changeTab=(tabId)=>{
 }
 const copyClickboard=(item)=>{
   navigator.clipboard.writeText(item.codeRaw);
+  appendNotify("Код скопирован!");
 }
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
+
+const notification=ref([]);
+const appendNotify=(str)=>{
+  notification.value.push(str);
+  setTimeout(()=>{
+    notification.value.pop();
+  },3000)
+}
+
+
 </script>
 
 <template>
@@ -145,6 +156,14 @@ const changeGraphTab=(value)=>selectedGraphTab.value=value;
       </div>
       <!-- Сделать подгрузку и визуал табов        -->
       <div class="graph-editor__draw"  v-if="hlcodeList.length>0">
+
+        <div class="notify-container">
+          <transition-group name="notify" tag="div">
+          <div class="notify-item" v-for="(ntf,idx) in notification" :key="idx">
+            {{ntf}}
+          </div>
+        </transition-group>
+        </div>
         <TabContainer>
           <template #n-button>
             <base-button :classes="['button-select',{'active':selectedGraphTab===tab.label}]" v-for="tab in hlcodeList" :key="tab.name" @click="changeTab(tab.label)">{{tab.label}}</base-button>
@@ -167,6 +186,34 @@ const changeGraphTab=(value)=>selectedGraphTab.value=value;
 </template>
 
 <style lang="scss" scoped>
+.graph-editor__draw{
+  position: relative;
+}
+.notify-container{
+  position:  absolute;
+  right: 0;
+  z-index: 10;
+  top: 0;
+}
+.notify-item{
+  padding: 15px 20px;
+  background-color: #5470c6;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+
+.notify-enter-active,
+.notify-leave-active {
+  transition: all 0.5s ease;
+}
+.notify-enter-from,
+.notify-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
 .highlight{
   position: relative;
   &:hover{
