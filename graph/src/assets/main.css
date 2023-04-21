@@ -41,6 +41,10 @@ button.button-transparent:hover{
     border: 1px solid #5470c6;
     color:#5470c6;
     background-color: #fff;
+
+}
+.button-select:hover svg g {
+    fill: white;
 }
 .button-select:hover,.button-select:focus{
     background-color: #5470c6;
@@ -66,4 +70,9 @@ button.button-transparent:hover{
     content: "";
     background: rgb(190 190 190 / 50%);
     border-radius: 6px;
+}
+.default-text{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

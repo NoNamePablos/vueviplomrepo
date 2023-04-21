@@ -18,6 +18,7 @@ import {tabGraph} from "@/utils/tabs.routes";
 import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
 import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
 import TabContainer from "@/components/Tabs2.0/TabContainer.vue";
+import BaseButton from "@/components/ui/BaseButton.vue";
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
@@ -53,7 +54,7 @@ const appendHighlighting=()=>{
   exportDataItem.value.language=selectedLanguage.value;
   exportDataItem.value.rawCode=hlCode.value;
   exportData.value.hlarray.push(exportDataItem.value);
-  hlcodeList.value.push({name:selectedLanguage.value.name,label:selectedLanguage.value.name,code:hightlighting(hlCode.value)});
+  hlcodeList.value.push({name:selectedLanguage.value.name,label:selectedLanguage.value.name,code:hightlighting(hlCode.value),codeRaw:hlCode.value});
   if(hlcodeList.value.length==1){
     selectedGraphTab.value=hlcodeList.value[0].label;
   }
@@ -117,7 +118,9 @@ const changeTab=(tabId)=>{
   const tabIndex=hlcodeList.value.find((item)=>item?.label===tabId);
   selectedGraphTab.value=tabIndex?.label;
 }
-
+const copyClickboard=(item)=>{
+  navigator.clipboard.writeText(item.codeRaw);
+}
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
 </script>
 
@@ -147,28 +150,45 @@ const changeGraphTab=(value)=>selectedGraphTab.value=value;
             <base-button :classes="['button-select',{'active':selectedGraphTab===tab.label}]" v-for="tab in hlcodeList" :key="tab.name" @click="changeTab(tab.label)">{{tab.label}}</base-button>
           </template>
           <template #n-list>
-            <div class="code-highlight" v-for="(hlcodeItem,idx) in hlcodeList" :key="hlcodeItem.label" v-show="hlcodeItem.label===selectedGraphTab">
-              <pre><code v-html="hlcodeItem.code"></code></pre>
+            <div class="highlight" v-for="(hlcodeItem,idx) in hlcodeList" :key="hlcodeItem.label" v-show="hlcodeItem.label===selectedGraphTab">
+              <div class="highlight-control">
+                <base-button :classes="['button-select']" @click="copyClickboard(hlcodeItem)"><svg xmlns="http://www.w3.org/2000/svg"  height="22px" version="1.1" viewBox="0 0 21 22" width="21px"><title/><desc/><defs/><g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1"><g fill="#000000" id="Core" transform="translate(-86.000000, -127.000000)"><g id="content-copy" transform="translate(86.500000, 127.000000)"><path d="M14,0 L2,0 C0.9,0 0,0.9 0,2 L0,16 L2,16 L2,2 L14,2 L14,0 L14,0 Z M17,4 L6,4 C4.9,4 4,4.9 4,6 L4,20 C4,21.1 4.9,22 6,22 L17,22 C18.1,22 19,21.1 19,20 L19,6 C19,4.9 18.1,4 17,4 L17,4 Z M17,20 L6,20 L6,6 L17,6 L17,20 L17,20 Z" id="Shape"/></g></g></g></svg></base-button>
+              </div>
+              <div class="code-highlight">
+                <pre><code v-html="hlcodeItem.code"></code></pre>
+              </div>
             </div>
           </template>
         </TabContainer>
-<!--        <base-tab-wrapper  :tabs="hlcodeList" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
-          <base-tab-item v-for="(hlcodeItem,idx) in hlcodeList" :key="idx" :showed="selectedGraphTab==hlcodeItem.label?true:false">
-            sel {{selectedGraphTab}}
-            <div class="code-highlight">
-              <pre><code v-html="hlcodeItem.code"></code></pre>
-            </div>
-          </base-tab-item>
-          </base-tab-wrapper>-->
-
-
       </div>
-      <h1 v-else>Здесь должен быть код</h1>
+      <h1 class="default-text" v-else>Здесь должен быть код</h1>
     </div>
   </BaseLayout>
 </template>
 
 <style lang="scss" scoped>
+.highlight{
+  position: relative;
+  &:hover{
+    & .highlight-control{
+      display: block;
+    }
+  }
+  &-control{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    width: calc(100% - 8px);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    display: none;
+    padding: 10px 20px;
+    background-color: rgb(36 35 35 / 25%);
+
+  }
+}
 .code-highlight{
   background: white;
   border: 1px solid #ddd;
@@ -176,6 +196,7 @@ const changeGraphTab=(value)=>selectedGraphTab.value=value;
   border-radius: 6px;
   max-height: 500px;
   overflow-y: scroll;
+
   &::-webkit-scrollbar {
     width: 7px;
   }

@@ -24,6 +24,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+    width: 100%;
     &.n-vertical{
       flex-direction: row;
       & .n-controls{
