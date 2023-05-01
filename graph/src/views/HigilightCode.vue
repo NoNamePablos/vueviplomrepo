@@ -1,10 +1,6 @@
 <script setup>
 
 import {ref, computed, toRaw, onMounted, onBeforeMount, watch, shallowRef} from "vue";
-import PreviewCard from "@/components/previewCard/PreviewCard.vue";
-
-import Header from "@/components/Header.vue";
-import PreviewList from "@/components/PreviewList.vue";
 import BaseLayout from "@/components/BaseLayout.vue";
 
 import {languages} from "@/utils/higilight.routes";
@@ -12,11 +8,6 @@ import {useHighlight} from "@/hooks/useHighlight";
 import VueSelect from "@/components/ui/VueSelect.vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseForm from "@/components/ui/BaseForm.vue";
-import {radiogroup} from "@/utils/radiogroup.routes";
-import BaseTabWrapper from "@/components/BaseTab/BaseTabWrapper.vue";
-import {tabGraph} from "@/utils/tabs.routes";
-import BaseTabItem from "@/components/BaseTab/BaseTabItem.vue";
-import {converterGarphLinks} from "@/components/vue-echarts/chart.helper";
 import TabContainer from "@/components/Tabs2.0/TabContainer.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
@@ -137,7 +128,7 @@ const appendNotify=(str)=>{
 
 <template>
   <BaseLayout>
-    <div class="graph-editor">
+    <div class="graph-editor graph-editor-hljs">
       <div class="graph-editor__tabs" v-if="!isSaveGraph">
         <h3 class="tab-item__name">
           Подсветка кода
@@ -159,10 +150,10 @@ const appendNotify=(str)=>{
 
         <div class="notify-container">
           <transition-group name="notify" tag="div">
-          <div class="notify-item" v-for="(ntf,idx) in notification" :key="idx">
-            {{ntf}}
-          </div>
-        </transition-group>
+            <div class="notify-item" v-for="(ntf,idx) in notification" :key="idx">
+              {{ntf}}
+            </div>
+          </transition-group>
         </div>
         <TabContainer>
           <template #n-button>
@@ -286,7 +277,6 @@ const appendNotify=(str)=>{
 .tab-item{
   &-form{
     &__controls{
-
       width: 100%;
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -302,13 +292,14 @@ const appendNotify=(str)=>{
   }
 }
 .graph-editor{
-  margin-top: 80px;
+  margin-top: 40px;
   display: grid;
   grid-template-columns: 500px 1fr;
   grid-column-gap: 25px;
   padding: 25px 50px;
   @media screen and (max-width: 1279px){
     grid-template-columns: 300px 1fr;
+    padding: 25px;
   }
   @media screen and (max-width: 1024px){
     grid-template-columns: 1fr;
@@ -321,6 +312,14 @@ const appendNotify=(str)=>{
     & h1{
       font-size: 60px;
       line-height: 80px;
+    }
+  }
+}
+.graph-editor-hljs{
+  .form-group{
+    @media screen and (max-width: 1279px) {
+      grid-template-columns: 1fr;
+      gap: 15px;
     }
   }
 }

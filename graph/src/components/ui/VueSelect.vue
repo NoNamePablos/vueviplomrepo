@@ -182,6 +182,7 @@ button.color-lightblue{
     background-color: #fff;
     position: absolute;
     z-index: 999;
+    top: 40px;
     border: solid lightgrey;
     border-width: 1px 1px 1px 1px;
     border-radius: 4px;
