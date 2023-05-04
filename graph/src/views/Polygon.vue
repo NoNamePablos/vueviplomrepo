@@ -118,13 +118,26 @@ const runTestForAmountOfTime=(item,timing)=>{
   let functionCall="benchmark_"+item.id;
   let start=performance.now();
   let finish=performance.now();
-  iframe.value.contentWindow[functionCall](arguments);
+  let rounds=0;
   //todo Работает добавление кода и его выполнения.Добавление код-блоков пока не реализовано!!!!
+  do{
+    rounds++;
+    iframe.value.contentWindow[functionCall](arguments);
+    finish=performance.now();
+    console.log("Start: ",start);
+    console.log("finish: ",finish);
+    console.log("dfd: ",finish-start);
+  }while (finish-start<timing)
   /*do {
     iframe.value.contentWindow[o](arguments),
         r++,
         s = performance.now()
   } while (s - a < t && !this.model.errorMessage);*/
+  console.log({
+    counter: rounds,
+    runTime: start - finish,
+    timer: finish
+  })
 }
 
 /*runTestForAmountOfTime(e, t) {
