@@ -78,78 +78,9 @@ const validateTextArea=(value)=>{
   }
 }
 //new component
-const codeBlocks=ref([{
-  id:1,
-  title:"code block 1",
-  code_block: "",
-  result:{
-    runtime:0,
-    amountOfRounds:0,
-    percent:0,
-  }
-},{
-  id:2,
-  title:"code block 2",
-  code_block: "",
-  result:{
-    runtime:0,
-    amountOfRounds:0,
-    percent:0,
-  }
-}])
 
-const iframe=ref(null);
 
-const blockAmount=computed(()=>{ return codeBlocks.value.length});
 
-const runTests=()=>{
-  iframe.value=window.document.createElement('iframe');
-  iframe.value.style.display="none";
-  iframe.value.id="iframe";
-  document.body.appendChild(iframe.value);
-  const content=iframe.value.contentWindow;
-  console.log("Cnt: ",content);
-  loadScripts();
-  const sctiptBlock=document.createElement('script');
-  let s="";
-  //item_id id code blcok
-    for (let item of codeBlocks.value) {
-      /*var i = "function benchmark_" + item.id + "() {" + e.model.boilerplateBlock.code + r.code_block + "}";*/
-      let i = "function benchmark_" + item.id + "() {"  + hlCode.value + "}";
-      s += i
-    }
-  sctiptBlock.type = "text/javascript";
-  sctiptBlock.text = s;
-  sctiptBlock.dataset.benchmark = "true";
-  content.document.body.appendChild(sctiptBlock);
-  /*runTestForAmountOfTime*/
-  runTestForAmountOfTime(codeBlocks.value[1],100);
-}
-const runTestForAmountOfTime=(item,timing)=>{
-  let functionCall="benchmark_"+item.id;
-  let start=performance.now();
-  let finish=performance.now();
-  let rounds=0;
-  //todo Работает добавление кода и его выполнения.Добавление код-блоков пока не реализовано!!!!
-  do{
-    rounds++;
-    iframe.value.contentWindow[functionCall](arguments);
-    finish=performance.now();
-    console.log("Start: ",start);
-    console.log("finish: ",finish);
-    console.log("dfd: ",finish-start);
-  }while (finish-start<timing)
-  /*do {
-    iframe.value.contentWindow[o](arguments),
-        r++,
-        s = performance.now()
-  } while (s - a < t && !this.model.errorMessage);*/
-  console.log({
-    counter: rounds,
-    runTime: start - finish,
-    timer: finish
-  })
-}
 
 /*runTestForAmountOfTime(e, t) {
   var o = "benchmark_" + e.id
@@ -168,48 +99,13 @@ const runTestForAmountOfTime=(item,timing)=>{
   }
 },*/
 
-const loadScripts=()=>{
-  loadLibraryIntoIframe("https://code.jquery.com/jquery-3.4.1.min.js");
-  loadLibraryIntoIframe("https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js");
-  loadLibraryIntoIframe("https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.min.js");
-  console.log("scripts is loaded");
-}
 
-const loadLibraryIntoIframe=(path)=>{
-  const iframeComp=iframe.value.contentWindow;
-  const script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = path;
-  iframeComp.document.body.appendChild(script);
-}
 const doc=ref(null);
-const addCodeBlock=()=>{
-  let lastIndex=codeBlocks.value[codeBlocks.value.length - 1]
-    const obj = {
-    id: lastIndex + 1,
-    title: "code block " + (codeBlocks.value.length + 1),
-      code_block: "",
-    result: {
-      runTime: 0,
-      amountOfRounds: 0,
-      percent: 0
-    }
-  };
-  codeBlocks.value.push(obj);
-}
-const removeCodeBlock=(id)=>{
-  if(codeBlocks.value.length<=1){
-   //не разрешаем удалять,только очищаем
-  }else{
-    codeBlocks.value=codeBlocks.value.filter(codeBlock=>codeBlock.id!=id);
-  }
-}
 
 
 
-const handleSubmit=()=>{
-  runTests();
-}
+
+
 const loadData=ref({});
 
 const handleClear=()=>{

@@ -1,6 +1,7 @@
 <template>
   <div class="editor">
     <div class="editor__container">
+      <Notify :timing="3500" :notification="notification"/>
       <codemirror  v-model="code"
                    placeholder="Please enter the code..."
                    :style="{
@@ -18,13 +19,22 @@
                    @update="handleStateUpdate"
 
       />
-      <pre
+      <Highlight
+          v-if="preview"
+          @copied="handleCopied"
+          :code-raw="code"
+          :code="code"
+          :text="'Э-э-э ты чо бро?'"
+          class="code"
+          :style="{ height: config?.height, width: preview ? '50%' : '0px' }"
+      />
+<!--      <pre
           v-if="preview"
           class="code"
           :style="{ height: config?.height, width: preview ? '50%' : '0px' }"
       >
         {{ code }}
-      </pre>
+      </pre>-->
     </div>
     <div class="divider"></div>
     <div class="editor-footer">
@@ -46,7 +56,11 @@ import {computed, onMounted, reactive, ref, shallowRef, watch} from "vue";
 import {EditorView,ViewUpdate} from "@codemirror/view";
 import { redo, undo } from '@codemirror/commands'
 import {Codemirror} from "vue-codemirror";
+import Highlight from "@/components/Highlight/Highlight.vue";
+import Notify from "@/components/Notify/Notify.vue";
+import {useNotify} from "@/hooks/useNotify";
 //
+const {notification, handleCopied}=useNotify();
 const props=defineProps({
   config: {
     type: Object,
@@ -118,11 +132,13 @@ const handleReady = ({ view }) => {
   console.log(cmView.value);
 }
 
+
 </script>
 
 <style lang="scss" scoped>
   .editor{
     &__container{
+      position: relative;
       display: flex;
       width: 100%;
       .code {

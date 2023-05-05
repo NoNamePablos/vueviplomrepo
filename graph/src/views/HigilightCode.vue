@@ -10,10 +10,16 @@ import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseForm from "@/components/ui/BaseForm.vue";
 import TabContainer from "@/components/Tabs2.0/TabContainer.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
+import Notify from "@/components/Notify/Notify.vue";
+import Highlight from "@/components/Highlight/Highlight.vue";
+import {useNotify} from "@/hooks/useNotify";
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
+
+const {notification,handleCopied}=useNotify();
+
 
 const hlcodeList=ref([])
 
@@ -109,19 +115,16 @@ const changeTab=(tabId)=>{
   const tabIndex=hlcodeList.value.find((item)=>item?.label===tabId);
   selectedGraphTab.value=tabIndex?.label;
 }
-const copyClickboard=(item)=>{
-  navigator.clipboard.writeText(item.codeRaw);
-  appendNotify("Код скопирован!");
+/*
+const copyClickboard=(code)=>{
+  navigator.clipboard.writeText(code);
+ /!* appendNotify(Text);*!/
 }
+*/
+
+
 const changeGraphTab=(value)=>selectedGraphTab.value=value;
 
-const notification=ref([]);
-const appendNotify=(str)=>{
-  notification.value.push(str);
-  setTimeout(()=>{
-    notification.value.pop();
-  },3000)
-}
 
 
 </script>
@@ -147,27 +150,21 @@ const appendNotify=(str)=>{
       </div>
       <!-- Сделать подгрузку и визуал табов        -->
       <div class="graph-editor__draw"  v-if="hlcodeList.length>0">
-
-        <div class="notify-container">
-          <transition-group name="notify" tag="div">
-            <div class="notify-item" v-for="(ntf,idx) in notification" :key="idx">
-              {{ntf}}
-            </div>
-          </transition-group>
-        </div>
+<!--        -->
+        <Notify :timing="3500" :notification="notification"/>
         <TabContainer>
           <template #n-button>
             <base-button :classes="['button-select',{'active':selectedGraphTab===tab.label}]" v-for="tab in hlcodeList" :key="tab.name" @click="changeTab(tab.label)">{{tab.label}}</base-button>
           </template>
           <template #n-list>
-            <div class="highlight" v-for="(hlcodeItem,idx) in hlcodeList" :key="hlcodeItem.label" v-show="hlcodeItem.label===selectedGraphTab">
-              <div class="highlight-control">
-                <base-button :classes="['button-select']" @click="copyClickboard(hlcodeItem)"><svg xmlns="http://www.w3.org/2000/svg"  height="22px" version="1.1" viewBox="0 0 21 22" width="21px"><title/><desc/><defs/><g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1"><g fill="#000000" id="Core" transform="translate(-86.000000, -127.000000)"><g id="content-copy" transform="translate(86.500000, 127.000000)"><path d="M14,0 L2,0 C0.9,0 0,0.9 0,2 L0,16 L2,16 L2,2 L14,2 L14,0 L14,0 Z M17,4 L6,4 C4.9,4 4,4.9 4,6 L4,20 C4,21.1 4.9,22 6,22 L17,22 C18.1,22 19,21.1 19,20 L19,6 C19,4.9 18.1,4 17,4 L17,4 Z M17,20 L6,20 L6,6 L17,6 L17,20 L17,20 Z" id="Shape"/></g></g></g></svg></base-button>
-              </div>
-              <div class="code-highlight">
-                <pre><code v-html="hlcodeItem.code"></code></pre>
-              </div>
-            </div>
+            <Highlight
+                v-for="(hlcodeItem,idx) in hlcodeList" :key="hlcodeItem.label"
+                v-show="hlcodeItem.label===selectedGraphTab"
+                @copied="handleCopied"
+                :code-raw="hlcodeItem.codeRaw"
+                :code="hlcodeItem.code"
+                :text="'Э-э-э ты чо бро?'"
+            />
           </template>
         </TabContainer>
       </div>
@@ -180,87 +177,9 @@ const appendNotify=(str)=>{
 .graph-editor__draw{
   position: relative;
 }
-.notify-container{
-  position:  absolute;
-  right: 0;
-  z-index: 10;
-  top: 0;
-}
-.notify-item{
-  padding: 15px 20px;
-  background-color: #5470c6;
-  color: white;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  white-space: nowrap;
-}
 
-.notify-enter-active,
-.notify-leave-active {
-  transition: all 0.5s ease;
-}
-.notify-enter-from,
-.notify-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
 
-.highlight{
-  position: relative;
-  &:hover{
-    & .highlight-control{
-      display: block;
-    }
-  }
-  &-control{
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 52px;
-    width: calc(100% - 8px);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    display: none;
-    padding: 10px 20px;
-    background-color: rgb(36 35 35 / 25%);
 
-  }
-}
-.code-highlight{
-  background: white;
-  border: 1px solid #ddd;
-  padding: 15px 10px;
-  border-radius: 6px;
-  max-height: 500px;
-  overflow-y: scroll;
-
-  &::-webkit-scrollbar {
-    width: 7px;
-  }
-
-  /* Track */
-  &::-webkit-scrollbar-track {
-    background:#ddd;
-    border-radius: 12px;
-    cursor: pointer;
-  }
-
-  /* Handle */
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-accent-2);
-    border-radius: 12px;
-    cursor: pointer;
-
-  }
-
-  /* Handle on hover */
-  &::-webkit-scrollbar-thumb:hover {
-    background: #0073f7;
-    cursor: pointer;
-
-  }
-}
 
 
 
