@@ -71,6 +71,7 @@ const extensions = computed(() => {
     result.push(props.language())
   }
   if (props.theme) {
+
     result.push(props.theme)
   }
   return result
@@ -114,12 +115,32 @@ onMounted(()=>{
 })
 const handleReady = ({ view }) => {
   cmView.value = view
+  console.log(cmView.value);
 }
 
 </script>
 
 <style lang="scss" scoped>
-  .codemirror-editor{
-
+  .editor{
+    &__container{
+      display: flex;
+      width: 100%;
+      .code {
+        width: 30%;
+        height: 100px;
+        margin: 0;
+        padding: 0.4em;
+        overflow: scroll;
+        border-left: 1px solid var(--theme-border);
+        font-family: monospace;
+      }
+    }
+    .infos {
+      .item {
+        margin-left: 2em;
+        display: inline-block;
+        font-feature-settings: 'tnum';
+      }
+    }
   }
 </style>

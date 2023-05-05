@@ -10,9 +10,6 @@ import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseForm from "@/components/ui/BaseForm.vue";
 import TabContainer from "@/components/Tabs2.0/TabContainer.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
-import {Codemirror} from "vue-codemirror";
-import { oneDark } from '@codemirror/theme-one-dark'
-import {javascript} from "@codemirror/lang-javascript";
 import Toolbar from "@/components/BaseEditor/Toolbar.vue";
 import themes from "@/components/BaseEditor/themes";
 import languagesEditor  from "@/components/BaseEditor/languages";
@@ -230,6 +227,9 @@ const config = reactive({
 })
 const loading = shallowRef(false)
 const langCodeMap = reactive(new Map())
+const currentTheme = computed(() => {
+  return config.theme !== 'default' ? themes[config.theme] : void 0
+})
 const currentLangCode = computed(() => langCodeMap.get(config.language))
 const ensureLanguageCode=async (targetLanguage)=>{
   config.language=targetLanguage;
@@ -281,8 +281,9 @@ onBeforeMount(() => {
                  :themes="Object.keys(themes)"
                  :config="config"
                  :disabled="loading"
-                 @language="ensureLanguageCode" />
-        <Editor  :config="config" :theme="'default'"  :language="currentLangCode.language" :code="currentLangCode.code" />
+                 @language-mirror="ensureLanguageCode" />
+        <div class="loader" v-if="loading">1</div>
+        <Editor v-else-if="currentLangCode"   :config="config" :theme="currentTheme"  :language="currentLangCode.language" :code="currentLangCode.code" />
 
       </div>
       </div>
