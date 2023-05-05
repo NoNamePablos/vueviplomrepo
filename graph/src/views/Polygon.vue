@@ -1,6 +1,6 @@
 <script setup>
 
-import {ref, computed, toRaw, onMounted, onBeforeMount, watch, shallowRef} from "vue";
+import {ref, computed, toRaw, onMounted, onBeforeMount, watch, shallowRef, reactive} from "vue";
 import BaseLayout from "@/components/BaseLayout.vue";
 
 import {languages} from "@/utils/higilight.routes";
@@ -10,7 +10,21 @@ import BaseInput from "@/components/ui/BaseInput.vue";
 import BaseForm from "@/components/ui/BaseForm.vue";
 import TabContainer from "@/components/Tabs2.0/TabContainer.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
+import {Codemirror} from "vue-codemirror";
+import { oneDark } from '@codemirror/theme-one-dark'
+import {javascript} from "@codemirror/lang-javascript";
+import Toolbar from "@/components/BaseEditor/Toolbar.vue";
+import themes from "@/components/BaseEditor/themes";
+import languagesEditor  from "@/components/BaseEditor/languages";
+import Editor from "@/components/BaseEditor/Editor.vue";
+
+
+// Status is available at all times via Codemirror EditorView
+
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
+
+
+
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
@@ -205,8 +219,41 @@ const handleClear=()=>{
   hlCode.value="";
   selectedLanguage.value={};
 }
+const config = reactive({
+  disabled: false,
+  indentWithTab: true,
+  tabSize: 2,
+  autofocus: true,
+  height: 'auto',
+  language: 'javascript',
+  theme:'default',
+})
+const loading = shallowRef(false)
+const langCodeMap = reactive(new Map())
+const currentLangCode = computed(() => langCodeMap.get(config.language))
+const ensureLanguageCode=async (targetLanguage)=>{
+  config.language=targetLanguage;
+  loading.value = true;
+  const delayPromise = () => new Promise((resolve) => window.setTimeout(resolve, 260))
+  if (langCodeMap.has(targetLanguage)) {
+    await delayPromise()
+  } else {
+    console.log("1: ",languagesEditor[targetLanguage]());
+    const [result] = await Promise.all([languagesEditor[targetLanguage](), delayPromise()])
+    console.log([result]);
+    langCodeMap.set(targetLanguage, result.default);
+    console.log("langCodeMap ",langCodeMap);
+    console.log("item: ",langCodeMap.get(config.language));
+  }
+  loading.value = false
+}
 
-
+onBeforeMount(() => {
+  // init default language & code
+  ensureLanguageCode(config.language)
+  console.log(langCodeMap);
+  console.log(currentLangCode);
+})
 </script>
 
 <template>
@@ -229,6 +276,15 @@ const handleClear=()=>{
         </div>
       </div>
       <h1 class="default-text" v-else>Здесь должен быть код</h1>
+      <div class="complex-editor" :style="{marginTop:'100px'}">
+        <Toolbar :languages="Object.keys(languagesEditor)"
+                 :themes="Object.keys(themes)"
+                 :config="config"
+                 :disabled="loading"
+                 @language="ensureLanguageCode" />
+        <Editor  :config="config" :theme="'default'"  :language="currentLangCode.language" :code="currentLangCode.code" />
+
+      </div>
       </div>
   </BaseLayout>
 </template>
