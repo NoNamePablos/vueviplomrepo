@@ -187,14 +187,15 @@ const handleSubmit=()=>{
           <base-form :handle-submit="handleSubmit">
             <template #form-field>
               <vue-select @v-selected="onChangeLanguage" ref="selectLanguageRef"  :selected="selectedLanguage?.name"  :data="languagesEditor.languagesSelect" :validation="validateCheckbox" ></vue-select>
-<!--              <base-input :is-textarea="true" :is-required="true" v-model="hlCode" :validation="validateTextArea" />-->
               <div class="highlight-wrapper">
-                <Editor @code-editing="(text)=>codeToAdding=text"
+                <Editor
                         :is-preview="false"
                         v-if="currentLangCode"
                         :config="configHighlight"
                         :theme="currentTheme"
-                        :language="currentLangCode.language" />
+                        :language="currentLangCode.language"
+                        @code-editing="(text)=>codeToAdding=text"
+                />
               </div>
             </template>
             <template #form-button>
