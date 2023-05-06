@@ -22,6 +22,8 @@ const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight()
 
 
 
+
+
 const saveGraphEditor=()=>{
   isSaveGraph.value=true;
 }
@@ -39,9 +41,9 @@ computed(()=>{
   return selectSelectItem;
 })
 const onChangeLanguage=(value)=> {
-  console.log("value: ",value);
   selectedLanguage.value =value;
-  console.log("item: ",selectedLanguage.value);
+  console.log("item: ",selectedLanguage.value.name);
+  ensureLanguageCode(selectedLanguage.value.name);
 }
 const exportData=ref({
   production:true,
@@ -121,6 +123,18 @@ const config = reactive({
   language: 'javascript',
   theme:'default',
 })
+const configHighlight= reactive({
+  disabled: false,
+  indentWithTab: true,
+  tabSize: 2,
+  autofocus: true,
+  height: '200px',
+  language: 'javascript',
+  theme:'default',
+})
+
+
+
 const loading = shallowRef(false)
 const langCodeMap = reactive(new Map())
 const currentTheme = computed(() => {
@@ -130,12 +144,15 @@ const currentLangCode = computed(() => langCodeMap.get(config.language))
 const ensureLanguageCode=async (targetLanguage)=>{
   config.language=targetLanguage;
   loading.value = true;
+
   const delayPromise = () => new Promise((resolve) => window.setTimeout(resolve, 260))
   if (langCodeMap.has(targetLanguage)) {
     await delayPromise()
   } else {
-    console.log("1: ",languagesEditor[targetLanguage]());
-    const [result] = await Promise.all([languagesEditor[targetLanguage](), delayPromise()])
+    console.log(languagesEditor);
+    console.log("aa: ",languagesEditor.languages['javascript']());
+    console.log("tl: ",targetLanguage);
+    const [result] = await Promise.all([languagesEditor.languages[targetLanguage](), delayPromise()])
     console.log([result]);
     langCodeMap.set(targetLanguage, result.default);
     console.log("langCodeMap ",langCodeMap);
@@ -148,8 +165,15 @@ onBeforeMount(() => {
   // init default language & code
   ensureLanguageCode(config.language)
   console.log(langCodeMap);
-  console.log(currentLangCode);
+  console.log("clr: ",currentLangCode);
+
 })
+
+const codeToAdding=ref("");
+const handleSubmit=()=>{
+  console.log(codeToAdding.value);
+}
+
 </script>
 
 <template>
@@ -162,8 +186,16 @@ onBeforeMount(() => {
         <div class="tab-item-body">
           <base-form :handle-submit="handleSubmit">
             <template #form-field>
-              <vue-select @v-selected="onChangeLanguage" ref="selectLanguageRef"  :selected="selectedLanguage?.name"  :data="languages" :validation="validateCheckbox" ></vue-select>
-              <base-input :is-textarea="true" :is-required="true" v-model="hlCode" :validation="validateTextArea" />
+              <vue-select @v-selected="onChangeLanguage" ref="selectLanguageRef"  :selected="selectedLanguage?.name"  :data="languagesEditor.languagesSelect" :validation="validateCheckbox" ></vue-select>
+<!--              <base-input :is-textarea="true" :is-required="true" v-model="hlCode" :validation="validateTextArea" />-->
+              <div class="highlight-wrapper">
+                <Editor @code-editing="(text)=>codeToAdding=text"
+                        :is-preview="false"
+                        v-if="currentLangCode"
+                        :config="configHighlight"
+                        :theme="currentTheme"
+                        :language="currentLangCode.language" />
+              </div>
             </template>
             <template #form-button>
               <base-button :classes="['button-red']" @click="handleClear">Очистить</base-button>
@@ -173,14 +205,17 @@ onBeforeMount(() => {
       </div>
       <h1 class="default-text" v-else>Здесь должен быть код</h1>
       <div class="complex-editor" :style="{marginTop:'100px'}">
-        <Toolbar :languages="Object.keys(languagesEditor)"
+        <Toolbar :languages="Object.keys(languagesEditor.languages)"
                  :themes="Object.keys(themes)"
                  :config="config"
                  :disabled="loading"
                  @language-mirror="ensureLanguageCode" />
         <div class="loader" v-if="loading">1</div>
-        <Editor v-else-if="currentLangCode"   :config="config" :theme="currentTheme"  :language="currentLangCode.language" :code="currentLangCode.code" />
-
+        <Editor  :is-preview="true" v-else-if="currentLangCode"
+                 :config="config"
+                 :theme="currentTheme"
+                 :language="currentLangCode.language"
+                 :code="codeToAdding" />
       </div>
       </div>
   </BaseLayout>
@@ -217,6 +252,9 @@ onBeforeMount(() => {
 
 .highlight{
   position: relative;
+  &-wrapper{
+    padding-bottom: 10px;
+  }
   &:hover{
     & .highlight-control{
       display: block;

@@ -1,8 +1,11 @@
 <template>
   <div class="editor">
+    <div v-if="isPreview" class="editor-footer">
+      <button class=""  @click="togglePreview">Preview</button>
+    </div>
     <div class="editor__container">
       <Notify :timing="3500" :notification="notification"/>
-      <codemirror  v-model="code"
+      <codemirror class="custom-scroller"  v-model="code"
                    placeholder="Please enter the code..."
                    :style="{
           width: preview ? '50%' : '100%',
@@ -20,32 +23,15 @@
 
       />
       <Highlight
-          v-if="preview"
+          v-if="preview&&isPreview"
           @copied="handleCopied"
           :code-raw="code"
           :code="code"
           :text="'Э-э-э ты чо бро?'"
           class="code"
+          :max-height-css='"initial"'
           :style="{ height: config?.height, width: preview ? '50%' : '0px' }"
       />
-<!--      <pre
-          v-if="preview"
-          class="code"
-          :style="{ height: config?.height, width: preview ? '50%' : '0px' }"
-      >
-        {{ code }}
-      </pre>-->
-    </div>
-    <div class="divider"></div>
-    <div class="editor-footer">
-      <button class=""  @click="togglePreview">Preview</button>
-      <div class="infos">
-        <span class="item">Spaces: {{ config?.tabSize }}</span>
-        <span class="item">Length: {{ state.length }}</span>
-        <span class="item">Lines: {{ state.lines }}</span>
-        <span class="item">Cursor: {{ state.cursor }}</span>
-        <span class="item">Selected: {{ state.selected }}</span>
-      </div>
     </div>
   </div>
 </template>
@@ -72,11 +58,12 @@ const props=defineProps({
   },
   theme: [Object, Array],
   language: Function,
+  isPreview:{
+    type:Boolean,
+    required:false,
+    default:false,
+  }
 })
-
-
-
-
 
 const code = shallowRef(props.code)
 const extensions = computed(() => {
@@ -116,12 +103,21 @@ const state = reactive({
 })
 const handleStateUpdate = (viewUpdate) => {
   // selected
+
   const ranges = viewUpdate.state.selection.ranges;
+  emits('code-editing',viewUpdate.state.doc.toString())
   state.selected=ranges.reduce((plus, range) => plus + range.to - range.from, 0);
   state.cursor=ranges[0].anchor;
   state.length = viewUpdate.state.doc.length;
   state.lines = viewUpdate.state.doc.lines;
 }
+const emits=defineEmits(['code-editing'])
+watch(()=>props.code,(_code)=>{
+  code.value=_code;
+  console.log("code: ",code.value);
+
+})
+
 onMounted(()=>{
   watch(()=>props.code,(_code)=>{
     code.value=_code;
@@ -141,22 +137,52 @@ const handleReady = ({ view }) => {
       position: relative;
       display: flex;
       width: 100%;
+      & .highlight{
+        overflow: hidden !important;
+      }
       .code {
         width: 30%;
         height: 100px;
         margin: 0;
-        padding: 0.4em;
         overflow: scroll;
         border-left: 1px solid var(--theme-border);
         font-family: monospace;
       }
     }
-    .infos {
-      .item {
-        margin-left: 2em;
-        display: inline-block;
-        font-feature-settings: 'tnum';
-      }
+    &__footer{
+      position: absolute;
+      z-index: 20;
+      width: 20px;
     }
+  }
+  .custom-scroller{
+      .cm-editor{
+        &::-webkit-scrollbar {
+          width: 7px;
+        }
+
+        /* Track */
+        &::-webkit-scrollbar-track {
+          background:#ddd;
+          border-radius: 12px;
+          cursor: pointer;
+        }
+
+        /* Handle */
+        &::-webkit-scrollbar-thumb {
+          background: var(--color-accent-2);
+          border-radius: 12px;
+          cursor: pointer;
+
+        }
+
+        /* Handle on hover */
+        &::-webkit-scrollbar-thumb:hover {
+          background: #0073f7;
+          cursor: pointer;
+
+        }
+      }
+
   }
 </style>

@@ -12,7 +12,7 @@
         </svg>
       </base-button>
     </div>
-    <div class="code-highlight">
+    <div class="code-highlight" :style="{maxHeight:maxHeightCss,fontSize:'10px'}">
       <pre>
         <code v-html="code"></code>
       </pre>
@@ -36,6 +36,11 @@ import {onMounted, shallowRef, watch} from "vue";
         required:false,
         default:'Код скопирован!'
       },
+      maxHeightCss:{
+        type:String,
+        required:false,
+        default:'500px',
+      }
 
     })
 const emits=defineEmits(['copied'])
@@ -82,6 +87,7 @@ const copyClickboard=(code)=>{
   padding: 15px 10px;
   border-radius: 6px;
   max-height: 500px;
+  height: 100%;
   overflow-y: scroll;
 
   &::-webkit-scrollbar {

@@ -42,6 +42,10 @@ button.button-transparent:hover{
     color:#5470c6;
     background-color: #fff;
 
+
+}
+.button-select svg g{
+    fill: currentColor;
 }
 .button-select:hover svg g {
     fill: white;
