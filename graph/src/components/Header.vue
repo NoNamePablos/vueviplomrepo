@@ -9,6 +9,7 @@
         <router-link to="/grpah-creater">Создать граф</router-link>
         <router-link to="/highlight">Подсветка</router-link>
         <router-link to="/polygon">poly</router-link>
+        <router-link to="/experemental">experemental</router-link>
       </ul>
     </div>
 </template>

@@ -4,6 +4,7 @@ import LoadGraph from "@/views/LoadGraph.vue";
 import CreateGraphOnce from "@/views/CreateGraphOnce.vue";
 import HigilightCode from "@/views/HigilightCode.vue";
 import Polygon from "@/views/Polygon.vue";
+import Experemental from "@/views/Experemental.vue";
 
 const routes=[
     {
@@ -24,6 +25,10 @@ const routes=[
     {
         path:"/polygon",
         component: Polygon,
+    },
+    {
+        path:"/experemental",
+        component: Experemental,
     }
 ]
 
