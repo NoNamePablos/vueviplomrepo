@@ -5,7 +5,6 @@ import ui from '@/components/ui/index';
 import {router} from "@/router/router";
 
 const app=createApp(App);
-
 app.use(router);
 ui.forEach((uiItem)=>{
     app.component(uiItem.__name,uiItem)

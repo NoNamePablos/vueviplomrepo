@@ -142,24 +142,31 @@ const codeBlocks=ref([{
   id:1,
   title:"code block 1",
   code_block: "",
-
-  result:{
-    runtime:0,
-    amountOfRounds:0,
-    percent:0,
-  }
+  benchmarks:{
+    startIndex:0,
+    endIndex:0,
+  },
+  result:[]
 },{
   id:2,
   title:"code block 2",
   code_block: "",
-  result:{
-    runtime:0,
-    amountOfRounds:0,
-    percent:0,
-  }
+  benchmarks:{
+    startIndex:0,
+    endIndex:0,
+  },
+  result:[]
 }])
-const doc=ref(null);
 
+const resetResults=()=> {
+  codeBlocks.value.forEach((item)=>{
+    item.result.amountOfRounds=0;
+    item.result.percent=0;
+  })
+}
+const doc=ref(null);
+const autoStartTimer=reactive(null);
+const autoStartCounter=reactive(null);
 const iframe=ref(null);
 
 const blockAmount=computed(()=>{ return codeBlocks.value.length});
@@ -168,7 +175,37 @@ function validateNumber(value) {
     return 'Значение должно быть больше 0'
   }
 }
-const runTests=()=>{
+
+const startAutoStart=() =>{
+  state.ui.showAutoStart = true;
+  let timing = 5900;
+  autoStartTimer.value= setInterval(()=>{
+    timing -= 100;
+    autoStartCounter.value = parseInt(timing / 1e3),
+        autoStartCounter.value <= 0 && this.runTests()
+      }, 100)
+}
+const releaseAutostart=()=> {
+  if(autoStartTimer.value && clearInterval(autoStartTimer.value)){
+    state.ui.showAutoStart = false;
+  }
+}
+const removeBenchmarkScripts=()=> {
+  if(iframe.value&&(iframe.value.parentNode.removeChild(iframe.value))){
+          iframe.value = null;
+  }
+};
+const sleep=(ms)=>{
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+ const runTests=async ()=>{
+  console.log("Zero");
+  state.app.testProgress=0;
+  removeBenchmarkScripts();
+  resetResults();
+   showTestInProgress.value=true;
+   console.log(state.ui);
   iframe.value=window.document.createElement('iframe');
   iframe.value.style.display="none";
   iframe.value.id="iframe";
@@ -178,44 +215,78 @@ const runTests=()=>{
   loadScripts();
   const sctiptBlock=document.createElement('script');
   let s="";
+  let roundId=0;
   //item_id id code blcok
   for (let item of codeBlocks.value) {
-    /*var i = "function benchmark_" + item.id + "() {" + e.model.boilerplateBlock.code + r.code_block + "}";*/
-    let i = "function benchmark_" + item.id + "() {"  + hlCode.value + "}";
-    s += i
+    item.benchmarks.startIndex=roundId;
+   for (let round=0;round<state.app.countRounds;round++){
+
+     /*var i = "function benchmark_" + item.id + "() {" + e.model.boilerplateBlock.code + r.code_block + "}";*/
+     let i = "function benchmark_" + roundId + "() {"  + item.code_block + "}";
+     s += i
+     roundId++;
+   }
+   item.benchmarks.endIndex=roundId-1;
   }
   sctiptBlock.type = "text/javascript";
   sctiptBlock.text = s;
   sctiptBlock.dataset.benchmark = "true";
   content.document.body.appendChild(sctiptBlock);
+  console.log("start");
   /*runTestForAmountOfTime*/
-  runTestForAmountOfTime(codeBlocks.value[1],100);
+   let fullTimings = (state.model.timeToRun + 2 * state.model.pausePerBlock*state.app.countRounds) * codeBlocks.value.length - state.model.pausePerBlock;
+   console.log("full: ",fullTimings);
+   let localTiming= performance.now();
+
+   console.log("flocal: ",localTiming);
+   codeBlocks.value.forEach((codeBlock)=>{
+     codeBlock.result=[];
+      for (let i=codeBlock.benchmarks.startIndex;i<codeBlock.benchmarks.endIndex;i++){
+        codeBlock.result.percent=0;
+        sleep(state.model.pausePerBlock);
+        let test = runTestForAmountOfTime(i,state.model.timeToRun,true);
+        codeBlock.result.push(test);
+        let timing = test.timer - localTiming;
+        state.app.testProgress = Math.round(100 / fullTimings * timing);
+        console.log("testProgress",state.app.testProgress);
+        if(state.app.testProgress > 100&& (state.app.testProgress = 100)){
+          console.log("end");
+        }
+      }
+     console.log(codeBlock);
+   })
+   showTestInProgress.value=false;
 }
 
-const runTestForAmountOfTime=(item,timing)=>{
-  let functionCall="benchmark_"+item.id;
-  let start=performance.now();
-  let finish=performance.now();
+const calcResult=()=>{
+  for (var o of (this.model.winnerBlockId = e.id,
+      this.model.codeBlocks))
+    o.result.percent = Math.round(100 / t * o.result.amountOfRounds * 100) / 100
+}
+const runTestForAmountOfTime=(idx,timing,isRoundBenchmark=false)=>{
   let rounds=0;
   //todo Работает добавление кода и его выполнения.Добавление код-блоков пока не реализовано!!!!
-  do{
-    rounds++;
-    iframe.value.contentWindow[functionCall](arguments);
-    finish=performance.now();
-    console.log("Start: ",start);
-    console.log("finish: ",finish);
-    console.log("dfd: ",finish-start);
-  }while (finish-start<timing)
-  /*do {
-    iframe.value.contentWindow[o](arguments),
-        r++,
-        s = performance.now()
-  } while (s - a < t && !this.model.errorMessage);*/
-  console.log({
-    counter: rounds,
-    runTime: start - finish,
-    timer: finish
-  })
+  let arr=[];
+  let start=performance.now();
+  let finish=performance.now();
+  let functionCall="benchmark_"+idx;
+    if(!isRoundBenchmark){
+      start=performance.now();
+      iframe.value.contentWindow[functionCall](arguments);
+      finish=performance.now();
+    }else{
+        do{
+        rounds++;
+        iframe.value.contentWindow[functionCall](arguments);
+        finish=performance.now();
+      }while (finish-start<timing)
+    }
+    return {
+      isRoundBenchmark:isRoundBenchmark,
+      counter: rounds,
+      runTime: finish - start,
+      timer: finish
+    }
 }
 
 const loadScripts=()=>{
@@ -238,11 +309,11 @@ const addCodeBlock=()=>{
     id: lastIndex + 1,
     title: "code block " + (codeBlocks.value.length + 1),
     code_block: "",
-    result: {
-      runTime: 0,
-      amountOfRounds: 0,
-      percent: 0
-    }
+    benchmarks:{
+      startIndex:0,
+      endIndex:0,
+    },
+    result: []
   };
   codeBlocks.value.push(obj);
 }
@@ -255,6 +326,32 @@ const removeCodeBlock=(id)=>{
 }
 
 //компонент для замера времени + отрисовка графиков и тп.
+const handleTests=()=>{
+  runTests();
+}
+
+const showTestInProgress=ref(false);
+const loader = computed(() => {
+  return showTestInProgress;
+})
+
+const state=reactive({
+  ui:{
+
+    showAutoStart:false,
+  },
+  app:{
+    testProgress:0,
+    countRounds:1,
+  },
+  model:{
+    timeToRun: 2e3,
+    pausePerBlock: 700,
+    title: "",
+    errorMessage: null,
+  }
+})
+
 
 
 </script>
@@ -262,11 +359,15 @@ const removeCodeBlock=(id)=>{
 <template>
   <BaseLayout>
     <div class="graph-editor graph-editor-hljs">
+<!--  loader not work -->
+      <div class="overlay" v-if="loader" >
+        <img src="../assets/Ракета.gif" width="64" alt="">
+      </div>
       <div class="graph-editor__tabs" v-if="!isSaveGraph">
         <h3 class="tab-item__name">
           Подсветка кода
         </h3>
-        <base-input  type="number" v-model="testsRounds"  :validation="validateNumber" :label="'Количество раундов'" />
+        <base-input  type="number" v-model="state.app.countRounds"  :validation="validateNumber" :label="'Количество раундов'" />
         <div class="tab-item-body" v-for="(codeBlcokItem,idx) in codeBlocks" :key="codeBlcokItem.id">
               <div class="code-editor">
                   <base-input  class="code-editor-input" v-model="codeBlcokItem.title" :label="codeBlcokItem.title" />
@@ -297,6 +398,9 @@ const removeCodeBlock=(id)=>{
               <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
             </svg>
           </base-button>
+        </div>
+        <div class="tab-item-controller">
+          <base-button :classes="['button-active']" @click="handleTests()">Запустить тесты</base-button>
         </div>
       </div>
       <h1 class="default-text" v-else>Здесь должен быть код</h1>
@@ -334,7 +438,15 @@ const removeCodeBlock=(id)=>{
   transform: translateX(30px);
 }
 
-
+.overlay{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(1,1,1,0.4);
+  z-index: 20;
+}
 
 .code-editor{
   padding: 15px;
@@ -425,6 +537,9 @@ const removeCodeBlock=(id)=>{
   }
 }
 .tab-item{
+  &-controller{
+    margin-top: 20px;
+  }
   &-body+&-body{
     margin-top: 20px;
   }
