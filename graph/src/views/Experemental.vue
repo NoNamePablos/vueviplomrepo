@@ -195,10 +195,10 @@ const removeBenchmarkScripts=()=> {
           iframe.value = null;
   }
 };
-const sleep=(ms)=>{
+
+const sleep= (ms)=> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
-
  const runTests=async ()=>{
   console.log("Zero");
   state.app.testProgress=0;
@@ -239,23 +239,88 @@ const sleep=(ms)=>{
    let localTiming= performance.now();
 
    console.log("flocal: ",localTiming);
-   codeBlocks.value.forEach((codeBlock)=>{
-     codeBlock.result=[];
-      for (let i=codeBlock.benchmarks.startIndex;i<codeBlock.benchmarks.endIndex;i++){
-        codeBlock.result.percent=0;
-        sleep(state.model.pausePerBlock);
-        let test = runTestForAmountOfTime(i,state.model.timeToRun,true);
-        codeBlock.result.push(test);
-        let timing = test.timer - localTiming;
-        state.app.testProgress = Math.round(100 / fullTimings * timing);
-        console.log("testProgress",state.app.testProgress);
-        if(state.app.testProgress > 100&& (state.app.testProgress = 100)){
-          console.log("end");
-        }
-      }
-     console.log(codeBlock);
+   showTestInProgress.value=true;
+   sleep(1e3).then(()=>{
+          codeBlocks.value.map(async (codeBlock) => {
+            codeBlock.result = [];
+            for (let i = codeBlock.benchmarks.startIndex; i < codeBlock.benchmarks.endIndex; i++) {
+              sleep(state.model.pausePerBlock).then(()=>{
+                codeBlock.result.percent = 0;
+                let test = runTestForAmountOfTime(i, state.model.timeToRun, true); // Wait for the test to finish
+                codeBlock.result.push(test);
+                let timing = test.timer - localTiming;
+                state.app.testProgress = Math.round((100 / fullTimings) * timing);
+                console.log("testProgress", state.app.testProgress);
+                if (state.app.testProgress > 100 && (state.app.testProgress = 100)) {
+                  showTestInProgress.value=false;
+                }
+                console.log(codeBlocks.value);
+              })
+            }
+          })
+
    })
-   showTestInProgress.value=false;
+}
+
+const runTests2=async ()=>{
+    console.log("Zero");
+    state.app.testProgress = 0;
+    removeBenchmarkScripts();
+    resetResults();
+    showTestInProgress.value = true;
+    console.log(state.ui);
+    iframe.value = window.document.createElement("iframe");
+    iframe.value.style.display = "none";
+    iframe.value.id = "iframe";
+    document.body.appendChild(iframe.value);
+    const content = iframe.value.contentWindow;
+    console.log("Cnt: ", content);
+    loadScripts();
+    const scriptBlock = document.createElement("script");
+    let s = "";
+    let roundId = 0;
+    //item_id id code blcok
+    for (let item of codeBlocks.value) {
+      item.benchmarks.startIndex = roundId;
+      for (let round = 0; round < state.app.countRounds; round++) {
+        /*var i = "function benchmark_" + item.id + "() {" + e.model.boilerplateBlock.code + r.code_block + "}";*/
+        let i = "function benchmark_" + roundId + "() {" + item.code_block + "}";
+        s += i;
+        roundId++;
+      }
+      item.benchmarks.endIndex = roundId - 1;
+    }
+    scriptBlock.type = "text/javascript";
+    scriptBlock.text = s;
+    scriptBlock.dataset.benchmark = "true";
+    content.document.body.appendChild(scriptBlock);
+    console.log("start");
+
+    let fullTimings = (state.model.timeToRun + 2 * state.model.pausePerBlock * state.app.countRounds) * codeBlocks.value.length - state.model.pausePerBlock;
+    console.log("full: ", fullTimings);
+    let localTiming = performance.now();
+    console.log("flocal: ", localTiming);
+    showTestInProgress.value = true;
+    const totalTests=codeBlocks.value.length*state.app.countRounds;
+    let completedTests=0;
+  sleep(1e3).then(()=>{
+    codeBlocks.value.map(async (codeBlock) => {
+      codeBlock.result = [];
+      for (let i = codeBlock.benchmarks.startIndex; i <= codeBlock.benchmarks.endIndex; i++) {
+          console.log("start: ",codeBlock.benchmarks.startIndex);
+          codeBlock.result.percent = 0;
+          let testTime = runTestForAmountOfTimeSecond(i);
+          completedTests++;
+          codeBlock.result.push(testTime);
+          state.app.testProgress = Math.round((100 * completedTests) / totalTests);
+          console.log("testProgress", state.app.testProgress);
+          if (state.app.testProgress >= 100 && (state.app.testProgress = 100)) {
+            showTestInProgress.value=false;
+          }
+        await sleep(state.model.pausePerBlock);
+      }
+    })
+  })
 }
 
 const calcResult=()=>{
@@ -263,32 +328,43 @@ const calcResult=()=>{
       this.model.codeBlocks))
     o.result.percent = Math.round(100 / t * o.result.amountOfRounds * 100) / 100
 }
-const runTestForAmountOfTime=(idx,timing,isRoundBenchmark=false)=>{
-  let rounds=0;
-  //todo Работает добавление кода и его выполнения.Добавление код-блоков пока не реализовано!!!!
-  let arr=[];
-  let start=performance.now();
-  let finish=performance.now();
-  let functionCall="benchmark_"+idx;
-    if(!isRoundBenchmark){
-      start=performance.now();
-      iframe.value.contentWindow[functionCall](arguments);
-      finish=performance.now();
-    }else{
-        do{
-        rounds++;
-        iframe.value.contentWindow[functionCall](arguments);
-        finish=performance.now();
-      }while (finish-start<timing)
-    }
-    return {
-      isRoundBenchmark:isRoundBenchmark,
-      counter: rounds,
+const runTestForAmountOfTimeSecond=(idx)=>{
+
+    let functionCall = "benchmark_" + idx;
+    let start = performance.now();
+    iframe.value.contentWindow[functionCall](arguments);
+    let finish = performance.now();
+    return{
       runTime: finish - start,
       timer: finish
     }
 }
 
+const runTestForAmountOfTime=(idx,timing,isRoundBenchmark=false)=> {
+    let rounds = 0;
+    //todo Работает добавление кода и его выполнения.Добавление код-блоков пока не реализовано!!!!
+    let arr = [];
+    let start = performance.now();
+    let finish = performance.now();
+    let functionCall = "benchmark_" + idx;
+    if (!isRoundBenchmark) {
+      start = performance.now();
+      iframe.value.contentWindow[functionCall](arguments);
+      finish = performance.now();
+    } else {
+      do {
+        rounds++;
+        iframe.value.contentWindow[functionCall](arguments);
+        finish = performance.now();
+      } while (finish - start < timing);
+    }
+    return {
+      isRoundBenchmark: isRoundBenchmark,
+      counter: rounds,
+      runTime: finish - start,
+      timer: finish
+    }
+}
 const loadScripts=()=>{
   loadLibraryIntoIframe("https://code.jquery.com/jquery-3.4.1.min.js");
   loadLibraryIntoIframe("https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js");
@@ -327,7 +403,8 @@ const removeCodeBlock=(id)=>{
 
 //компонент для замера времени + отрисовка графиков и тп.
 const handleTests=()=>{
-  runTests();
+  /*runTests();*/
+  runTests2();
 }
 
 const showTestInProgress=ref(false);
@@ -360,8 +437,10 @@ const state=reactive({
   <BaseLayout>
     <div class="graph-editor graph-editor-hljs">
 <!--  loader not work -->
-      <div class="overlay" v-if="loader" >
+      <div class="overlay" v-if="showTestInProgress" >
         <img src="../assets/Ракета.gif" width="64" alt="">
+        {{state.app.testProgress}}
+        {{showTestInProgress}}
       </div>
       <div class="graph-editor__tabs" v-if="!isSaveGraph">
         <h3 class="tab-item__name">
