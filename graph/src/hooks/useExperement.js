@@ -71,12 +71,13 @@ export const useExperement=(props)=> {
         let functionCall = "benchmark_" + idx;
         if (!isRoundBenchmark) {
             start = performance.now();
-            iframe.value.contentWindow[functionCall](arguments);
+            /*iframe.value.contentWindow[functionCall](arguments);*/
+            iframe.value.contentWindow[functionCall]();
             finish = performance.now();
         } else {
             do {
                 rounds++;
-                iframe.value.contentWindow[functionCall](arguments);
+                iframe.value.contentWindow[functionCall]();
                 finish = performance.now();
             } while (finish - start < timing);
         }
@@ -92,7 +93,7 @@ export const useExperement=(props)=> {
 
         let functionCall = "benchmark_" + idx;
         let start = performance.now();
-        iframe.value.contentWindow[functionCall](arguments);
+        iframe.value.contentWindow[functionCall]();
         let finish = performance.now();
         return{
             runTime: finish - start,
@@ -110,6 +111,7 @@ export const useExperement=(props)=> {
         console.log("Zero");
         state.app.testProgress = 0;
         removeBenchmarkScripts();
+        resetResults();
         showTestInProgress.value = true;
         console.log(state.ui);
         iframe.value = window.document.createElement("iframe");
@@ -164,6 +166,7 @@ export const useExperement=(props)=> {
     const runTests=async ()=>{
         console.log("Zero");
         state.app.testProgress=0;
+        resetResults();
         removeBenchmarkScripts();
         showTestInProgress.value=true;
         console.log(state.ui);
