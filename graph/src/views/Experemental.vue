@@ -14,11 +14,17 @@ import Toolbar from "@/components/BaseEditor/Toolbar.vue";
 import themes from "@/components/BaseEditor/themes";
 import languagesEditor  from "@/components/BaseEditor/languages";
 import Editor from "@/components/BaseEditor/Editor.vue";
+import ProgressBar from "@/components/ProgressBar/ProgressBar.vue";
+import Overlay from "@/components/Overlay/Overlay.vue";
+import Layout from "@/components/Layout/Layout.vue";
+import {useExperement} from "@/hooks/useExperement";
 
 
 // Status is available at all times via Codemirror EditorView
 
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
+const {state,codeBlocks, showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock}=useExperement();
+
 
 
 const saveGraphEditor=()=>{
@@ -60,25 +66,6 @@ const validateTextArea=(value)=>{
 }
 //new component
 
-
-
-
-/*runTestForAmountOfTime(e, t) {
-  var o = "benchmark_" + e.id
-      , a = performance.now()
-      , s = performance.now()
-      , r = 0;
-  do {
-    this.iframe.contentWindow[o](arguments),
-        r++,
-        s = performance.now()
-  } while (s - a < t && !this.model.errorMessage);
-  return {
-    counter: r,
-    runTime: a - s,
-    timer: s
-  }
-},*/
 
 
 
@@ -136,270 +123,21 @@ const handleSubmit=(codeBlockID)=>{
 
 ///
 
-const testsRounds=ref(0);
 
-const codeBlocks=ref([{
-  id:1,
-  title:"code block 1",
-  code_block: "",
-  benchmarks:{
-    startIndex:0,
-    endIndex:0,
-  },
-  result:[]
-},{
-  id:2,
-  title:"code block 2",
-  code_block: "",
-  benchmarks:{
-    startIndex:0,
-    endIndex:0,
-  },
-  result:[]
-}])
 
-const resetResults=()=> {
-  codeBlocks.value.forEach((item)=>{
-    item.result.amountOfRounds=0;
-    item.result.percent=0;
-  })
-}
-const doc=ref(null);
-const autoStartTimer=reactive(null);
-const autoStartCounter=reactive(null);
-const iframe=ref(null);
 
-const blockAmount=computed(()=>{ return codeBlocks.value.length});
+
 function validateNumber(value) {
   if (value<=0) {
     return 'Значение должно быть больше 0'
   }
 }
 
-const startAutoStart=() =>{
-  state.ui.showAutoStart = true;
-  let timing = 5900;
-  autoStartTimer.value= setInterval(()=>{
-    timing -= 100;
-    autoStartCounter.value = parseInt(timing / 1e3),
-        autoStartCounter.value <= 0 && this.runTests()
-      }, 100)
-}
-const releaseAutostart=()=> {
-  if(autoStartTimer.value && clearInterval(autoStartTimer.value)){
-    state.ui.showAutoStart = false;
-  }
-}
-const removeBenchmarkScripts=()=> {
-  if(iframe.value&&(iframe.value.parentNode.removeChild(iframe.value))){
-          iframe.value = null;
-  }
-};
 
-const sleep= (ms)=> {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
- const runTests=async ()=>{
-  console.log("Zero");
-  state.app.testProgress=0;
-  removeBenchmarkScripts();
-  resetResults();
-   showTestInProgress.value=true;
-   console.log(state.ui);
-  iframe.value=window.document.createElement('iframe');
-  iframe.value.style.display="none";
-  iframe.value.id="iframe";
-  document.body.appendChild(iframe.value);
-  const content=iframe.value.contentWindow;
-  console.log("Cnt: ",content);
-  loadScripts();
-  const sctiptBlock=document.createElement('script');
-  let s="";
-  let roundId=0;
-  //item_id id code blcok
-  for (let item of codeBlocks.value) {
-    item.benchmarks.startIndex=roundId;
-   for (let round=0;round<state.app.countRounds;round++){
 
-     /*var i = "function benchmark_" + item.id + "() {" + e.model.boilerplateBlock.code + r.code_block + "}";*/
-     let i = "function benchmark_" + roundId + "() {"  + item.code_block + "}";
-     s += i
-     roundId++;
-   }
-   item.benchmarks.endIndex=roundId-1;
-  }
-  sctiptBlock.type = "text/javascript";
-  sctiptBlock.text = s;
-  sctiptBlock.dataset.benchmark = "true";
-  content.document.body.appendChild(sctiptBlock);
-  console.log("start");
-  /*runTestForAmountOfTime*/
-   let fullTimings = (state.model.timeToRun + 2 * state.model.pausePerBlock*state.app.countRounds) * codeBlocks.value.length - state.model.pausePerBlock;
-   console.log("full: ",fullTimings);
-   let localTiming= performance.now();
 
-   console.log("flocal: ",localTiming);
-   showTestInProgress.value=true;
-   sleep(1e3).then(()=>{
-          codeBlocks.value.map(async (codeBlock) => {
-            codeBlock.result = [];
-            for (let i = codeBlock.benchmarks.startIndex; i < codeBlock.benchmarks.endIndex; i++) {
-              sleep(state.model.pausePerBlock).then(()=>{
-                codeBlock.result.percent = 0;
-                let test = runTestForAmountOfTime(i, state.model.timeToRun, true); // Wait for the test to finish
-                codeBlock.result.push(test);
-                let timing = test.timer - localTiming;
-                state.app.testProgress = Math.round((100 / fullTimings) * timing);
-                console.log("testProgress", state.app.testProgress);
-                if (state.app.testProgress > 100 && (state.app.testProgress = 100)) {
-                  showTestInProgress.value=false;
-                }
-                console.log(codeBlocks.value);
-              })
-            }
-          })
 
-   })
-}
 
-const runTests2=async ()=>{
-    console.log("Zero");
-    state.app.testProgress = 0;
-    removeBenchmarkScripts();
-    resetResults();
-    showTestInProgress.value = true;
-    console.log(state.ui);
-    iframe.value = window.document.createElement("iframe");
-    iframe.value.style.display = "none";
-    iframe.value.id = "iframe";
-    document.body.appendChild(iframe.value);
-    const content = iframe.value.contentWindow;
-    console.log("Cnt: ", content);
-    loadScripts();
-    const scriptBlock = document.createElement("script");
-    let s = "";
-    let roundId = 0;
-    //item_id id code blcok
-    for (let item of codeBlocks.value) {
-      item.benchmarks.startIndex = roundId;
-      for (let round = 0; round < state.app.countRounds; round++) {
-        /*var i = "function benchmark_" + item.id + "() {" + e.model.boilerplateBlock.code + r.code_block + "}";*/
-        let i = "function benchmark_" + roundId + "() {" + item.code_block + "}";
-        s += i;
-        roundId++;
-      }
-      item.benchmarks.endIndex = roundId - 1;
-    }
-    scriptBlock.type = "text/javascript";
-    scriptBlock.text = s;
-    scriptBlock.dataset.benchmark = "true";
-    content.document.body.appendChild(scriptBlock);
-    console.log("start");
-
-    let fullTimings = (state.model.timeToRun + 2 * state.model.pausePerBlock * state.app.countRounds) * codeBlocks.value.length - state.model.pausePerBlock;
-    console.log("full: ", fullTimings);
-    let localTiming = performance.now();
-    console.log("flocal: ", localTiming);
-    showTestInProgress.value = true;
-    const totalTests=codeBlocks.value.length*state.app.countRounds;
-    let completedTests=0;
-  sleep(1e3).then(()=>{
-    codeBlocks.value.map(async (codeBlock) => {
-      codeBlock.result = [];
-      for (let i = codeBlock.benchmarks.startIndex; i <= codeBlock.benchmarks.endIndex; i++) {
-          console.log("start: ",codeBlock.benchmarks.startIndex);
-          codeBlock.result.percent = 0;
-          let testTime = runTestForAmountOfTimeSecond(i);
-          completedTests++;
-          codeBlock.result.push(testTime);
-          state.app.testProgress = Math.round((100 * completedTests) / totalTests);
-          console.log("testProgress", state.app.testProgress);
-          if (state.app.testProgress >= 100 && (state.app.testProgress = 100)) {
-            showTestInProgress.value=false;
-          }
-        await sleep(state.model.pausePerBlock);
-      }
-    })
-  })
-}
-
-const calcResult=()=>{
-  for (var o of (this.model.winnerBlockId = e.id,
-      this.model.codeBlocks))
-    o.result.percent = Math.round(100 / t * o.result.amountOfRounds * 100) / 100
-}
-const runTestForAmountOfTimeSecond=(idx)=>{
-
-    let functionCall = "benchmark_" + idx;
-    let start = performance.now();
-    iframe.value.contentWindow[functionCall](arguments);
-    let finish = performance.now();
-    return{
-      runTime: finish - start,
-      timer: finish
-    }
-}
-
-const runTestForAmountOfTime=(idx,timing,isRoundBenchmark=false)=> {
-    let rounds = 0;
-    //todo Работает добавление кода и его выполнения.Добавление код-блоков пока не реализовано!!!!
-    let arr = [];
-    let start = performance.now();
-    let finish = performance.now();
-    let functionCall = "benchmark_" + idx;
-    if (!isRoundBenchmark) {
-      start = performance.now();
-      iframe.value.contentWindow[functionCall](arguments);
-      finish = performance.now();
-    } else {
-      do {
-        rounds++;
-        iframe.value.contentWindow[functionCall](arguments);
-        finish = performance.now();
-      } while (finish - start < timing);
-    }
-    return {
-      isRoundBenchmark: isRoundBenchmark,
-      counter: rounds,
-      runTime: finish - start,
-      timer: finish
-    }
-}
-const loadScripts=()=>{
-  loadLibraryIntoIframe("https://code.jquery.com/jquery-3.4.1.min.js");
-  loadLibraryIntoIframe("https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js");
-  loadLibraryIntoIframe("https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.min.js");
-  console.log("scripts is loaded");
-}
-
-const loadLibraryIntoIframe=(path)=>{
-  const iframeComp=iframe.value.contentWindow;
-  const script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = path;
-  iframeComp.document.body.appendChild(script);
-}
-const addCodeBlock=()=>{
-  let lastIndex=codeBlocks.value.length;
-  const obj = {
-    id: lastIndex + 1,
-    title: "code block " + (codeBlocks.value.length + 1),
-    code_block: "",
-    benchmarks:{
-      startIndex:0,
-      endIndex:0,
-    },
-    result: []
-  };
-  codeBlocks.value.push(obj);
-}
-const removeCodeBlock=(id)=>{
-  console.log(id);
-  if(codeBlocks.value.length>1){
-    console.log("id: ",id);
-    codeBlocks.value=codeBlocks.value.filter(codeBlock=>codeBlock.id!=id);
-  }
-}
 
 //компонент для замера времени + отрисовка графиков и тп.
 const handleTests=()=>{
@@ -407,84 +145,59 @@ const handleTests=()=>{
   runTests2();
 }
 
-const showTestInProgress=ref(false);
-const loader = computed(() => {
-  return showTestInProgress;
-})
-
-const state=reactive({
-  ui:{
-
-    showAutoStart:false,
-  },
-  app:{
-    testProgress:0,
-    countRounds:1,
-  },
-  model:{
-    timeToRun: 2e3,
-    pausePerBlock: 700,
-    title: "",
-    errorMessage: null,
-  }
-})
-
 
 
 </script>
 
 <template>
   <BaseLayout>
-    <div class="graph-editor graph-editor-hljs">
-<!--  loader not work -->
-      <div class="overlay" v-if="showTestInProgress" >
-        <img src="../assets/Ракета.gif" width="64" alt="">
-        {{state.app.testProgress}}
-        {{showTestInProgress}}
-      </div>
-      <div class="graph-editor__tabs" v-if="!isSaveGraph">
-        <h3 class="tab-item__name">
-          Подсветка кода
-        </h3>
-        <base-input  type="number" v-model="state.app.countRounds"  :validation="validateNumber" :label="'Количество раундов'" />
-        <div class="tab-item-body" v-for="(codeBlcokItem,idx) in codeBlocks" :key="codeBlcokItem.id">
-              <div class="code-editor">
-                  <base-input  class="code-editor-input" v-model="codeBlcokItem.title" :label="codeBlcokItem.title" />
-                  <div class="code-editor-wrapper">
-                    <div class="loader" v-if="loading">Loading...</div>
-                    <Editor
-                        :is-preview="false"
-                        v-if="currentLangCode"
-                        :config="configHighlight"
-                        :theme="currentTheme"
-                        :language="currentLangCode.language"
-                        @code-editing="(text)=>codeBlcokItem.code_block=text"
-                        :code="codeBlcokItem.code_block"
-                    />
-                  </div>
-                  <div class="code-editor-controls" v-if="idx!==0">
-                    <base-button :classes="['button-circle']" @click="removeCodeBlock(codeBlcokItem.id)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z"/>
-                      </svg>
-                    </base-button>
-                  </div>
+      <Layout class="graph-editor-hljs">
+        <Overlay :is-visible="showTestInProgress" >
+          <div class="rocket"> 🚀</div>
+          <progress-bar :count="state.app.testProgress"/>
+        </Overlay>
+        <div class="graph-editor__tabs" v-if="!isSaveGraph">
+          <h3 class="tab-item__name">
+            Подсветка кода
+          </h3>
+          <base-input  type="number" v-model="state.app.countRounds"  :validation="validateNumber" :label="'Количество раундов'" />
+          <div class="tab-item-body" v-for="(codeBlcokItem,idx) in codeBlocks" :key="codeBlcokItem.id">
+            <div class="code-editor">
+              <base-input  class="code-editor-input" v-model="codeBlcokItem.title" :label="codeBlcokItem.title" />
+              <div class="code-editor-wrapper">
+                <div class="loader" v-if="loading">Loading...</div>
+                <Editor
+                    :is-preview="false"
+                    v-if="currentLangCode"
+                    :config="configHighlight"
+                    :theme="currentTheme"
+                    :language="currentLangCode.language"
+                    @code-editing="(text)=>codeBlcokItem.code_block=text"
+                    :code="codeBlcokItem.code_block"
+                />
               </div>
+              <div class="code-editor-controls" v-if="idx!==0">
+                <base-button :classes="['button-circle']" @click="removeCodeBlock(codeBlcokItem.id)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z"/>
+                  </svg>
+                </base-button>
+              </div>
+            </div>
+          </div>
+          <div class="tab-item-controller">
+            <base-button :classes="['button-circle']" @click="addCodeBlock">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+              </svg>
+            </base-button>
+          </div>
+          <div class="tab-item-controller">
+            <base-button :classes="['button-active']" @click="handleTests()">Запустить тесты</base-button>
+          </div>
         </div>
-        <div class="tab-item-controller">
-          <base-button :classes="['button-circle']" @click="addCodeBlock">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-            </svg>
-          </base-button>
-        </div>
-        <div class="tab-item-controller">
-          <base-button :classes="['button-active']" @click="handleTests()">Запустить тесты</base-button>
-        </div>
-      </div>
-      <h1 class="default-text" v-else>Здесь должен быть код</h1>
-
-    </div>
+        <h1 class="default-text" v-else>Здесь должен быть код</h1>
+      </Layout>
   </BaseLayout>
 </template>
 
@@ -515,16 +228,6 @@ const state=reactive({
 .notify-leave-to {
   opacity: 0;
   transform: translateX(30px);
-}
-
-.overlay{
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(1,1,1,0.4);
-  z-index: 20;
 }
 
 .code-editor{
@@ -603,6 +306,9 @@ const state=reactive({
   }
 }
 
+.rocket{
+  font-size: 90px;
+}
 
 
 .radio-group{
@@ -638,31 +344,6 @@ const state=reactive({
     margin-bottom: 15px;
   }
 }
-.graph-editor{
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: 500px 1fr;
-  grid-column-gap: 25px;
-  padding: 25px 50px;
-  @media screen and (max-width: 1279px){
-    grid-template-columns: 300px 1fr;
-    padding: 25px;
-  }
-  @media screen and (max-width: 1024px){
-    grid-template-columns: 1fr;
-    grid-gap: 25px;
-  }
-  &__draw{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    & h1{
-      font-size: 60px;
-      line-height: 80px;
-    }
-  }
-}
-
 
 .graph-editor-hljs{
   .form-group{
