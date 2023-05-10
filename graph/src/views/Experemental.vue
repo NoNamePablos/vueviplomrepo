@@ -18,6 +18,7 @@ import ProgressBar from "@/components/ProgressBar/ProgressBar.vue";
 import Overlay from "@/components/Overlay/Overlay.vue";
 import Layout from "@/components/Layout/Layout.vue";
 import {useExperement} from "@/hooks/useExperement";
+import ExperementResultItem from "@/components/ExperementalComponents/ExperementResultItem.vue";
 
 
 // Status is available at all times via Codemirror EditorView
@@ -196,7 +197,10 @@ const handleTests=()=>{
             <base-button :classes="['button-active']" @click="handleTests()">Запустить тесты</base-button>
           </div>
         </div>
-        <h1 class="default-text" v-else>Здесь должен быть код</h1>
+        <h1 class="" v-if="!showTestInProgress">
+          <experement-result-item :title="'code block 1'" :percent="0" />
+          <experement-result-item :title="'code block 2'" :percent="20" :winner="true" />
+        </h1>
       </Layout>
   </BaseLayout>
 </template>
