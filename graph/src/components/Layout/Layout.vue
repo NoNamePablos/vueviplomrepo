@@ -16,7 +16,7 @@
   grid-column-gap: 25px;
   padding: 25px 50px;
   @media screen and (max-width: 1279px){
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 400px 1fr;
     padding: 25px;
   }
   @media screen and (max-width: 1024px){

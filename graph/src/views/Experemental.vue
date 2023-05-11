@@ -19,12 +19,14 @@ import Overlay from "@/components/Overlay/Overlay.vue";
 import Layout from "@/components/Layout/Layout.vue";
 import {useExperement} from "@/hooks/useExperement";
 import ExperementResultItem from "@/components/ExperementalComponents/ExperementResultItem.vue";
+import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
+import {radiogroupExperements} from "@/utils/radiogroup.routes";
 
 
 // Status is available at all times via Codemirror EditorView
 
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
-const {state,codeBlocks, showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock}=useExperement();
+const {state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
 
 
 
@@ -142,11 +144,8 @@ function validateNumber(value) {
 
 //компонент для замера времени + отрисовка графиков и тп.
 const handleTests=()=>{
-  /*runTests();*/
-  runTests2();
+  runnerTest();
 }
-
-
 
 </script>
 
@@ -155,6 +154,7 @@ const handleTests=()=>{
       <Layout class="graph-editor-hljs">
         <Overlay :is-visible="showTestInProgress" >
           <div class="rocket"> 🚀</div>
+          <div style="color: white;margin-bottom: 10px;">Выбаран режим тестирования: <span style="color:#1D9FE7; background-color: white;padding: 2px 4px;border-radius: 3px;">{{codeBlocks[0].typeOfTest}}</span></div>
           <progress-bar :count="state.app.testProgress"/>
         </Overlay>
         <div class="graph-editor__tabs" v-if="!isSaveGraph">
@@ -162,6 +162,9 @@ const handleTests=()=>{
             Подсветка кода
           </h3>
           <base-input  type="number" v-model="state.app.countRounds"  :validation="validateNumber" :label="'Количество раундов'" />
+          <div style="display:flex;margin-bottom: 20px;">
+            <BaseInputClickable v-for="radio in radiogroupExperements " :with-icon="false"  :selected="radio.selected"  v-model:value="testType" :title="radio.title" :name="radio.radiotype" />
+          </div>
           <div class="tab-item-body" v-for="(codeBlcokItem,idx) in codeBlocks" :key="codeBlcokItem.id">
             <div class="code-editor">
               <base-input  class="code-editor-input" v-model="codeBlcokItem.title" :label="codeBlcokItem.title" />
@@ -198,7 +201,7 @@ const handleTests=()=>{
           </div>
         </div>
         <h1 class="" v-if="!showTestInProgress">
-          <experement-result-item :title="'code block 1'" :percent="0" />
+          <experement-result-item :title="result.title" :percent="0" v-for="result in codeBlocks" :key="result.id" />
           <experement-result-item :title="'code block 2'" :percent="20" :winner="true" />
         </h1>
       </Layout>

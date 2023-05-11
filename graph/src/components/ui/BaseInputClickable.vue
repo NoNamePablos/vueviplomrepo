@@ -2,8 +2,9 @@
   <label :class="['input-clickable',{'is-locked':isLocked}]"  >
     <input type="radio" :name="name" :disabled="isLocked"  :checked="selected" :value="title" @change="changeValue(title)" class="input-clickable-input hidden">
     <div class="chart">
-      <span class="chart-icon">
-          <slot></slot>
+      <span class="chart-icon" v-if="withIcon">
+<!--       title -->
+        <slot></slot>
       </span>
       <span class="chart-name">{{ title }}</span>
     </div>
@@ -31,6 +32,11 @@ const props=defineProps({
     type:Boolean,
     required:false,
     default:false,
+  },
+  withIcon:{
+    type:Boolean,
+    required:false,
+    default:true,
   }
 })
 </script>
@@ -87,14 +93,17 @@ const props=defineProps({
 .chart{
   height: 45px;
   padding: 10px;
-  display: block;
+  display: flex;
+  align-items: center;
   position: relative;
   border:1px solid rgba(1,1,1,0);
+  &>*+*{
+    margin-left: 10px;
+  }
   &-name{
     display: inline-block;
     position: relative;
     vertical-align: middle;
-    margin-left: 10px;
     color: #6e7079;
   }
   &-icon{

@@ -20,3 +20,24 @@ export const radiogroup=reactive([
         selected:false,
     },
 ])
+export const radiogroupExperements=reactive([
+    {
+        title:'Итерации',
+        type:"iteration",
+        radiotype:'experement',
+        selected:true,
+    },
+    {
+        title:'Время',
+        type:"time",
+        radiotype:'experement',
+        selected:false,
+    },
+    {
+        title:'Оба',
+        type:"all",
+        radiotype:'experement',
+        selected:false,
+    },
+])
+
