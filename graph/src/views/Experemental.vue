@@ -21,6 +21,7 @@ import {useExperement} from "@/hooks/useExperement";
 import ExperementResultItem from "@/components/ExperementalComponents/ExperementResultItem.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
 import {radiogroupExperements} from "@/utils/radiogroup.routes";
+import ExperementChart from "@/components/ExperementalComponents/ExperementChart.vue";
 
 
 // Status is available at all times via Codemirror EditorView
@@ -200,10 +201,12 @@ const handleTests=()=>{
             <base-button :classes="['button-active']" @click="handleTests()">Запустить тесты</base-button>
           </div>
         </div>
-        <h1 class="" v-if="!showTestInProgress">
+
+        <div class="" v-if="!showTestInProgress">
           <experement-result-item :title="result.title" :percent="0" v-for="result in codeBlocks" :key="result.id" />
           <experement-result-item :title="'code block 2'" :percent="20" :winner="true" />
-        </h1>
+          <ExperementChart :data="codeBlocks"></ExperementChart>
+        </div>
       </Layout>
   </BaseLayout>
 </template>
