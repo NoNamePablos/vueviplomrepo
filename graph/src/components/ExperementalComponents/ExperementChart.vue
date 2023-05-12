@@ -24,6 +24,10 @@ const props=defineProps({
   data:{
     type:Array,
     required:false,
+  },
+  sortedData:{
+    type:Array,
+    required:false,
   }
 })
 

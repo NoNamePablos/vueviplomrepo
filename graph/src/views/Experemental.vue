@@ -27,7 +27,7 @@ import ExperementChart from "@/components/ExperementalComponents/ExperementChart
 // Status is available at all times via Codemirror EditorView
 
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
-const {state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
+const {sortedCalcResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
 
 
 
@@ -203,9 +203,9 @@ const handleTests=()=>{
         </div>
 
         <div class="" v-if="!showTestInProgress">
-          <experement-result-item :title="result.title" :percent="0" v-for="result in codeBlocks" :key="result.id" />
-          <experement-result-item :title="'code block 2'" :percent="20" :winner="true" />
-          <ExperementChart :data="codeBlocks"></ExperementChart>
+<!--         Разобраться с винером и сортировкой -->
+          <experement-result-item :block="result" :title="result.title" :percent="0" v-for="result in codeBlocks" :winner="result.id=sortedCalcResults[0].value.id" />
+<!--          <ExperementChart :data="codeBlocks" :sorted-data="sortedCalcResults" ></ExperementChart>-->
         </div>
       </Layout>
   </BaseLayout>

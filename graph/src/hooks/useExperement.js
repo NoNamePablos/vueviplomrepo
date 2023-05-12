@@ -22,9 +22,18 @@ export const useExperement=(props)=> {
         title:"code block 1",
         typeOfTest:'',
         code_block: "",
+        rating:{
+            winner:false,
+            pos:0,
+        },
         benchmarks:{
             startIndex:0,
             endIndex:0,
+        },
+        statistics:{
+          min:0,
+          max:0,
+          average:0,
         },
         result:[],
         runTimeTest:[],
@@ -33,9 +42,19 @@ export const useExperement=(props)=> {
         title:"code block 2",
         code_block: "",
         typeOfTest:'',
+
+        rating:{
+            winner:false,
+            pos:0,
+        },
         benchmarks:{
             startIndex:0,
             endIndex:0,
+        },
+        statistics:{
+            min:0,
+            max:0,
+            average:0,
         },
         result:[],
         runTimeTest:[],
@@ -53,11 +72,22 @@ export const useExperement=(props)=> {
             id: lastIndex + 1,
             title: "code block " + (codeBlocks.value.length + 1),
             code_block: "",
+            typeOfTest:'',
+            rating:{
+                winner:false,
+                pos:0,
+            },
             benchmarks:{
                 startIndex:0,
                 endIndex:0,
             },
-            result: []
+            statistics:{
+                min:0,
+                max:0,
+                average:0,
+            },
+            result: [],
+            runTimeTest:[],
         };
         codeBlocks.value.push(obj);
     }
@@ -95,18 +125,48 @@ export const useExperement=(props)=> {
         }
     }
 
-    const calcResult=()=>{
-        codeBlocks.value.forEach((block)=>{
+    const calculationAverage=()=>{
+        //рефакторить нужно по хорошему;
+        codeBlocks.value.map((code)=>{
+                let avg=0;
+                if(code.result.runTime){
+                    const average=[...code.result].map((item)=>{
+                        avg+=item.runTime;
+                        item=item.runTime;
+                        return item;
+                    });
+                    code.statistics.average=avg/code.result.length;
+                    code.statistics.max=Math.max(...average);
+                    code.statistics.min=Math.min(...average);
+                }else{
 
+                    const average=[...code.result].map((item)=>{
+                        avg+=item.counter;
+                        item=item.counter;
+                        return item;
+                    });
+                    code.statistics.average=avg/code.result.length;
+                    code.statistics.max=Math.max(...average);
+                    code.statistics.min=Math.min(...average);
+                }
         })
     }
+    const sortedCalcResults=ref([]);
 
-  /*  const calcResult=()=>{
-        for (var o of (this.model.winnerBlockId = e.id,
-            this.model.codeBlocks))
-            o.result.percent = Math.round(100 / t * o.result.amountOfRounds * 100) / 100
-    }*/
+    const calcResults=()=>{
+        calculationAverage();
+        let sortedArr=[];
+        /*codeBlocks.value.map(code=>sortedArr.push({id:code.id,stat:code.statistics}));*/
+     /*   codeBlocks.value.sort((a,b)=>{
+            return a.statistics.average - b.statistics.average;
+        })*/
+        sortedCalcResults.value=codeBlocks.value.toSorted((a,b)=>{
+            return a.statistics.average - b.statistics.average;
+        });
+        console.log("sortedArr before: : ",);
 
+
+    }
     const runTests2=async ()=>{
         console.log("Zero");
         state.app.testProgress = 0;
@@ -204,7 +264,7 @@ export const useExperement=(props)=> {
         let completedTests=0;
         showTestInProgress.value=true;
         sleep(1e3).then(()=>{
-            codeBlocks.value.map(async (codeBlock) => {
+            return Promise.all(codeBlocks.value.map(async (codeBlock) => {
                 codeBlock.result = [];
                 for (let i = codeBlock.benchmarks.startIndex; i <= codeBlock.benchmarks.endIndex; i++) {
                     codeBlock.result.percent = 0;
@@ -215,11 +275,17 @@ export const useExperement=(props)=> {
                     if (state.app.testProgress >= 100 && (state.app.testProgress = 100)) {
                         showTestInProgress.value=false;
                     }
-                    await sleep(state.model.pausePerBlock);
+                    await sleep(20);
                 }
-                console.log("code block: ",codeBlocks.value);
-            })
-        })
+                // Возвращаем новый промис для обработки результатов выполнения кода внутри
+                return Promise.resolve();
+
+            }))
+        }).then(() => {
+            // Код для обработки результатов выполнения map()
+            console.log(codeBlocks.value);
+            calcResults();
+        });
     }
 
 
@@ -292,6 +358,6 @@ export const useExperement=(props)=> {
         }
     }
 
-    return{state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}
+    return{sortedCalcResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}
 
 }

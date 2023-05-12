@@ -8,6 +8,11 @@
     <div class="experement-result-item__title">
       {{title}}
     </div>
+    <div class="experement-result-item__stats">
+      <div class="stat-item">
+        avg: {{block.statistics.average}}
+      </div>
+    </div>
     <progress-bar :count="percent" />
   </div>
 </template>
@@ -16,6 +21,10 @@
 import ProgressBar from "@/components/ProgressBar/ProgressBar.vue";
 
 const props=defineProps({
+  block:{
+    type:Object,
+    required:true,
+  },
   title:{
     type:String,
     required:true,
