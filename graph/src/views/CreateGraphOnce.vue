@@ -2,7 +2,7 @@
   <BaseLayout :add-class="['is-full']">
     <div :class="['wrapper',{'wrapper-centered':isSaveGraph}]" >
       <base-tab-wrapper  v-show="!isSaveGraph" :tabs="tabGraph" :selected-tab="selectedGraphTab" @change-tab="changeGraphTab">
-        <base-tab-item v-if="selectedGraphTab==='CreateGraph'">
+        <base-tab-item v-if="selectedGraphTab==='CreateGraph'" :showed="selectedGraphTab==='CreateGraph'">
           <h3 class="tab-item__name">
             Создание графиков
           </h3>
@@ -36,7 +36,7 @@
             </base-form>
           </div>
         </base-tab-item>
-        <base-tab-item v-if="selectedGraphTab==='SetLinks'">
+        <base-tab-item v-if="selectedGraphTab==='SetLinks'" :showed="selectedGraphTab==='SetLinks'">
           <h3 class="tab-item__name">
             Связи
           </h3>
@@ -127,7 +127,7 @@ const exportGraphData=()=>{
 }
 const loadData=ref({});
 const isSaveGraph=ref(false);
-onBeforeMount(()=>{
+/*onBeforeMount(()=>{
   let hiddenParent=document.querySelector('.chart-component-graph');
   let hiddenObject=hiddenParent.querySelector('.chart-component-graph-hidden');
   if(hiddenObject.textContent!=""){
@@ -165,7 +165,7 @@ onBeforeMount(()=>{
       }
     }
   }
-})
+})*/
 
 //Ссылки на селекты
 const selectFiledSourceRef=ref(null);

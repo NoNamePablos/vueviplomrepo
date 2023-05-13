@@ -65,7 +65,7 @@ const exportChartData=()=>{
   hiddenParent.querySelector('.chart-component-hidden').textContent=json;
 }
 const loadData=ref({});
-onBeforeMount(()=>{
+/*onBeforeMount(()=>{
   let hiddenParent=document.querySelector('.chart-component');
   if(hiddenParent)return;
   let hiddenObject=hiddenParent.querySelector('.chart-component-hidden');
@@ -96,7 +96,7 @@ onBeforeMount(()=>{
       }
     }
   }
-})
+})*/
 const handleSubmit=()=>{
   if(chartNode.value.title&&chartNode.value.value){
     appendChartItem();
