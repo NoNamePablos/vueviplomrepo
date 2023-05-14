@@ -22,12 +22,13 @@ import ExperementResultItem from "@/components/ExperementalComponents/Experement
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
 import {radiogroupExperements} from "@/utils/radiogroup.routes";
 import ExperementChart from "@/components/ExperementalComponents/ExperementChart.vue";
+import ExperementalList from "@/components/ExperementalComponents/ExperementalList.vue";
 
 
 // Status is available at all times via Codemirror EditorView
 
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
-const {sortedCalcResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
+const {isEnabledResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
 
 
 
@@ -202,10 +203,14 @@ const handleTests=()=>{
           </div>
         </div>
 
-        <div class="" v-if="!showTestInProgress">
-<!--         Разобраться с винером и сортировкой -->
-          <experement-result-item :block="result" :title="result.title" :percent="0" v-for="result in codeBlocks" :winner="result.id=sortedCalcResults[0].value.id" />
+        <!--         Разобраться с винером и сортировкой -->
+        <div class="" v-if="isEnabledResults">
+          <experemental-list :blocks="codeBlocks"/>
+          <!--          <experement-result-item :block="result" :title="result.title" :percent="0" v-for="result in codeBlocks"  />-->
 <!--          <ExperementChart :data="codeBlocks" :sorted-data="sortedCalcResults" ></ExperementChart>-->
+        </div>
+        <div v-else>
+          <h4>Тут будут результаты тестирования!</h4>
         </div>
       </Layout>
   </BaseLayout>

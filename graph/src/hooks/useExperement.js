@@ -2,7 +2,7 @@ import {computed, reactive, ref} from "vue";
 import {radiogroup, radiogroupExperements} from "@/utils/radiogroup.routes";
 
 export const useExperement=(props)=> {
-
+    const isEnabledResults=ref(false);
     const testsRounds=ref(0);
     const doc=ref(null);
     const autoStartTimer=reactive(null);
@@ -25,6 +25,7 @@ export const useExperement=(props)=> {
         rating:{
             winner:false,
             pos:0,
+
         },
         benchmarks:{
             startIndex:0,
@@ -155,17 +156,42 @@ export const useExperement=(props)=> {
 
     const calcResults=()=>{
         calculationAverage();
-        let sortedArr=[];
-        /*codeBlocks.value.map(code=>sortedArr.push({id:code.id,stat:code.statistics}));*/
-     /*   codeBlocks.value.sort((a,b)=>{
-            return a.statistics.average - b.statistics.average;
-        })*/
-        sortedCalcResults.value=codeBlocks.value.toSorted((a,b)=>{
+        console.log("dfsad");
+        let arrsort= codeBlocks.value.toSorted((a,b)=>{
             return a.statistics.average - b.statistics.average;
         });
-        console.log("sortedArr before: : ",);
-
-
+        for (let i=0;i<codeBlocks.value.length;i++){
+            console.log("iidd");
+            console.log("arr: ",arrsort);
+            for (let j=0;j<arrsort.length;j++){
+                console.log("arrs j : ",arrsort[j]);
+                if(codeBlocks.value[i].id===arrsort[j].id){
+                    console.log("arsprt finded: ");
+                    codeBlocks.value[i].rating.pos=j;
+                    console.log("arsoty reset pos : ",codeBlocks.value[i]);
+                    if(j===0){
+                        codeBlocks.value[i].rating.winner=true;
+                    }
+                    codeBlocks.value[i].result.percent=0;
+                    console.log("finmssd: ", codeBlocks.value.find((item)=>item.rating.winner));
+                    console.log("fsdf: ",codeBlocks.value.find((item)=>item.rating.winner).statistics.average );
+                    if(codeBlocks.value[i].statistics.average>codeBlocks.value.find((item)=>item.rating.winner).statistics.average){
+                        console.log("1111");
+                        console.log("/: ",Math.round(codeBlocks.value[i].statistics.average/codeBlocks.value.find((item)=>item.rating.winner).statistics.average));
+                        console.log("100%/kf: ",100/Math.round(codeBlocks.value[i].statistics.average/codeBlocks.value.find((item)=>item.rating.winner).statistics.average));
+                        console.log("calc percent: ",Math.round(100 / codeBlocks.value[i].statistics.average/codeBlocks.value.find((item)=>item.rating.winner).statistics.average * 100) / 100 );
+                    }else{
+                        console.log("/: ",Math.round(codeBlocks.value.find((item)=>item.rating.winner).statistics.average  / codeBlocks.value[i].statistics.average));
+                        console.log("100%/kf: ",100/Math.round(codeBlocks.value.find((item)=>item.rating.winner).statistics.average  / codeBlocks.value[i].statistics.average));
+                        console.log("calc percent: ",Math.round(100 / codeBlocks.value.find((item)=>item.rating.winner).statistics.average  * codeBlocks.value[i].statistics.average * 100) / 100 );
+                    }
+                }
+            }
+        }
+        /*sortedCalcResults.value=codeBlocks.value.toSorted((a,b)=>{
+            return a.statistics.average - b.statistics.average;
+        });*/
+        /*console.log("sortedArr before: : ",);*/
     }
     const runTests2=async ()=>{
         console.log("Zero");
@@ -263,6 +289,7 @@ export const useExperement=(props)=> {
         const totalTests=codeBlocks.value.length*state.app.countRounds;
         let completedTests=0;
         showTestInProgress.value=true;
+        isEnabledResults.value=false;
         sleep(1e3).then(()=>{
             return Promise.all(codeBlocks.value.map(async (codeBlock) => {
                 codeBlock.result = [];
@@ -282,6 +309,7 @@ export const useExperement=(props)=> {
 
             }))
         }).then(() => {
+            isEnabledResults.value=true;
             // Код для обработки результатов выполнения map()
             console.log(codeBlocks.value);
             calcResults();
@@ -358,6 +386,6 @@ export const useExperement=(props)=> {
         }
     }
 
-    return{sortedCalcResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}
+    return{isEnabledResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}
 
 }

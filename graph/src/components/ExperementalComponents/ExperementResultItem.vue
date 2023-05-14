@@ -6,39 +6,38 @@
       </svg>
     </div>
     <div class="experement-result-item__title">
-      {{title}}
+      {{block?.title}}
     </div>
     <div class="experement-result-item__stats">
       <div class="stat-item">
-        avg: {{block.statistics.average}}
+        avg: {{block?.statistics?.average}}
       </div>
     </div>
-    <progress-bar :count="percent" />
+<!--    <progress-bar :count="percent" />-->
   </div>
 </template>
 
 <script setup>
 import ProgressBar from "@/components/ProgressBar/ProgressBar.vue";
+import {computed} from "vue";
 
 const props=defineProps({
   block:{
     type:Object,
     required:true,
   },
-  title:{
-    type:String,
-    required:true,
-  },
   percent:{
     type:Number,
     required:false,
-    default:0,
   },
   winner:{
     type:Boolean,
     required:false,
   }
 })
+
+/*const isWinner=computed(()=>)*/
+
 </script>
 
 <style lang="scss" scoped>
