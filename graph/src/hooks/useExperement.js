@@ -16,17 +16,16 @@ export const useExperement=(props)=> {
         loadLibraryIntoIframe("https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.min.js");
         console.log("scripts is loaded");
     }
+    const resultBlock=ref({
+        winnerId:-1,
+        looserId:-1
+    })
     const  runTimeTest=ref([]);
     const codeBlocks=ref([{
         id:1,
         title:"code block 1",
         typeOfTest:'',
         code_block: "",
-        rating:{
-            winner:false,
-            pos:0,
-
-        },
         benchmarks:{
             startIndex:0,
             endIndex:0,
@@ -35,6 +34,7 @@ export const useExperement=(props)=> {
           min:0,
           max:0,
           average:0,
+            percent:0,
         },
         result:[],
         runTimeTest:[],
@@ -43,11 +43,6 @@ export const useExperement=(props)=> {
         title:"code block 2",
         code_block: "",
         typeOfTest:'',
-
-        rating:{
-            winner:false,
-            pos:0,
-        },
         benchmarks:{
             startIndex:0,
             endIndex:0,
@@ -56,6 +51,8 @@ export const useExperement=(props)=> {
             min:0,
             max:0,
             average:0,
+            percent:0,
+
         },
         result:[],
         runTimeTest:[],
@@ -72,12 +69,8 @@ export const useExperement=(props)=> {
         const obj = {
             id: lastIndex + 1,
             title: "code block " + (codeBlocks.value.length + 1),
-            code_block: "",
             typeOfTest:'',
-            rating:{
-                winner:false,
-                pos:0,
-            },
+            code_block: "",
             benchmarks:{
                 startIndex:0,
                 endIndex:0,
@@ -86,8 +79,10 @@ export const useExperement=(props)=> {
                 min:0,
                 max:0,
                 average:0,
+                percent:0,
+
             },
-            result: [],
+            result:[],
             runTimeTest:[],
         };
         codeBlocks.value.push(obj);
@@ -156,42 +151,21 @@ export const useExperement=(props)=> {
 
     const calcResults=()=>{
         calculationAverage();
-        console.log("dfsad");
+        let slowBlock = codeBlocks.value.reduce((e, t) => e.statistics.average > t.statistics.average ? e : t);
+        let slowBlockAvg = slowBlock.statistics.average;
         let arrsort= codeBlocks.value.toSorted((a,b)=>{
             return a.statistics.average - b.statistics.average;
         });
-        for (let i=0;i<codeBlocks.value.length;i++){
-            console.log("iidd");
-            console.log("arr: ",arrsort);
-            for (let j=0;j<arrsort.length;j++){
-                console.log("arrs j : ",arrsort[j]);
-                if(codeBlocks.value[i].id===arrsort[j].id){
-                    console.log("arsprt finded: ");
-                    codeBlocks.value[i].rating.pos=j;
-                    console.log("arsoty reset pos : ",codeBlocks.value[i]);
-                    if(j===0){
-                        codeBlocks.value[i].rating.winner=true;
-                    }
-                    codeBlocks.value[i].result.percent=0;
-                    console.log("finmssd: ", codeBlocks.value.find((item)=>item.rating.winner));
-                    console.log("fsdf: ",codeBlocks.value.find((item)=>item.rating.winner).statistics.average );
-                    if(codeBlocks.value[i].statistics.average>codeBlocks.value.find((item)=>item.rating.winner).statistics.average){
-                        console.log("1111");
-                        console.log("/: ",Math.round(codeBlocks.value[i].statistics.average/codeBlocks.value.find((item)=>item.rating.winner).statistics.average));
-                        console.log("100%/kf: ",100/Math.round(codeBlocks.value[i].statistics.average/codeBlocks.value.find((item)=>item.rating.winner).statistics.average));
-                        console.log("calc percent: ",Math.round(100 / codeBlocks.value[i].statistics.average/codeBlocks.value.find((item)=>item.rating.winner).statistics.average * 100) / 100 );
-                    }else{
-                        console.log("/: ",Math.round(codeBlocks.value.find((item)=>item.rating.winner).statistics.average  / codeBlocks.value[i].statistics.average));
-                        console.log("100%/kf: ",100/Math.round(codeBlocks.value.find((item)=>item.rating.winner).statistics.average  / codeBlocks.value[i].statistics.average));
-                        console.log("calc percent: ",Math.round(100 / codeBlocks.value.find((item)=>item.rating.winner).statistics.average  * codeBlocks.value[i].statistics.average * 100) / 100 );
-                    }
-                }
+        for (let block of codeBlocks.value) {
+            if(block.id===arrsort[0].id){
+                resultBlock.value.winnerId=arrsort[0].id;
             }
+            if(block.id===slowBlock.id){
+                resultBlock.value.looserId=slowBlock.id;
+            }
+            block.statistics.percent = Math.round(100 / slowBlockAvg * block.statistics.average * 100) / 100;
         }
-        /*sortedCalcResults.value=codeBlocks.value.toSorted((a,b)=>{
-            return a.statistics.average - b.statistics.average;
-        });*/
-        /*console.log("sortedArr before: : ",);*/
+        console.log("finish calc: ",codeBlocks.value);
     }
     const runTests2=async ()=>{
         console.log("Zero");
@@ -386,6 +360,6 @@ export const useExperement=(props)=> {
         }
     }
 
-    return{isEnabledResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}
+    return{resultBlock,isEnabledResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}
 
 }

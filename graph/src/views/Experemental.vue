@@ -28,7 +28,7 @@ import ExperementalList from "@/components/ExperementalComponents/ExperementalLi
 // Status is available at all times via Codemirror EditorView
 
 const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
-const {isEnabledResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
+const {resultBlock,isEnabledResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
 
 
 
@@ -205,7 +205,7 @@ const handleTests=()=>{
 
         <!--         Разобраться с винером и сортировкой -->
         <div class="" v-if="isEnabledResults">
-          <experemental-list :blocks="codeBlocks"/>
+          <experemental-list :blocks="codeBlocks" :result-block="resultBlock"/>
           <!--          <experement-result-item :block="result" :title="result.title" :percent="0" v-for="result in codeBlocks"  />-->
 <!--          <ExperementChart :data="codeBlocks" :sorted-data="sortedCalcResults" ></ExperementChart>-->
         </div>
