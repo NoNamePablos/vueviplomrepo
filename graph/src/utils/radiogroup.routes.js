@@ -33,11 +33,5 @@ export const radiogroupExperements=reactive([
         radiotype:'experement',
         selected:false,
     },
-    {
-        title:'Оба',
-        type:"all",
-        radiotype:'experement',
-        selected:false,
-    },
 ])
 

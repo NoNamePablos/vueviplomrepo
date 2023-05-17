@@ -14,7 +14,10 @@
     </div>
     <div class="experement-result-item__stats">
       <div class="stat-item">
-        avg: {{block?.statistics?.average}}
+        Среднее значение: {{block?.statistics?.average}}
+      </div>
+      <div class="stat-item" v-if="isWinner!==0">
+        Быстрее на: {{isWinner}}%
       </div>
     </div>
     <progress-bar :count="percent" />
@@ -44,7 +47,9 @@ const props=defineProps({
   }
 })
 
-/*const isWinner=computed(()=>)*/
+const isWinner=computed(()=>{
+  return props.looser!=true?100-props.percent:0;
+})
 
 </script>
 

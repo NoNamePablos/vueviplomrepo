@@ -120,22 +120,23 @@ export const useExperement=(props)=> {
             timer: finish
         }
     }
-
-    const calculationAverage=()=>{
+    const calculationAverageTime=()=>{
+        codeBlocks.value.map((code)=>{
+            let avg=0;
+            const average=[...code.result].map((item)=>{
+                avg+=item.runTime;
+                item=item.runTime;
+                return item;
+            });
+            code.statistics.average=avg/code.result.length;
+            code.statistics.max=Math.max(...average);
+            code.statistics.min=Math.min(...average);
+        })
+    }
+    const calculationAverageRounds=()=>{
         //рефакторить нужно по хорошему;
         codeBlocks.value.map((code)=>{
                 let avg=0;
-                if(code.result.runTime){
-                    const average=[...code.result].map((item)=>{
-                        avg+=item.runTime;
-                        item=item.runTime;
-                        return item;
-                    });
-                    code.statistics.average=avg/code.result.length;
-                    code.statistics.max=Math.max(...average);
-                    code.statistics.min=Math.min(...average);
-                }else{
-
                     const average=[...code.result].map((item)=>{
                         avg+=item.counter;
                         item=item.counter;
@@ -144,13 +145,17 @@ export const useExperement=(props)=> {
                     code.statistics.average=avg/code.result.length;
                     code.statistics.max=Math.max(...average);
                     code.statistics.min=Math.min(...average);
-                }
         })
     }
     const sortedCalcResults=ref([]);
 
-    const calcResults=()=>{
-        calculationAverage();
+    const calcResults=(isTime=false)=>{
+        if(isTime){
+            calculationAverageTime();
+        }
+        else{
+            calculationAverageRounds();
+        }
         let slowBlock = codeBlocks.value.reduce((e, t) => e.statistics.average > t.statistics.average ? e : t);
         let slowBlockAvg = slowBlock.statistics.average;
         let arrsort= codeBlocks.value.toSorted((a,b)=>{
@@ -165,13 +170,10 @@ export const useExperement=(props)=> {
             }
             block.statistics.percent = Math.round(100 / slowBlockAvg * block.statistics.average * 100) / 100;
         }
-        console.log("finish calc: ",codeBlocks.value);
     }
     const runTests2=async ()=>{
-        console.log("Zero");
         state.app.testProgress = 0;
         removeBenchmarkScripts();
-        /*resetResults();*/
         showTestInProgress.value = true;
         console.log(state.ui);
         iframe.value = window.document.createElement("iframe");
@@ -199,29 +201,33 @@ export const useExperement=(props)=> {
         scriptBlock.dataset.benchmark = "true";
         content.document.body.appendChild(scriptBlock);
 
-        showTestInProgress.value = true;
+        showTestInProgress.value=true;
+        isEnabledResults.value=false;
         const totalTests=codeBlocks.value.length*state.app.countRounds;
         let completedTests=0;
         //Делаем промис-таймер для разблокировки ui,для отображения preloader
         sleep(1e3).then(()=>{
-            codeBlocks.value.map(async (codeBlock) => {
+            return Promise.all(codeBlocks.value.map(async (codeBlock) => {
                 codeBlock.result = [];
                 for (let i = codeBlock.benchmarks.startIndex; i <= codeBlock.benchmarks.endIndex; i++) {
-                    codeBlock.result.percent = 0;
-                    let testTime = runTestForAmountOfTimeSecond(i);
-                    runTimeTest.value.push(testTime);
+                    let test = runTestForAmountOfTimeSecond(i);
+                    codeBlock.result.push(test);
                     completedTests++;
                     state.app.testProgress = Math.round((100 * completedTests) / totalTests);
                     if (state.app.testProgress >= 100 && (state.app.testProgress = 100)) {
                         showTestInProgress.value=false;
                     }
                     await sleep(state.model.pausePerBlock);
-
                 }
                 console.log("codeBLock: ",codeBlock)
-                console.log("rtx: ",runTimeTest.value);
-            })
-        })
+                // Возвращаем новый промис для обработки результатов выполнения кода внутри
+                return Promise.resolve();
+            }))
+        }).then(() => {
+            isEnabledResults.value=true;
+            console.log(codeBlocks.value);
+            calcResults(true);
+        });
 
     }
     const sleep= (ms)=> {
@@ -276,7 +282,7 @@ export const useExperement=(props)=> {
                     if (state.app.testProgress >= 100 && (state.app.testProgress = 100)) {
                         showTestInProgress.value=false;
                     }
-                    await sleep(20);
+                    await sleep(100);
                 }
                 // Возвращаем новый промис для обработки результатов выполнения кода внутри
                 return Promise.resolve();
