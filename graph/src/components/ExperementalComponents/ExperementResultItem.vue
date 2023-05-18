@@ -19,15 +19,30 @@
       <div class="stat-item" v-if="isWinner!==0">
         Быстрее на: {{isWinner}}%
       </div>
+      <div class="stat-list-regression">
+        <div>linear</div>
+        <div >{{resultsRegression.string}}</div>
+      </div>
+      <div class="stat-list-regression">
+        <div>Polynominal</div>
+        <div >{{resultsRegression1.string}}</div>
+      </div>
     </div>
     <progress-bar :count="percent" />
+    <div>
+
+    </div>
+    <vue-echarts    class="chart chart-chart"  @setOption="appendObject"  ref="chartstat"  :option="optChart" />
   </div>
 </template>
 
 <script setup>
 import ProgressBar from "@/components/ProgressBar/ProgressBar.vue";
-import {computed} from "vue";
+import {computed, onBeforeMount, onMounted, ref, watch} from "vue";
+import regression from 'regression';
+import {VueEcharts} from "@/components/vue-echarts";
 
+const chartstat=ref(null);
 const props=defineProps({
   block:{
     type:Object,
@@ -46,11 +61,93 @@ const props=defineProps({
     required:false,
   }
 })
-
+const appendObject=ref({
+  series:[{
+    name:"",
+    data:null,
+  },
+    {
+      name:"",
+      data:null,
+    }
+  ]
+})
+const optChart=ref({
+  xAxis: {
+    splitLine: {
+      lineStyle: {
+        type: 'dashed'
+      }
+    }
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross'
+    }
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'left'
+  },
+  yAxis: {
+    splitLine: {
+      lineStyle: {
+        type: 'dashed'
+      }
+    }
+  },
+  series: [
+    {
+      name: 'title',
+      symbolSize: 20,
+      data: null,
+      type: 'scatter'
+    },
+    {
+      name: 'title2',
+      symbolSize: 20,
+      data: null,
+      type: 'scatter'
+    }
+  ]
+});
 const isWinner=computed(()=>{
   return props.looser!=true?100-props.percent:0;
 })
 
+
+const resultsRegression=ref(null);
+const resultsRegression1=ref(null);
+watch(()=>resultsRegression.value,(newValue,oldValue)=>{
+  resultsRegression.value=newValue;
+  console.log("fgggL ",appendObject.value);
+  appendObject.value.series[0].data=resultsRegression.value.points;
+  appendObject.value.series[0].name="Linear";
+  appendObject.value.series[1].data=resultsRegression1.value.points;
+  appendObject.value.series[1].name="Polynominal";
+
+})
+onBeforeMount(()=>{
+  console.log("props block: ",props.block);
+  let a=[...props.block.result].map((item,idx)=>{
+    return [item.runTime,idx];
+  })
+  resultsRegression.value = regression.linear(a,{
+    order: 2,
+    precision: 2,
+  });
+  resultsRegression1.value = regression.polynomial(a, { order: 3 });
+  /*optChart.value.series.data=resultsRegression.value.points;*/
+})
+onMounted(()=>{
+  if(chartstat.value){
+    console.log("fsadfdsg");
+    console.log(appendObject.value);
+    chartstat.value.setOption(appendObject.value);
+    console.log(resultsRegression.value);
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -95,5 +192,9 @@ const isWinner=computed(()=>{
           display: flex;
         }
       }
+    }
+    .chart{
+      width: 500px;
+      height: 500px;
     }
 </style>

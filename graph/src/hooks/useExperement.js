@@ -282,7 +282,7 @@ export const useExperement=(props)=> {
                     if (state.app.testProgress >= 100 && (state.app.testProgress = 100)) {
                         showTestInProgress.value=false;
                     }
-                    await sleep(100);
+                    await sleep(state.model.pausePerBlock);
                 }
                 // Возвращаем новый промис для обработки результатов выполнения кода внутри
                 return Promise.resolve();
