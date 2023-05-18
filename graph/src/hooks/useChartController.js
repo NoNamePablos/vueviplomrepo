@@ -74,9 +74,12 @@ export const useChartController=()=>{
             chartType.value=radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title===''?'':radiogroup[radiogroup.findIndex((el)=>el.selected===true)].title.toLowerCase();
         }
     }
-
+    const deleteAll=()=>{
+        chartNodeList.value=[];
+        clearChartItem();
+    }
     return {
-        chartNode,chartType,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isLockedRadio,isChart
+        chartNode,chartType,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isLockedRadio,isChart,deleteAll
     }
 
 }

@@ -1,15 +1,11 @@
 <template>
   <div class="experement-chart">
-    <BaseInputClickable v-for="radio in radiogroup"  :is-locked="isLockedRadio" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
-      <div v-html="radio.component"></div>
-    </BaseInputClickable>
-    <div class="csss" >
-      <div v-for="code in data">
-        {{code.title}}
-      </div>
+    <div class="experement-chart__row">
+      <BaseInputClickable v-for="radio in radiogroup"  :is-locked="false" :selected="radio.selected"  v-model:value="chartNode.type" :title="radio.title" :name="radio.radiotype">
+        <div v-html="radio.component"></div>
+      </BaseInputClickable>
     </div>
-
-<!--    <vue-chart   :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />-->
+    <vue-chart   :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />
   </div>
 </template>
 
@@ -17,8 +13,8 @@
 import {radiogroup} from "@/utils/radiogroup.routes";
 import VueChart from "@/components/vue-echarts/VueChart.vue";
 import {useChartController} from "@/hooks/useChartController";
-import {computed, shallowRef, watch} from "vue";
-const {chartNode,chartType,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isChart}=useChartController();
+import {computed, onBeforeMount, shallowRef, watch} from "vue";
+const {chartNode,chartType,isLockedRadio,tempData,chartNodeList,clearChartItem,appendChartItem,editChartItem,deleteChartItem,isChart,deleteAll}=useChartController();
 
 const props=defineProps({
   data:{
@@ -33,27 +29,41 @@ const props=defineProps({
 
 const array=shallowRef(props.data);
 
-const graphComp=computed({
-  get(){
+const reInitGraphic=()=>{
 
-  },
-  set(_val){
-
-  }
-})
-watch(()=>props.data,(_ntf)=>{
-  _ntf.map((item)=>{
-    /*chartNode.value.title=item.result*/
-    console.log("item: ",item);
-    item.result.map((res,id)=>{
-      console.log("dd: ",{title:id,value:res.counter})
-    })
+  deleteAll();
+  props.data.map((item)=>{
+    chartNode.value.value=item.statistics.average;
+    chartNode.value.title=item.title;
+    console.log("chartMode: ",chartNode.value);
+    appendChartItem();
   })
-},{deep:true})
+}
+watch(()=>chartNode.value.type,(newValue,oldValue)=>{
+  console.log("changed: ",newValue);
+  /*chartNode.value.type=newValue;*/
+  reInitGraphic();
+
+})
+
+onBeforeMount(()=>{
+  props.data.map((item)=>{
+    chartNode.value.value=item.statistics.average;
+    chartNode.value.title=item.title;
+    appendChartItem();
+  })
+})
 </script>
 
 <style lang="scss" scoped>
   .experement-chart{
-
+    &__row{
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+      @media screen and (max-width:1279px) {
+        flex-direction: column;
+      }
+    }
   }
 </style>

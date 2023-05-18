@@ -14,7 +14,7 @@
     </div>
     <div class="experement-result-item__stats">
       <div class="stat-item">
-        Среднее значение: {{block?.statistics?.average}}
+        Среднее значение: {{block?.statistics?.average.toFixed(2)}}
       </div>
       <div class="stat-item" v-if="isWinner!==0">
         Быстрее на: {{isWinner}}%

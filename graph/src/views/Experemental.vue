@@ -207,7 +207,7 @@ const handleTests=()=>{
         <div class="" v-if="isEnabledResults">
           <experemental-list :blocks="codeBlocks" :result-block="resultBlock"/>
           <!--          <experement-result-item :block="result" :title="result.title" :percent="0" v-for="result in codeBlocks"  />-->
-<!--          <ExperementChart :data="codeBlocks" :sorted-data="sortedCalcResults" ></ExperementChart>-->
+
         </div>
         <div v-else>
           <h4>Тут будут результаты тестирования!</h4>
