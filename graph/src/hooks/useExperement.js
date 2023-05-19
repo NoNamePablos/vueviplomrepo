@@ -111,14 +111,41 @@ export const useExperement=(props)=> {
         }
     }
     const runTestForAmountOfTimeSecond=(idx)=>{
-        let functionCall = "benchmark_" + idx;
-        let start = performance.now();
-        iframe.value.contentWindow[functionCall]();
-        let finish = performance.now();
+        return new Promise((resolve, reject) => {
+            let functionCall = "benchmark_" + idx;
+            let totalTime = 0;
+            let numExecutions = 0;
+
+            let startTime = performance.now();
+
+            const loop = (timestamp) => {
+                iframe.value.contentWindow[functionCall]();
+
+                const currentTime = performance.now();
+                const elapsedTime = currentTime - startTime;
+
+                if (elapsedTime < 1000 && numExecutions < 3) {
+                    totalTime += currentTime - startTime;
+                    numExecutions++;
+                    startTime = currentTime;
+                    window.requestAnimationFrame(loop);
+                } else {
+                    const averageRunTime = totalTime / numExecutions;
+                    resolve({
+                        runTime: averageRunTime,
+                        timer: performance.now()
+                    });
+                }
+            };
+
+            window.requestAnimationFrame(loop);
+        });
+
+/*
         return{
             runTime: finish - start,
             timer: finish
-        }
+        }*/
     }
     const calculationAverageTime=()=>{
         codeBlocks.value.map((code)=>{
@@ -185,16 +212,10 @@ export const useExperement=(props)=> {
         loadScripts();
         const scriptBlock = document.createElement("script");
         let s = "";
-        let roundId = 0;
         //Создаём функции для тестирования
         for (let item of codeBlocks.value) {
-            item.benchmarks.startIndex = roundId;
-            for (let round = 0; round < state.app.countRounds; round++) {
-                let i = "function benchmark_" + roundId + "() {" + item.code_block + "}";
-                s += i;
-                roundId++;
-            }
-            item.benchmarks.endIndex = roundId - 1;
+            let i = "function benchmark_" + item.id + "() {" + item.code_block + "}";
+            s += i;
         }
         scriptBlock.type = "text/javascript";
         scriptBlock.text = s;
@@ -209,9 +230,16 @@ export const useExperement=(props)=> {
         sleep(1e3).then(()=>{
             return Promise.all(codeBlocks.value.map(async (codeBlock) => {
                 codeBlock.result = [];
-                for (let i = codeBlock.benchmarks.startIndex; i <= codeBlock.benchmarks.endIndex; i++) {
-                    let test = runTestForAmountOfTimeSecond(i);
-                    codeBlock.result.push(test);
+                for (let i = 0; i < state.app.countRounds; i++) {
+                    let test = runTestForAmountOfTimeSecond(codeBlock.id);
+                    test.then((res)=>{
+                        if(res.runTime!==0&&!isNaN(res.runTime)){
+                            codeBlock.result.push(res);
+                        }
+
+                    })
+                    console.log("TTTTTTEST: ",codeBlock.result);
+
                     completedTests++;
                     state.app.testProgress = Math.round((100 * completedTests) / totalTests);
                     if (state.app.testProgress >= 100 && (state.app.testProgress = 100)) {
@@ -226,6 +254,7 @@ export const useExperement=(props)=> {
         }).then(() => {
             isEnabledResults.value=true;
             console.log(codeBlocks.value);
+
             calcResults(true);
         });
 

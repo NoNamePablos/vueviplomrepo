@@ -69,6 +69,14 @@ const appendObject=ref({
     {
       name:"",
       data:null,
+    },
+    {
+      name:"",
+      data: null,
+    },
+    {
+      name:"",
+      data: null,
     }
   ]
 })
@@ -109,6 +117,18 @@ const optChart=ref({
       symbolSize: 20,
       data: null,
       type: 'scatter'
+    },
+    {
+      name:"title",
+      data: null,
+      type: 'line',
+      smooth: true
+    },
+    {
+      name:"title",
+      data: null,
+      type: 'line',
+      smooth: true
     }
   ]
 });
@@ -122,22 +142,36 @@ const resultsRegression1=ref(null);
 watch(()=>resultsRegression.value,(newValue,oldValue)=>{
   resultsRegression.value=newValue;
   console.log("fgggL ",appendObject.value);
+  let arr=[];
+  let arr1=[];
+ /* for (let i=0;i<20;i+=1){
+    arr.push(resultsRegression.value.equation[0*](i/0.005)+resultsRegression.value.equation[1]);
+    arr1.push(resultsRegression1.value.equation[0]*(i/0.005)+resultsRegression1.value.equation[1])
+    console.log("arr: ",arr);
+  }*/
   appendObject.value.series[0].data=resultsRegression.value.points;
   appendObject.value.series[0].name="Linear";
+ /* appendObject.value.series[2].data=arr;
+  appendObject.value.series[2].name="Linear line";*/
   appendObject.value.series[1].data=resultsRegression1.value.points;
   appendObject.value.series[1].name="Polynominal";
+/*  appendObject.value.series[3].data=arr1;
+  appendObject.value.series[3].name="Polynominal line";*/
 
 })
 onBeforeMount(()=>{
   console.log("props block: ",props.block);
   let a=[...props.block.result].map((item,idx)=>{
-    return [item.runTime,idx];
+    return [item.runTime?item.runTime:item.counter,item.timer];
   })
+  console.log("aaaa: ",a);
   resultsRegression.value = regression.linear(a,{
-    order: 2,
-    precision: 2,
+    order: 4,
+    precision: 6,
   });
-  resultsRegression1.value = regression.polynomial(a, { order: 3 });
+  console.log("regressin value: ",resultsRegression.value);
+  resultsRegression1.value = regression.polynomial(a, { order: 2, precision: 5, });
+  console.log("regressin value: polku  ",resultsRegression1.value);
   /*optChart.value.series.data=resultsRegression.value.points;*/
 })
 onMounted(()=>{
