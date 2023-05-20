@@ -16,17 +16,14 @@ button[type=button]{
 button.button-active{
     background-color: #2d69e8;
     color: white;
-    transition: all 0.3s cubic-bezier(.26,.88,.82,.19);
+    transition: all 0.3s ease-in-out;
 }
 button.button-active:hover {
      background-color: #0d3383;
+    -webkit-box-shadow: inset 0 0 0 1px #0d3383;
+    box-shadow: inset 0 0 0 2px #0d3383;
 }
-button.button-active:focus,
-button.button-active:focus-visible{
-             background-color: #0d3383;
-             -webkit-box-shadow: inset 0 0 0 1px #0d3383;
-             box-shadow: inset 0 0 0 2px #0d3383;
-}
+
 button.button-transparent{
     background-color: rgba(1,1,1,0);
     color: black;

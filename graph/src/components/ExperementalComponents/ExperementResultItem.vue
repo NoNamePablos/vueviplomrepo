@@ -1,6 +1,6 @@
 <template>
-  <div :class="['experement-result-item',{'experement-result-item--winner':winner},{'experement-result-item--looser':looser}]" >
-    <div class="experement-result-item__star">
+  <div :class="['experement-result-item',classObject]" >
+    <div class="experement-result-item__star" v-if="!isNeutrality">
       <svg v-if="winner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
         <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
       </svg>
@@ -12,27 +12,45 @@
     <div class="experement-result-item__title">
       {{block?.title}}
     </div>
+    <progress-bar :count="percent" />
     <div class="experement-result-item__stats">
       <div class="stat-item">
-        Среднее значение: {{block?.statistics?.average.toFixed(2)}}
+        Среднее значение:
+        <span>{{block?.statistics?.average.toFixed(2)}}</span>
       </div>
-      <div class="stat-item" v-if="isWinner!==0">
-        Быстрее на: {{isWinner}}%
-      </div>
-      <div class="stat-list-regression">
-        <div>linear</div>
-        <div >{{resultsRegression.string}}</div>
-      </div>
-      <div class="stat-list-regression">
-        <div>Polynominal</div>
-        <div >{{resultsRegression1.string}}</div>
-      </div>
-    </div>
-    <progress-bar :count="percent" />
-    <div>
+      <accordion>
+        <template #button>
+          <base-button :classes="['button-active']" >Детальная статистика</base-button>
+        </template>
+        <template #content>
+
+          <div class="stat-item">
+            Max:
+            <span>{{block?.statistics?.max.toFixed(2)}}</span>
+          </div>
+          <div class="stat-item">
+            Min:
+            <span>{{block?.statistics?.min.toFixed(2)}}</span>
+          </div>
+          <div class="stat-item" v-if="isWinner!==0">
+            Быстрее на: {{isWinner}}%
+          </div>
+          <div class="stat-list-regression">
+            <div>Формула линеной функции</div>
+            <div >{{resultsRegression.string}}</div>
+          </div>
+          <div class="stat-list-regression">
+            <div>Формула полиномальной функции</div>
+            <div >{{resultsRegression1.string}}</div>
+          </div>
+          <vue-echarts    class="chart chart-chart"  @setOption="appendObject"  ref="chartstat" v-if="resultsRegression.points.length>0" :option="optChart" />
+          <span class="error" v-else>Пожалуста,заново протестируйте для обновления данных</span>
+        </template>
+      </accordion>
 
     </div>
-    <vue-echarts    class="chart chart-chart"  @setOption="appendObject"  ref="chartstat"  :option="optChart" />
+    <div>
+    </div>
   </div>
 </template>
 
@@ -41,6 +59,13 @@ import ProgressBar from "@/components/ProgressBar/ProgressBar.vue";
 import {computed, onBeforeMount, onMounted, ref, watch} from "vue";
 import regression from 'regression';
 import {VueEcharts} from "@/components/vue-echarts";
+import BaseButton from "@/components/ui/BaseButton.vue";
+import Accordion from "@/components/Accordion/Accordion.vue";
+const classObject = computed(() => ({
+  'experement-result-item--winner':props.winner&&!isNeutrality.value,
+  'experement-result-item--looser': props.looser&&!isNeutrality.value,
+  'experement-result-item--neutrallity':isNeutrality.value
+}))
 
 const chartstat=ref(null);
 const props=defineProps({
@@ -135,57 +160,51 @@ const optChart=ref({
 const isWinner=computed(()=>{
   return props.looser!=true?100-props.percent:0;
 })
-
-
 const resultsRegression=ref(null);
 const resultsRegression1=ref(null);
+const isNeutrality=ref(false);
 watch(()=>resultsRegression.value,(newValue,oldValue)=>{
+  //отловили изменение результатов регрессии,обновили график
   resultsRegression.value=newValue;
-  console.log("fgggL ",appendObject.value);
-  let arr=[];
-  let arr1=[];
- /* for (let i=0;i<20;i+=1){
-    arr.push(resultsRegression.value.equation[0*](i/0.005)+resultsRegression.value.equation[1]);
-    arr1.push(resultsRegression1.value.equation[0]*(i/0.005)+resultsRegression1.value.equation[1])
-    console.log("arr: ",arr);
-  }*/
   appendObject.value.series[0].data=resultsRegression.value.points;
   appendObject.value.series[0].name="Linear";
- /* appendObject.value.series[2].data=arr;
-  appendObject.value.series[2].name="Linear line";*/
   appendObject.value.series[1].data=resultsRegression1.value.points;
   appendObject.value.series[1].name="Polynominal";
-/*  appendObject.value.series[3].data=arr1;
-  appendObject.value.series[3].name="Polynominal line";*/
-
 })
 onBeforeMount(()=>{
-  console.log("props block: ",props.block);
+
+  if(props.looser===props.winner){
+    isNeutrality.value=true;
+  }
+
+  //перед монтированием компонента выдергиваем из массива данные под регрессию
   let a=[...props.block.result].map((item,idx)=>{
     return [item.runTime?item.runTime:item.counter,item.timer];
   })
-  console.log("aaaa: ",a);
   resultsRegression.value = regression.linear(a,{
     order: 4,
     precision: 6,
   });
-  console.log("regressin value: ",resultsRegression.value);
   resultsRegression1.value = regression.polynomial(a, { order: 2, precision: 5, });
-  console.log("regressin value: polku  ",resultsRegression1.value);
-  /*optChart.value.series.data=resultsRegression.value.points;*/
 })
 onMounted(()=>{
   if(chartstat.value){
-    console.log("fsadfdsg");
-    console.log(appendObject.value);
+    //инициализация графика
     chartstat.value.setOption(appendObject.value);
-    console.log(resultsRegression.value);
   }
 })
 </script>
 
 <style lang="scss" scoped>
+    .stat-list-regression{
+      &>div:first-child{
+        font-weight: 500;
+      }
+    }
     .experement-result-item{
+      &--neutrallity{
+        border:1px solid #009688;
+      }
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -230,5 +249,13 @@ onMounted(()=>{
     .chart{
       width: 500px;
       height: 500px;
+    }
+    .stat-item{
+      font-weight: 500;
+    }
+    .error{
+      padding: 10px 5px;
+      border-radius: 6px;
+      border: 1px solid #dc3545;
     }
 </style>
