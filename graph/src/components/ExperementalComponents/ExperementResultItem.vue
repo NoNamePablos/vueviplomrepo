@@ -12,7 +12,7 @@
     <div class="experement-result-item__title">
       {{block?.title}}
     </div>
-    <progress-bar :count="percent" />
+    <progress-bar :count="percent" v-if="!isNeutrality" />
     <div class="experement-result-item__stats">
       <div class="stat-item">
         Среднее значение:
