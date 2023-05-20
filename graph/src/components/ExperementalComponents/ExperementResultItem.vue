@@ -40,8 +40,16 @@
             <div >{{resultsRegression.string}}</div>
           </div>
           <div class="stat-list-regression">
+            <div>Точность модели(Линейная)</div>
+            <div >{{resultsRegression.r2*100}}%</div>
+          </div>
+          <div class="stat-list-regression" v-if="resultsRegression1.r2>0">
             <div>Формула полиномальной функции</div>
             <div >{{resultsRegression1.string}}</div>
+          </div>
+          <div class="stat-list-regression" v-if="resultsRegression1.r2>0">
+            <div>Точность модели(Полиномиальная)</div>
+            <div >{{resultsRegression1.r2*100}}%</div>
           </div>
           <vue-echarts    class="chart chart-chart"  @setOption="appendObject"  ref="chartstat" v-if="resultsRegression.points.length>0" :option="optChart" />
           <span class="error" v-else>Пожалуста,заново протестируйте для обновления данных</span>
@@ -168,8 +176,10 @@ watch(()=>resultsRegression.value,(newValue,oldValue)=>{
   resultsRegression.value=newValue;
   appendObject.value.series[0].data=resultsRegression.value.points;
   appendObject.value.series[0].name="Linear";
-  appendObject.value.series[1].data=resultsRegression1.value.points;
-  appendObject.value.series[1].name="Polynominal";
+  if(resultsRegression1.value.r2>0){
+    appendObject.value.series[1].data=resultsRegression1.value.points;
+    appendObject.value.series[1].name="Polynominal";
+  }
 })
 onBeforeMount(()=>{
 
@@ -185,7 +195,9 @@ onBeforeMount(()=>{
     order: 4,
     precision: 6,
   });
+  console.log("ress: ",resultsRegression.value);
   resultsRegression1.value = regression.polynomial(a, { order: 2, precision: 5, });
+  console.log("ress1: ",resultsRegression1.value);
 })
 onMounted(()=>{
   if(chartstat.value){
@@ -249,6 +261,9 @@ onMounted(()=>{
     .chart{
       width: 500px;
       height: 500px;
+      @media screen and (max-width: 600px) {
+        width: 300px;
+      }
     }
     .stat-item{
       font-weight: 500;

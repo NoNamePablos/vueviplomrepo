@@ -31,9 +31,13 @@
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scoped >
     .chart{
       width: 500px;
       height: 500px;
+      @media screen and (max-width: 600px) {
+        width: 300px;
+        height: 500px;
+      }
     }
 </style>

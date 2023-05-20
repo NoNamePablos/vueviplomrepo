@@ -153,7 +153,7 @@ const handleTests=()=>{
 
 <template>
   <BaseLayout>
-      <Layout class="graph-editor-hljs">
+      <Layout class="graph-editor-exp">
         <Overlay :is-visible="showTestInProgress" >
           <div class="rocket"> 🚀</div>
           <div style="color: white;margin-bottom: 10px;">Выбаран режим тестирования: <span style="color:#1D9FE7; background-color: white;padding: 2px 4px;border-radius: 3px;">{{codeBlocks[0].typeOfTest}}</span></div>
@@ -360,7 +360,10 @@ const handleTests=()=>{
   }
 }
 
-.graph-editor-hljs{
+.graph-editor-exp{
+  @media screen and (max-width: 1279px) {
+    display: block;
+  }
   .form-group{
     @media screen and (max-width: 1279px) {
       grid-template-columns: 1fr;

@@ -5,7 +5,7 @@
         <div v-html="radio.component"></div>
       </BaseInputClickable>
     </div>
-    <vue-chart   :type="chartType.toLowerCase()"   :options-data="chartNodeList"   />
+    <vue-chart   :type="chartType.toLowerCase()" class="experement-chart__chart"  :options-data="chartNodeList"   />
   </div>
 </template>
 
@@ -57,6 +57,9 @@ onBeforeMount(()=>{
 
 <style lang="scss" scoped>
   .experement-chart{
+    &__chart{
+
+    }
     &__row{
       margin-top: 20px;
       display: flex;
