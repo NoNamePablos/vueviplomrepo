@@ -1,16 +1,9 @@
 <script setup>
 
-import {ref, computed, toRaw, onMounted, onBeforeMount, watch, shallowRef, reactive} from "vue";
+import {ref, computed, onBeforeMount, shallowRef, reactive} from "vue";
 import BaseLayout from "@/components/BaseLayout.vue";
-
-import {languages} from "@/utils/higilight.routes";
-import {useHighlight} from "@/hooks/useHighlight";
-import VueSelect from "@/components/ui/VueSelect.vue";
 import BaseInput from "@/components/ui/BaseInput.vue";
-import BaseForm from "@/components/ui/BaseForm.vue";
-import TabContainer from "@/components/Tabs2.0/TabContainer.vue";
 import BaseButton from "@/components/ui/BaseButton.vue";
-import Toolbar from "@/components/BaseEditor/Toolbar.vue";
 import themes from "@/components/BaseEditor/themes";
 import languagesEditor  from "@/components/BaseEditor/languages";
 import Editor from "@/components/BaseEditor/Editor.vue";
@@ -18,28 +11,15 @@ import ProgressBar from "@/components/ProgressBar/ProgressBar.vue";
 import Overlay from "@/components/Overlay/Overlay.vue";
 import Layout from "@/components/Layout/Layout.vue";
 import {useExperement} from "@/hooks/useExperement";
-import ExperementResultItem from "@/components/ExperementalComponents/ExperementResultItem.vue";
 import BaseInputClickable from "@/components/ui/BaseInputClickable.vue";
 import {radiogroupExperements} from "@/utils/radiogroup.routes";
-import ExperementChart from "@/components/ExperementalComponents/ExperementChart.vue";
 import ExperementalList from "@/components/ExperementalComponents/ExperementalList.vue";
 
 
-// Status is available at all times via Codemirror EditorView
-
-const {highlightItem,selectedLanguage,hightlighting,setLanguage} =useHighlight();
 const {resultBlock,isEnabledResults,state,codeBlocks, testType,showTestInProgress,testsRounds,runTests,runTests2,addCodeBlock,removeCodeBlock,runnerTest}=useExperement();
 
 
 
-const saveGraphEditor=()=>{
-  isSaveGraph.value=true;
-}
-
-const hlcodeList=ref([])
-
-const hlCode=ref("");
-const coloredCode=ref("");
 const isSaveGraph=ref(false);
 const selectSelectItem=ref({
   name:'default',
@@ -49,37 +29,7 @@ computed(()=>{
   return selectSelectItem;
 })
 
-const exportData=ref({
-  production:true,
-  hlarray:[],
-})
-const exportDataItem=ref({
-  language:{},
-  rawCode:"",
-})
 
-const validateCheckbox=(value)=>{
-  if(value===""||value==="Выбрать"){
-    return 'Пожалуйста выберите язык'
-  }
-}
-
-const validateTextArea=(value)=>{
-  if (!value) {
-    return 'Обязательное поле'
-  }
-}
-//new component
-
-
-
-
-const loadData=ref({});
-
-const handleClear=()=>{
-  hlCode.value="";
-  selectedLanguage.value={};
-}
 const configHighlight= reactive({
   disabled: false,
   indentWithTab: true,
@@ -89,7 +39,6 @@ const configHighlight= reactive({
   language: 'javascript',
   theme:'default',
 })
-const isLockedLanguage=ref(true);
 
 const loading = shallowRef(false)
 const langCodeMap = reactive(new Map())
@@ -120,28 +69,12 @@ onBeforeMount(() => {
   // init default language & code
   ensureLanguageCode(configHighlight.language)
 })
-const codeToAdding=ref("");
-const handleSubmit=(codeBlockID)=>{
-  console.log(123);
-  console.log(codeBlocks.value[codeBlockID]);
-}
-
 ///
-
-
-
-
-
 function validateNumber(value) {
   if (value<=0) {
     return 'Значение должно быть больше 0'
   }
 }
-
-
-
-
-
 
 
 //компонент для замера времени + отрисовка графиков и тп.
@@ -202,12 +135,9 @@ const handleTests=()=>{
             <base-button :classes="['button-active']" @click="handleTests()">Запустить тесты</base-button>
           </div>
         </div>
-
         <!--         Разобраться с винером и сортировкой -->
         <div class="" v-if="isEnabledResults">
           <experemental-list :blocks="codeBlocks" :result-block="resultBlock"/>
-          <!--          <experement-result-item :block="result" :title="result.title" :percent="0" v-for="result in codeBlocks"  />-->
-
         </div>
         <div v-else>
           <h4>Тут будут результаты тестирования!</h4>

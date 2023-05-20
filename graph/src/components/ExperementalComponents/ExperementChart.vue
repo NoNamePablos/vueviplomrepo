@@ -40,10 +40,7 @@ const reInitGraphic=()=>{
   })
 }
 watch(()=>chartNode.value.type,(newValue,oldValue)=>{
-  console.log("changed: ",newValue);
-  /*chartNode.value.type=newValue;*/
   reInitGraphic();
-
 })
 
 onBeforeMount(()=>{
@@ -57,9 +54,6 @@ onBeforeMount(()=>{
 
 <style lang="scss" scoped>
   .experement-chart{
-    &__chart{
-
-    }
     &__row{
       margin-top: 20px;
       display: flex;

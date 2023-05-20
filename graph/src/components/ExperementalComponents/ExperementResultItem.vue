@@ -94,6 +94,13 @@ const props=defineProps({
     required:false,
   }
 })
+const resultsRegression=ref(null);
+const resultsRegression1=ref(null);
+const isNeutrality=ref(false);
+const isWinner=computed(()=>{
+  return props.looser!=true?100-props.percent:0;
+})
+
 const appendObject=ref({
   series:[{
     name:"",
@@ -165,12 +172,7 @@ const optChart=ref({
     }
   ]
 });
-const isWinner=computed(()=>{
-  return props.looser!=true?100-props.percent:0;
-})
-const resultsRegression=ref(null);
-const resultsRegression1=ref(null);
-const isNeutrality=ref(false);
+//Добавление на график,если изменился объект
 watch(()=>resultsRegression.value,(newValue,oldValue)=>{
   //отловили изменение результатов регрессии,обновили график
   resultsRegression.value=newValue;
@@ -195,9 +197,7 @@ onBeforeMount(()=>{
     order: 4,
     precision: 6,
   });
-  console.log("ress: ",resultsRegression.value);
   resultsRegression1.value = regression.polynomial(a, { order: 2, precision: 5, });
-  console.log("ress1: ",resultsRegression1.value);
 })
 onMounted(()=>{
   if(chartstat.value){
