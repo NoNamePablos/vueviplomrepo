@@ -1,6 +1,7 @@
 <template>
   <div  class="experemental-list">
     <experement-result-item :block="block" v-for="block in sortedArray" :looser="block.id===results.looserId" :winner="block.id===results.winnerId" :percent="block.statistics.percent"/>
+    <div class="experemental-list__item">Графическое представление:</div>
     <experement-chart :data="blocks" />
   </div>
 </template>
@@ -55,8 +56,15 @@ onBeforeMount(()=>{
 
 <style lang="scss" scoped>
 .experemental-list{
+
   &>*+*{
     margin-top: 10px;
+  }
+  &__item{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 30px;
+    line-height: 30px;
   }
 }
 </style>

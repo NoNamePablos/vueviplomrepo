@@ -66,8 +66,6 @@ const emits=defineEmits(['changeData','deleteData'])
    emits('deleteData',props.data);
  }
 
-//todo Привести карточки в порядок (Красивый визуап)
- // todo Сделать генератор JSON 1 версию
 </script>
 
 <style lang="scss" scoped>

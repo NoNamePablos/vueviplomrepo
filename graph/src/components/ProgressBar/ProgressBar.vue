@@ -1,7 +1,7 @@
 <template>
   <div class="progress-bar">
     <div class="progress-bar-text">{{count}}%</div>
-    <div class="progress-bar-upper" :style="{width:`${count}%`}"></div>
+    <div class="progress-bar-upper" :style="{width:`${count}%`}" :key="count"></div>
   </div>
 </template>
 
@@ -12,6 +12,7 @@
       required:true,
     }
   })
+
 </script>
 
 <style lang="scss" scoped>
